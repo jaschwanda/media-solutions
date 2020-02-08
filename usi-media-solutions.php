@@ -1,12 +1,34 @@
 <?php // ------------------------------------------------------------------------------------------------------------------------ //
+
 defined('ABSPATH') or die('Accesss not allowed.');
+
 /* 
-Plugin Name: Media-Solutions
-Plugin URI: https://www.usi2solve.com
-Description: The Media-Solutions plugin enables WordPress media to be stored and organized via user created upload folders, tags and categories. The Media-Solutions plugin is developed and maintained by Universal Solutions.
-Version: 1.0.0 (2016-08-27)
-Author: Jim Schwanda
-Author URI: https://www.usi2solve.com/leader
+Author:            Jim Schwanda
+Author URI:        https://www.usi2solve.com/leader
+Description:       The Media-Solutions plugin enables WordPress media to be stored and organized via user created upload folders, tags and categories. The Media-Solutions plugin is developed and maintained by Universal Solutions.
+Donate link:       https://www.usi2solve.com/donate/media-solutions
+License:           GPL-3.0
+License URI:       https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
+Plugin Name:       Media-Solutions
+Plugin URI:        https://github.com/jaschwanda/media-solutions
+Requires at least: 5.0
+Requires PHP:      5.6.25
+Tested up to:      5.3.2
+Text Domain:       usi-media-solutions
+Version:           1.1.0
+*/
+
+/*
+Media-Solutions is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
+License as published by the Free Software Foundation, either version 3 of the License, or any later version.
+ 
+Media-Solutions is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ 
+You should have received a copy of the GNU General Public License along with Media-Solutions. If not, see 
+https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
+
+Copyright (c) 2020 by Jim Schwanda.
 */
 
 // Media Manager
@@ -27,11 +49,22 @@ Author URI: https://www.usi2solve.com/leader
 // http://technet.weblineindia.com/web/wordpress-settings-api-simple-implementation-example/
 // http://www.wpbeginner.com/wp-tutorials/how-to-create-custom-post-types-in-wordpress/
 
-define('usi_ms_version', '1.0.0 (2016-08-27)');
-
 class USI_Media_Solutions {
 
-   const VERSION = 'usi_ms_version';
+   const VERSION = '1.1.0 (2020-02-08)';
+
+   const NAME       = 'Media-Solutions';
+   const PREFIX     = 'usi-media';
+   const TEXTDOMAIN = 'usi-media-solutions';
+
+   public static $options = array();
+
+   function __construct() {
+      if (empty(USI_Media_Solutions::$options)) {
+         // $defaults['preferences']['menu-sort'] = 'no';
+         // USI_Media_Solutions::$options = get_option(self::PREFIX . '-options', $defaults);
+      }
+   } // __construct();
 
 }
 
@@ -679,7 +712,7 @@ function usi_MM_settings_defaults() {
       'category' => false,
       'folder' => false,
       'tag' => false,
-      'version' => usi_ms_version
+      'version' => USI_Media_Solutions::VERSION
    );
    return(apply_filters('usi_MM_settings_defaults', $defaults));
 } // end usi_MM_settings_defaults
@@ -737,7 +770,7 @@ function usi_MM_settings_capability_callback($args) {
 } // usi_MM_settings_capability_callback();
 
 function usi_MM_settings_sanitize($value) {
-   $value['version'] = usi_ms_version;
+   $value['version'] = USI_Media_Solutions::VERSION;
    return($value);
 } // usi_MM_settings_sanitize();
  
