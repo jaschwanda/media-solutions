@@ -1,6 +1,7 @@
 # usi-media-solutions #
 
-The Media-Solutions plugin enables WordPress media to be organized and stored with user created upload folders, tags and categories. The Media-Solutions plugin is developed and maintained by Universal Solutions.
+The Media-Solutions plugin enables WordPress media to be stored and organized via user created upload folders, tags and categories. The Media-Solutions plugin is developed and maintained by Universal Solutions.
+
 
 ## Installation ##
 This module should be installed in the usi-media-solutions folder under the main WordPress plugins folder.
