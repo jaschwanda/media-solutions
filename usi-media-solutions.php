@@ -3,7 +3,7 @@ defined('ABSPATH') or die('Accesss not allowed.');
 /* 
 Plugin Name: Media-Solutions
 Plugin URI: https://www.usi2solve.com
-Description: The Media-Solutions plugin assists with organizing WordPress media. It allows the creation of folders to upload media to and media can be organized via tags and categories. The Media-Solutions plugin is developed and maintained by Universal Solutions, Inc. (USI). 
+Description: The Media-Solutions plugin enables WordPress media to be stored and organized via user created upload folders, tags and categories. The Media-Solutions plugin is developed and maintained by Universal Solutions.
 Version: 1.0.0 (2016-08-27)
 Author: Jim Schwanda
 Author URI: https://www.usi2solve.com/leader
