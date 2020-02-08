@@ -66,7 +66,47 @@ class USI_Media_Solutions {
       }
    } // __construct();
 
+   static function action_admin_notices() {
+      global $pagenow;
+      if ('plugins.php' == $pagenow) {
+        $text = sprintf(
+           __('The %s plugin is required for the %s plugin to run properly.', self::TEXTDOMAIN), 
+           '<b>WordPress-Solutions</b>',
+           '<b>Media-Solutions</b>'
+        );
+        echo '<div class="notice notice-warning is-dismissible"><p>' . $text . '</p></div>';
+      }
+   } // action_admin_notices();
+
+} // Class USI_Media_Solutions;
+
+new USI_Media_Solutions();
+
+if (is_admin() && !defined('WP_UNINSTALL_PLUGIN')) {
+   add_action('init', 'add_thickbox');
+   if (is_dir(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions')) {
+      // require_once('usi-media-solutions-settings.php'); 
+      if (!empty(USI_Media_Solutions::$options['updates']['git-update'])) {
+         require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-update.php');
+         new USI_WordPress_Solutions_Update_GitHub(__FILE__, 'jaschwanda', 'media-solutions');
+      }
+   } else {
+      add_action('admin_notices', array('USI_Media_Solutions', 'action_admin_notices'));
+   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 if (false === ($usi_ms_options = get_option('usi-ms-options'))) {
    add_option('usi-ms-options', usi_MM_settings_defaults());
