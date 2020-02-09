@@ -50,6 +50,7 @@ class USI_Media_Solutions {
    const VERSION = '1.1.0 (2020-02-08)';
 
    const NAME       = 'Media-Solutions';
+   const POSTFOLDER = 'usi-media-folders';
    const PREFIX     = 'usi-media';
    const TEXTDOMAIN = 'usi-media-solutions';
 
@@ -60,6 +61,7 @@ class USI_Media_Solutions {
    public static $options = array();
 
    function __construct() {
+
       if (empty(USI_Media_Solutions::$options)) {
          $defaults['preferences']['organize-category']   =
          $defaults['preferences']['organize-folder']     =
@@ -68,9 +70,12 @@ class USI_Media_Solutions {
          $defaults['capabilities']['create-folders']     = false;
          USI_Media_Solutions::$options = get_option(self::PREFIX . '-options', $defaults);
       }
+
+      add_action('init', array($this, 'action_init'));
+
    } // __construct();
 
-   static function action_admin_notices() {
+   private static function action_admin_notices() {
       global $pagenow;
       if ('plugins.php' == $pagenow) {
         $text = sprintf(
@@ -82,6 +87,48 @@ class USI_Media_Solutions {
       }
    } // action_admin_notices();
 
+   function action_init() {
+
+      $args = array(
+         'capability_type'    => 'post',
+         'has_archive'        => true,
+         'hierarchical'       => true,
+         'labels'             => null,
+         'menu_position'      => null,
+         'public'             => false,
+         'publicly_queryable' => false,
+         'query_var'          => false,
+         'show_in_menu'       => false,
+         'show_in_admin_bar'  => false,
+         'show_ui'            => false,
+         'supports'           => array('author', 'title')
+      );
+   
+      register_post_type(self::POSTFOLDER, $args);
+
+   } // action_init();
+
+   public static function folder_create_post($parent_id, $folder, $path_folder, $description) {
+
+      $post = array(
+         'comment_status'=> 'closed',
+         'guid'          => $_SERVER['SERVER_NAME'] . $path_folder,
+         'ping_status'   => 'closed',
+         'post_author'   => get_current_user_id(),
+         'post_content'  => $description,
+         'post_name'     => $folder,
+         'post_parent'   => $parent_id,
+         'post_status'   => 'publish',
+         'post_title'    => $path_folder,
+         'post_type'     => self::POSTFOLDER,
+      );
+
+      $post_id = wp_insert_post($post, true);
+
+      return($post_id);
+
+   } // folder_create_post()
+
 } // Class USI_Media_Solutions;
 
 new USI_Media_Solutions();
@@ -89,6 +136,7 @@ new USI_Media_Solutions();
 if (is_admin() && !defined('WP_UNINSTALL_PLUGIN')) {
    add_action('init', 'add_thickbox');
    if (is_dir(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions')) {
+      require_once('usi-media-solutions-folder.php'); 
       require_once('usi-media-solutions-settings.php'); 
       if (!empty(USI_Media_Solutions::$options['updates']['git-update'])) {
          require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-update.php');
@@ -138,7 +186,7 @@ function usi_MM_attachment_category_filter() {
    }
    if (!empty(USI_Media_Solutions::$options['preferences']['organize-category'])) {
        if ('upload' == $screen->id) {
-          $dropdown_options = array('show_option_all' => __('View all categories', 'usi-media-solutions'), 'hide_empty' => false, 'hierarchical' => true, 'orderby' => 'name');
+          $dropdown_options = array('show_option_all' => __('View all categories', USI_Media_Solutions::TEXTDOMAIN), 'hide_empty' => false, 'hierarchical' => true, 'orderby' => 'name');
           wp_dropdown_categories($dropdown_options);
       }
    }
@@ -199,6 +247,7 @@ function usi_MM_create_folder_menu_add() {
 
 } // usi_MM_create_folder_menu_add();
  
+/* 
 function usi_MM_create_folder_page() {
 ?>
   <div class="wrap">
@@ -213,23 +262,6 @@ function usi_MM_create_folder_page() {
 <?php
 } // usi_MM_create_folder_page();
 
-function usi_MM_create_folder_post($parent_id, $folder, $path_folder, $description) {
-   $post = array(
-      'comment_status'=> 'closed',
-      'guid'          => $_SERVER['SERVER_NAME'] . $path_folder,
-      'ping_status'   => 'closed',
-      'post_author'   => get_current_user_id(),
-      'post_content'  => $description,
-      'post_name'     => $folder,
-      'post_parent'   => $parent_id,
-      'post_status'   => 'publish',
-      'post_title'    => $path_folder,
-      'post_type'     => 'usi-ms-upload-folder',
-   );
-   $post_id = wp_insert_post($post, true);
-   return($post_id);
-} // usi_MM_create_folder_post()
- 
 function usi_MM_create_folder_settings() {
    if (false == get_option('usi-ms-options-create-folder')) {
       add_option('usi-ms-options-create-folder', 
@@ -329,16 +361,16 @@ function usi_MM_create_folder_settings_validate($wild) {
          $folder_message = '<span style="font-family:courier new;"> ' . $path_folder . ' </span>';
          if (!$status) {
             add_settings_error('usi-MM-create-folder-parent', esc_attr('error'), 
-               __('Folder', 'usi-media-solutions') . $folder_message . __('could not be created.', 'usi-media-solutions'), 'error');   
+               __('Folder', USI_Media_Solutions::TEXTDOMAIN) . $folder_message . __('could not be created.', USI_Media_Solutions::TEXTDOMAIN), 'error');   
          } else {
             $post_id = usi_MM_create_folder_post($parent_id, $folder, $path_folder, $description);
             if (0 < $post_id) {
                add_settings_error('usi-MM-create-folder-parent', esc_attr('updated'), 
-                  __('Folder', 'usi-media-solutions') . $folder_message . __('has been created.', 'usi-media-solutions'), 'updated');   
+                  __('Folder', USI_Media_Solutions::TEXTDOMAIN) . $folder_message . __('has been created.', USI_Media_Solutions::TEXTDOMAIN), 'updated');   
                $parent_id = $post_id;
             } else {
                add_settings_error('usi-MM-create-folder-parent', esc_attr('error'), 
-                  __('Folder', 'usi-media-solutions') . $folder_message . __('post could not be created.', 'usi-media-solutions'), 'error');   
+                  __('Folder', USI_Media_Solutions::TEXTDOMAIN) . $folder_message . __('post could not be created.', USI_Media_Solutions::TEXTDOMAIN), 'error');   
             }
          }
       }
@@ -346,7 +378,7 @@ function usi_MM_create_folder_settings_validate($wild) {
    update_user_option(get_current_user_id(), 'usi-ms-options-upload-folder', $parent_id);
    return($safe);
 } // usi_MM_create_folder_settings_validate
-
+*/
 function usi_MM_get_active() {
    if ($user_id = get_current_user_id()) {
       $usi_mm_option_active = get_user_option('usi_mm_option_active', $user_id);
@@ -453,17 +485,17 @@ function usi_MM_media_page_callback() {
 
 function usi_MM_media_row_action($actions, $object) {
    if (isset($actions['edit'])) $actions['reload_media'] = '<a href="' . 
-      admin_url('upload.php?page=usi-MM-reload-media-page&id=' . $object->ID) . '">' . __('Reload', 'usi-media-solutions') . '</a>';
+      admin_url('upload.php?page=usi-MM-reload-media-page&id=' . $object->ID) . '">' . __('Reload', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
    return($actions);
 } // usi_MM_media_row_action()
-
+/*
 function usi_MM_plugin_action_links($links, $file) {
    static $this_plugin;
    if (!$this_plugin) $this_plugin = plugin_basename(__FILE__);
    if ($file == $this_plugin) $links[] = '<a href="' . get_bloginfo('wpurl') . '/wp-admin/options-media.php">Settings</a>';
    return($links);
 } // usi_MM_plugin_action_links();
-
+*/
 function usi_MM_post_upload_ui() {
   ?>
 <div id="poststuff">
@@ -619,25 +651,6 @@ function usi_MM_post_upload_ui_terms($checked_terms) {
       <?php
    }
 } // usi_MM_post_upload_ui_terms();
-
-function usi_MM_register_folder_post() {
-   $args = array(
-      'capability_type'    => 'post',
-      'has_archive'        => true,
-      'hierarchical'       => true,
-      'labels'             => null,
-      'menu_position'      => null,
-      'public'             => false,
-      'publicly_queryable' => false,
-      'query_var'          => false,
-      'show_in_menu'       => false,
-      'show_in_admin_bar'  => false,
-      'show_ui'            => false,
-      'supports'           => array('author', 'title')
-   );
-
-   register_post_type('usi-ms-upload-folder', $args);
-} // usi_MM_register_folder_post();
  
 function usi_MM_reload_media_page() {
    $id = (int)(isset($_GET['id']) ? $_GET['id'] : 0);
@@ -816,7 +829,6 @@ add_action('admin_enqueue_scripts', 'usi_MM_add_ajax_javascript');
 //add_action('admin_init', 'usi_MM_settings_init');
 add_action('admin_menu', 'usi_MM_create_folder_menu_add');
 add_action('init', 'usi_MM_attachment_register_taxonomy');
-add_action('init', 'usi_MM_register_folder_post');
 add_action('manage_media_custom_column', 'usi_MM_library_folder_column', 10, 2);
 add_action('post-upload-ui', 'usi_MM_post_upload_ui');
 add_action('restrict_manage_posts', 'usi_MM_attachment_category_filter');
@@ -825,7 +837,7 @@ add_action('wp_ajax_usi_action_media_page_callback', 'usi_MM_media_page_callback
 add_filter('manage_media_columns', 'usi_MM_library_columns');
 add_filter('manage_upload_sortable_columns', 'usi_MM_library_columns_sortable');
 add_filter('media_row_actions', 'usi_MM_media_row_action', 10, 2);
-add_filter('plugin_action_links', 'usi_MM_plugin_action_links', 10, 2);
+//add_filter('plugin_action_links', 'usi_MM_plugin_action_links', 10, 2);
 add_filter('wp_get_attachment_url', 'usi_MM_get_attachment_url', 10, 2);
 if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
    add_filter('wp_handle_upload', 'usi_MM_handle_upload', 2);
@@ -870,7 +882,7 @@ if (!function_exists('usi_is_role_equal_or_greater')) {
 }
 
 if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
-   require_once('usi-media-folder-list.php');
+   require_once('usi-media-solutions-folder-list.php');
 }
 
 function modify_post_mime_types($post_mime_types) {

@@ -8,11 +8,13 @@ if (!class_exists('USI_List_Table')) {
 
 class usi_MM_folder_list_table extends USI_List_Table {
 
+   const VERSION = '1.1.0 (2020-02-08)';
+
    public function __construct() {
       parent::__construct(
          array(
-            'singular' => __('Folder', 'usi-media-solutions'), 
-            'plural' => __('Folders', 'usi-media-solutions'),
+            'singular' => __('Folder', USI_Media_Solutions::TEXTDOMAIN), 
+            'plural' => __('Folders', USI_Media_Solutions::TEXTDOMAIN),
             'ajax' => false
          )
       );
@@ -74,7 +76,10 @@ class usi_MM_folder_list_table extends USI_List_Table {
       $this->_column_headers = array($columns, $hidden, $sortable);
 
       $current_page = $this->get_pagenum();
-      $total_items = $wpdb->get_var("SELECT COUNT(*) FROM `{$wpdb->posts}` WHERE (`post_type` = 'usi-ms-upload-folder')");
+      $total_items = $wpdb->get_var(
+         "SELECT COUNT(*) FROM `{$wpdb->posts}`" .
+         " WHERE (`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "') OR (`post_type` = 'usi-ms-upload-folder')"
+      );
       $SAFE_per_page = (int)$this->get_items_per_page('usi_mm_option_upload_folders_per_page', 20);
       $SAFE_offset = ($current_page - 1) * $SAFE_per_page;
  
@@ -89,9 +94,13 @@ class usi_MM_folder_list_table extends USI_List_Table {
       case 'post_content': $SAFE_order_by = $order_by; break;
       }
 
-      $this->items = $wpdb->get_results("SELECT `{$wpdb->posts}`.`ID`, `{$wpdb->posts}`.`post_content`, `{$wpdb->posts}`.`post_title`, `{$wpdb->users}`.`display_name` FROM `{$wpdb->posts}` " .
-         "INNER JOIN `{$wpdb->users}` ON (`{$wpdb->users}`.`ID` = `{$wpdb->posts}`.`post_author`) " .
-         "WHERE (`{$wpdb->posts}`.`post_type` = 'usi-ms-upload-folder') ORDER BY $SAFE_order_by $SAFE_order LIMIT $SAFE_offset, $SAFE_per_page", ARRAY_A);
+      $this->items = $wpdb->get_results(
+         "SELECT `{$wpdb->posts}`.`ID`, `{$wpdb->posts}`.`post_content`, `{$wpdb->posts}`.`post_title`, `{$wpdb->users}`.`display_name` FROM `{$wpdb->posts}`" .
+         " INNER JOIN `{$wpdb->users}` ON (`{$wpdb->users}`.`ID` = `{$wpdb->posts}`.`post_author`)" .
+         " WHERE (`{$wpdb->posts}`.`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "') OR (`{$wpdb->posts}`.`post_type` = 'usi-ms-upload-folder')" .
+         " ORDER BY $SAFE_order_by $SAFE_order LIMIT $SAFE_offset, $SAFE_per_page", 
+         ARRAY_A
+      );
 
    } // prepare_items():
 
@@ -132,7 +141,7 @@ function usi_MM_upload_folders_page() {
     $title = __('Upload Folders');
     echo esc_html($title);
     if (current_user_can('upload_files') && usi_is_role_equal_or_greater($usi_mm_options['capability_create_folder'])) { ?>
-      <a href="upload.php?page=usi-MM-create-folders-page" class="add-new-h2"><?php echo esc_html_x('Add New', 'folder'); ?></a><?php
+      <a href="admin.php?page=usi-media-folder-settings" class="add-new-h2"><?php echo esc_html_x('Add New', 'folder'); ?></a><?php
     }
     ?>
     </h2>
