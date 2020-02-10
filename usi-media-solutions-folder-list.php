@@ -6,7 +6,7 @@ if (!class_exists('USI_List_Table')) {
    require_once('usi-list-table.php');
 }
 
-class usi_MM_folder_list_table extends USI_List_Table {
+class USI_Media_Solutions_Folder_List extends USI_List_Table {
 
    const VERSION = '1.1.0 (2020-02-08)';
 
@@ -70,8 +70,8 @@ class usi_MM_folder_list_table extends USI_List_Table {
    public function prepare_items() {
       global $wpdb;
 
-      $columns = $this->get_columns();
-      $hidden = $this->get_hidden_columns();
+      $columns  = $this->get_columns();
+      $hidden   = $this->get_hidden_columns();
       $sortable = $this->get_sortable_columns();
       $this->_column_headers = array($columns, $hidden, $sortable);
 
@@ -104,7 +104,7 @@ class usi_MM_folder_list_table extends USI_List_Table {
 
    } // prepare_items():
 
-} // Class usi_MM_folder_list_table;
+} // Class USI_Media_Solutions_Folder_List;
 
 function usi_MM_post_clauses($clauses, $wp_query){
    global $pagenow;
@@ -132,7 +132,7 @@ function usi_MM_posts_where($where, $wp_query) {
 
 function usi_MM_upload_folders_page() {
    global $usi_mm_options;
-   $folders = new usi_MM_folder_list_table();
+   $folders = new USI_Media_Solutions_Folder_List();
    $folders->prepare_items();
 ?>
   <div class="wrap">
@@ -140,8 +140,8 @@ function usi_MM_upload_folders_page() {
     <?php
     $title = __('Upload Folders');
     echo esc_html($title);
-    if (current_user_can('upload_files') && usi_is_role_equal_or_greater($usi_mm_options['capability_create_folder'])) { ?>
-      <a href="admin.php?page=usi-media-folder-settings" class="add-new-h2"><?php echo esc_html_x('Add New', 'folder'); ?></a><?php
+    if (current_user_can('upload_files')/* && usi_is_role_equal_or_greater($usi_mm_options['capability_create_folder'])*/) { ?>
+      <a href="admin.php?page=usi-media-folder-add-settings" class="add-new-h2"><?php echo esc_html_x('Add Upload Folder', 'folder'); ?></a><?php
     }
     ?>
     </h2>
