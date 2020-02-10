@@ -31,8 +31,11 @@ https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
 Copyright (c) 2020 by Jim Schwanda.
 */
 
+// Test upload media;
+// Test user roles on create folder and upload media;
 // Delete media
 // Reload media
+
 // Add file size to library columns
 // Select tags on Add New page.
 // Usage report
@@ -161,10 +164,12 @@ if (is_admin() && !defined('WP_UNINSTALL_PLUGIN')) {
 
 
 function usi_MM_add_ajax_javascript() {
+usi_log(__METHOD__.':'.__LINE__);
    wp_enqueue_script('ajax_custom_script', plugin_dir_url(__FILE__) . 'usi-media-solutions.js', array('jquery'));
 } // usi_MM_add_ajax_javascript();
 
 function usi_MM_attachment_category_filter() {
+usi_log(__METHOD__.':'.__LINE__);
    $screen = get_current_screen();
    if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
       if ('upload' == $screen->id) {
@@ -193,6 +198,7 @@ function usi_MM_attachment_category_filter() {
 } // usi_MM_attachment_category_filter();
 
 function usi_MM_attachment_register_taxonomy() {
+usi_log(__METHOD__.':'.__LINE__);
    if (!empty(USI_Media_Solutions::$options['preferences']['organize-category'])) register_taxonomy_for_object_type('category', 'attachment');
    if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
       global $wpdb;
@@ -204,6 +210,7 @@ function usi_MM_attachment_register_taxonomy() {
 } // usi_MM_attachment_register_taxonomy();
 
 function usi_MM_create_folder_menu_add() {
+usi_log(__METHOD__.':'.__LINE__);
 
    //const VERSION = '1.0.0 (2016-08-27)';
 
@@ -380,6 +387,7 @@ function usi_MM_create_folder_settings_validate($wild) {
 } // usi_MM_create_folder_settings_validate
 */
 function usi_MM_get_active() {
+usi_log(__METHOD__.':'.__LINE__);
    if ($user_id = get_current_user_id()) {
       $usi_mm_option_active = get_user_option('usi_mm_option_active', $user_id);
       if ('plus' != $usi_mm_option_active) {
@@ -392,21 +400,25 @@ function usi_MM_get_active() {
 } // usi_MM_get_active();
  
 function usi_MM_handle_upload($file){
+usi_log(__METHOD__.':'.__LINE__);
     remove_filter('upload_dir', 'usi_MM_upload_dir');
     return($file);
 } // usi_MM_handle_upload();
  
 function usi_MM_handle_upload_prefilter($file){
+usi_log(__METHOD__.':'.__LINE__);
     add_filter('upload_dir', 'usi_MM_upload_dir');
     return($file);
 } // usi_MM_handle_upload_prefilter();
 
 function usi_MM_library_columns_sortable($columns) {
+usi_log(__METHOD__.':'.__LINE__);
    if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) $columns['guid'] = 'guid';
    return($columns);
 } // usi_MM_library_columns_sortable();
 
 function usi_MM_library_columns($input) {
+usi_log(__METHOD__.':'.__LINE__);
    $ith = 0;
    $output = array();
    $skip_author = false;
@@ -426,6 +438,7 @@ function usi_MM_library_columns($input) {
 } // usi_MM_library_columns();
 
 function usi_MM_library_folder_column($column, $id) {
+usi_log(__METHOD__.':'.__LINE__);
    if ('guid' == $column) {
       $guid = get_post_field('guid', $id);
       $tokens = explode('/', $guid);
@@ -439,6 +452,7 @@ function usi_MM_library_folder_column($column, $id) {
 } // usi_MM_library_folder_column();
 
 function usi_MM_media_page_callback() {
+usi_log(__METHOD__.':'.__LINE__);
    $user_id = get_current_user_id();
    if (empty($_POST['item'])) wp_die('Internal error, item not given');
    switch ($_POST['item']) {
@@ -484,6 +498,7 @@ function usi_MM_media_page_callback() {
 } // usi_MM_media_page_callback();
 
 function usi_MM_media_row_action($actions, $object) {
+usi_log(__METHOD__.':'.__LINE__);
    if (isset($actions['edit'])) $actions['reload_media'] = '<a href="' . 
       admin_url('upload.php?page=usi-MM-reload-media-page&id=' . $object->ID) . '">' . __('Reload', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
    return($actions);
@@ -497,6 +512,7 @@ function usi_MM_plugin_action_links($links, $file) {
 } // usi_MM_plugin_action_links();
 */
 function usi_MM_post_upload_ui() {
+usi_log(__METHOD__.':'.__LINE__);
   ?>
 <div id="poststuff">
 <?php
@@ -636,6 +652,7 @@ jQuery(document).ready(function($) {
 } // usi_MM_post_upload_ui();
 
 function usi_MM_post_upload_ui_terms($checked_terms) {
+usi_log(__METHOD__.':'.__LINE__);
    $terms = get_terms('category', array('orderby' => 'count', 'order' => 'DESC', 'number' => 10, 'hierarchical' => false));
    $tax = get_taxonomy('category');
    foreach ((array)$terms as $term) {
@@ -653,6 +670,7 @@ function usi_MM_post_upload_ui_terms($checked_terms) {
 } // usi_MM_post_upload_ui_terms();
  
 function usi_MM_reload_media_page() {
+usi_log(__METHOD__.':'.__LINE__);
    $id = (int)(isset($_GET['id']) ? $_GET['id'] : 0);
    if (!current_user_can('edit_post', $id)) wp_die(__('You do not have sufficient permissions to access this page.'));
    $absolute_path = wp_normalize_path(get_attached_file($id));
@@ -731,6 +749,7 @@ function usi_MM_reload_media_page() {
 } // usi_MM_reload_media_page();
 
 function usi_MM_settings_defaults() {
+usi_log(__METHOD__.':'.__LINE__);
    $defaults = array(
       'allow_root' => false,
       'capability_create_folder' => 'administrator',
@@ -796,6 +815,7 @@ function usi_MM_settings_sanitize($value) {
 */
  
 function usi_MM_upload_dir($path){    
+usi_log(__METHOD__.':'.__LINE__);
    if (!empty($path['error'])) return($path);
    global $wpdb;
    $folder_id = (int)get_user_option('usi-ms-options-upload-folder', get_current_user_id());
@@ -845,6 +865,7 @@ if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
 }
 
 function usi_MM_add_attachment($id) { 
+usi_log(__METHOD__.':'.__LINE__);
    if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
       $post = get_post($id);
       add_post_meta($id, 'usi-ms-path', $post->guid, true);
@@ -860,6 +881,7 @@ function usi_MM_add_attachment($id) {
 } // usi_MM_add_attachment();
 
 function usi_MM_get_attachment_url($url, $post_id) {
+usi_log(__METHOD__.':'.__LINE__);
    if ($path = get_post_meta($post_id, 'usi-ms-path', true)) return($path);
    return($url);
 } // usi_MM_get_attachment_url();
@@ -886,6 +908,7 @@ if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
 }
 
 function modify_post_mime_types($post_mime_types) {
+usi_log(__METHOD__.':'.__LINE__);
    $post_mime_types['text/csv'] = array( __( 'CSV' ), __( 'Manage CSV' ), 
    _n_noop( 'CSV <span class="count">(%s)</span>', 'CSVs <span class="count">(%s)</span>' ) );
    $post_mime_types['application/pdf'] = array( __( 'PDFs' ), __( 'Manage PDFs1' ), 
