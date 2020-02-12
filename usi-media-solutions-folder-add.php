@@ -33,6 +33,7 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
       parent::__construct(
          array(
          // 'debug'       => 'usi_log',
+            'capability'  => 'read', 
             'name'        => $this->text['page_header'], 
             'prefix'      => USI_Media_Solutions::PREFIX . '-folder-add',
             'text_domain' => USI_Media_Solutions::TEXTDOMAIN,
@@ -114,7 +115,7 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
          );
       }
 
-      update_user_option($user_id, USI_Media_Solutions::PREFIX . '-options-parent', $parent_id);
+      update_user_option($user_id, USI_Media_Solutions::USERFOLDER, $parent_id);
 
    } // fields_sanitize();
 
@@ -133,11 +134,7 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
 
       global $wpdb;
 
-      $user_id   = get_current_user_id();
-
-      $parent_id = get_user_option(USI_Media_Solutions::PREFIX . '-options-parent', $user_id);
-
-      $this->options['settings']['parent'] = $parent_id;
+      $this->options['settings']['parent'] = USI_Media_Solutions_Folder::get_user_folder_id();
 
       $folders = $wpdb->get_results("SELECT `ID`, `post_title` FROM `{$wpdb->posts}` " .
          " WHERE (`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "') OR (`post_type` = 'usi-ms-upload-folder')" .

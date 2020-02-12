@@ -57,12 +57,17 @@ class USI_Media_Solutions {
    const VERSION = '1.1.0 (2020-02-08)';
 
    const NAME       = 'Media-Solutions';
-   const POSTFOLDER = 'usi-media-folders';
    const PREFIX     = 'usi-media';
    const TEXTDOMAIN = 'usi-media-solutions';
 
+   const POSTFOLDER = 'usi-media-folders';
+
+   const USERFOLDER = 'usi-media-options-folder';
+
    public static $capabilities = array(
-      'create-folders' => 'Create Upload Folders',
+      'create-categories' => 'Create Categories',
+      'create-folders' => 'Create Upload Folders|admin',
+      'create-tags' => 'Create Tags|admin',
    );
 
    public static $options = array();
@@ -73,8 +78,7 @@ class USI_Media_Solutions {
          $defaults['preferences']['organize-category']   =
          $defaults['preferences']['organize-folder']     =
          $defaults['preferences']['organize-allow-root'] =
-         $defaults['preferences']['organize-tag']        =
-         $defaults['capabilities']['create-folders']     = false;
+         $defaults['preferences']['organize-tag']        = false;
          USI_Media_Solutions::$options = get_option(self::PREFIX . '-options', $defaults);
       }
 

@@ -29,10 +29,13 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
    function __construct() {
 
       parent::__construct(
-         USI_Media_Solutions::NAME, 
-         USI_Media_Solutions::PREFIX, 
-         USI_Media_Solutions::TEXTDOMAIN,
-         USI_Media_Solutions::$options
+         array(
+            'name' => USI_Media_Solutions::NAME, 
+            'prefix' => USI_Media_Solutions::PREFIX, 
+            'text_domain' => USI_Media_Solutions::TEXTDOMAIN,
+            'options' => USI_Media_Solutions::$options,
+            'capabilities' => USI_Media_Solutions::$capabilities,
+         )
       );
 
    } // __construct();
@@ -94,17 +97,9 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
             ),
          ), // preferences;
 
-         'capabilities' => USI_WordPress_Solutions_Capabilities::section(
-            USI_Media_Solutions::NAME, 
-            USI_Media_Solutions::PREFIX, 
-            USI_Media_Solutions::TEXTDOMAIN,
-            USI_Media_Solutions::$capabilities,
-            USI_Media_Solutions::$options
-         ), // capabilities;
+         'capabilities' => USI_WordPress_Solutions_Capabilities::section($this),
 
-         'updates' => USI_WordPress_Solutions_Updates::section(
-            USI_Media_Solutions::TEXTDOMAIN
-         ), // updates;
+         'updates' => USI_WordPress_Solutions_Updates::section($this),
 
       );
 
