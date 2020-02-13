@@ -48,7 +48,7 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
       if (empty($input['preferences']['organize-folder'])) {
          $input['preferences']['organize-allow-root'] = false;
       }
-      return($input);
+      return(parent::fields_sanitize($input));
    } // fields_sanitize();
 
    function filter_plugin_row_meta($links, $file) {
@@ -74,6 +74,8 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
          'preferences' => array(
             'header_callback' => array($this, 'config_section_header_preferences'),
             'label' => 'Preferences',
+            'localize_labels' => 'yes',
+            'localize_notes' => 2,
             'settings' => array(
                'organize-category' => array(
                   'type' => 'checkbox', 
@@ -97,20 +99,11 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
             ),
          ), // preferences;
 
-         'capabilities' => USI_WordPress_Solutions_Capabilities::section($this),
+         'capabilities' => new USI_WordPress_Solutions_Capabilities($this),
 
          'updates' => USI_WordPress_Solutions_Updates::section($this),
 
       );
-
-      foreach ($sections as $name => & $section) {
-         foreach ($section['settings'] as $name => & $setting) {
-            if (!empty($setting['label'])) $setting['label'] = __($setting['label'], USI_Media_Solutions::TEXTDOMAIN);
-            if (!empty($setting['notes'])) $setting['notes'] = ' &nbsp; <i>' . 
-               __($setting['notes'], USI_Media_Solutions::TEXTDOMAIN) . '</i>';
-         }
-      }
-      unset($setting);
 
       return($sections);
 

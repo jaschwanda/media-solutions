@@ -65,9 +65,9 @@ class USI_Media_Solutions {
    const USERFOLDER = 'usi-media-options-folder';
 
    public static $capabilities = array(
-      'create-categories' => 'Create Categories',
-      'create-folders' => 'Create Upload Folders|admin',
-      'create-tags' => 'Create Tags|admin',
+      'create-categories' => 'Create Categories|administrator',
+      'create-folders' => 'Create Upload Folders|administrator',
+      'create-tags' => 'Create Tags|administrator',
    );
 
    public static $options = array();
@@ -144,26 +144,10 @@ class USI_Media_Solutions {
 
 new USI_Media_Solutions();
 
-if (!function_exists('usi_is_role_equal_or_greater')) { 
-   function usi_is_role_equal_or_greater($required_role) {
-      $required_role = strtolower($required_role);
-      if (($user = wp_get_current_user()) && !empty($user->roles[0])) {
-         $user_role = strtolower($user->roles[0]);
-         $roles = array('administrator', 'editor', 'author', 'contributor', 'subscriber');
-         $required_found = $user_found = false;
-         foreach ($roles as $role) {
-            // Return user role so function can be used to set menu capabilites;
-            if ($user_found = $user_found || ($user_role == $role)) return($user_role);
-            if ($required_found = $required_found || ($required_role == $role)) return(false);
-         }
-      }
-      return(false);
-   } // usi_is_role_equal_or_greater();
-}
-
 if (is_admin() && !defined('WP_UNINSTALL_PLUGIN')) {
    add_action('init', 'add_thickbox');
    if (is_dir(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions')) {
+      require_once('usi-media-solutions-install.php');
       require_once('usi-media-solutions-settings.php');
       if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
          require_once('usi-media-solutions-folder.php');
