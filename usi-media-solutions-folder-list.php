@@ -140,7 +140,7 @@ function usi_MM_upload_folders_page() {
     <?php
     $title = __('Upload Folders');
     echo esc_html($title);
-    if (current_user_can('upload_files')/* && usi_is_role_equal_or_greater($usi_mm_options['capability_create_folder'])*/) { ?>
+    if (current_user_can(USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'create-folders'))) { ?>
       <a href="admin.php?page=usi-media-folder-add-settings" class="add-new-h2"><?php echo esc_html_x('Add Upload Folder', 'folder'); ?></a><?php
     }
     ?>

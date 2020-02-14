@@ -35,6 +35,7 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
             'text_domain' => USI_Media_Solutions::TEXTDOMAIN,
             'options' => USI_Media_Solutions::$options,
             'capabilities' => USI_Media_Solutions::$capabilities,
+            'file' => str_replace('-settings', '', __FILE__), // Plugin main file, this initializes capabilities on plugin activation;
          )
       );
 

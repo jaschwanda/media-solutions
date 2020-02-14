@@ -29,6 +29,7 @@ final class USI_Media_Solutions_Install {
    } // init();
 
    static function hook_activation() {
+usi_log(__METHOD__);
 // see if this can be made automatic in the capabilities class;
       if (!current_user_can('activate_plugins')) return;
 

@@ -31,10 +31,8 @@ https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
 Copyright (c) 2020 by Jim Schwanda.
 */
 
-// Folder organize code only load if option given;
 // Test user roles on create folder and upload media;
-// Create folder page should only avaiable when create folder options active;
-// Orgnie by folder must create folder root post to seed add folder;
+// Orgnize by folder must create folder root post to seed add folder;
 
 // Test upload media;
 // Delete media
@@ -66,6 +64,7 @@ class USI_Media_Solutions {
 
    public static $capabilities = array(
       'create-categories' => 'Create Categories|administrator',
+      'view-folders' => 'View Upload Folders|administrator|editor',
       'create-folders' => 'Create Upload Folders|administrator',
       'create-tags' => 'Create Tags|administrator',
    );
@@ -147,7 +146,6 @@ new USI_Media_Solutions();
 if (is_admin() && !defined('WP_UNINSTALL_PLUGIN')) {
    add_action('init', 'add_thickbox');
    if (is_dir(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions')) {
-      require_once('usi-media-solutions-install.php');
       require_once('usi-media-solutions-settings.php');
       if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
          require_once('usi-media-solutions-folder.php');

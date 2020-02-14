@@ -33,7 +33,7 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
       parent::__construct(
          array(
          // 'debug'       => 'usi_log',
-            'capability'  => 'read', 
+            'capability'  => USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'create-folders'), 
             'name'        => $this->text['page_header'], 
             'prefix'      => USI_Media_Solutions::PREFIX . '-folder-add',
             'text_domain' => USI_Media_Solutions::TEXTDOMAIN,

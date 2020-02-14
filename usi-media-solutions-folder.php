@@ -34,7 +34,7 @@ class USI_Media_Solutions_Folder {
       $usi_MM_upload_folders_hook = add_media_page(
          'usi-MM-upload-folders', // Text displayed in title tags of page when menu is selected;
          'Upload Folders', // Text displayed in menu bar;
-         'administrator', // The capability required to enable page;
+         USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'view-folders'), // The capability required to enable page;
          /* lower case for option; */ 'usi-mm-upload-folders-page', // Menu page slug name;
          'usi_MM_upload_folders_page' // Function called to render page content;
       );
