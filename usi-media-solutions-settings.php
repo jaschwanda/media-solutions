@@ -46,9 +46,18 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
    } // config_section_header_preferences();
 
    function fields_sanitize($input) {
+      // IF organize by folders not used;
       if (empty($input['preferences']['organize-folder'])) {
+         // Clear allow to add to root folder options;
          $input['preferences']['organize-allow-root'] = false;
-      }
+      } else { // ELSE organize by folders in use;
+         global $wpdb;
+         // Add root folder post if there are no folder posts;
+         if (0 == $wpdb->get_var("SELECT COUNT(*) FROM `{$wpdb->posts}` WHERE " .
+            "(`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "') OR (`post_type` = 'usi-ms-upload-folder')")) {
+               USI_Media_Solutions::folder_create_post(0, 'Root Folder', '/', 'Root Folder');
+         }
+      } // ENDIF organize by folders in use;
       return(parent::fields_sanitize($input));
    } // fields_sanitize();
 

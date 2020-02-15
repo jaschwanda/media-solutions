@@ -31,6 +31,8 @@ https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
 Copyright (c) 2020 by Jim Schwanda.
 */
 
+// Add new folder gives success message and tenter valid folder message on first run;
+// Remove notes and label fix up on settings;
 // Test user roles on create folder and upload media;
 // Orgnize by folder must create folder root post to seed add folder;
 
@@ -58,8 +60,8 @@ class USI_Media_Solutions {
    const PREFIX     = 'usi-media';
    const TEXTDOMAIN = 'usi-media-solutions';
 
+   const MEDIAPATH  = 'usi-media-path';
    const POSTFOLDER = 'usi-media-folders';
-
    const USERFOLDER = 'usi-media-options-folder';
 
    public static $capabilities = array(
