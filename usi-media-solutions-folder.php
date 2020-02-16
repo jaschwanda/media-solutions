@@ -15,6 +15,15 @@ https://github.com/jaschwanda/sports-solutions/blob/master/LICENSE.md
 Copyright (c) 2020 by Jim Schwanda.
 */
 
+// get_attached_media
+// get_attached_media_args
+// get_media_item_args
+// manage_media_columns
+// manage_media_custom_column
+// manage_media_media_column
+// media_send_to_editor	
+
+
 require_once('usi-media-solutions-folder-add.php');
 require_once('usi-media-solutions-folder-list.php');
 
@@ -28,82 +37,17 @@ class USI_Media_Solutions_Folder {
       add_action('admin_menu', array($this, 'action_admin_menu'));
       add_action('post-upload-ui', array($this, 'action_post_upload_ui'));
 
+      add_filter('attachment_link', array($this, 'filter_attachment_link'), 20, 2 );
       add_filter('wp_get_attachment_url', array($this, 'filter_wp_get_attachment_url'), 10, 2);
       add_filter('wp_handle_upload', array($this, 'filter_wp_handle_upload'), 2);
       add_filter('wp_handle_upload_prefilter', array($this, 'filter_wp_handle_upload_prefilter'), 2);
 
    } // __construct();
- 
-   function filter_wp_handle_upload($file){
-      usi_log(__METHOD__.':'.__LINE__);
-      remove_filter('upload_dir', array($this, 'filter_upload_dir'));
-      return($file);
-   } // filter_wp_handle_upload();
- 
-   function filter_wp_handle_upload_prefilter($file){
-      usi_log(__METHOD__.':'.__LINE__);
-      add_filter('upload_dir', array($this, 'filter_upload_dir'));
-      return($file);
-   } // filter_wp_handle_upload_prefilter();
 
-function action_add_attachment($id) { 
-   $post = get_post($id);
-   add_post_meta($id, USI_Media_Solutions::MEDIAPATH, $post->guid, true);
-} // action_add_attachment();
-
-function filter_wp_get_attachment_url($url, $post_id) {
-   if ($path = get_post_meta($post_id, USI_Media_Solutions::MEDIAPATH, true)) {
-      //usi_log(__METHOD__.':'.__LINE__.':url=' . $url . ' path=' . $path);
-      return($path);
-   }
-   return($url);
-} // filter_wp_get_attachment_url();
-
-   function filter_upload_dir($path){    
-      if (!empty($path['error'])) return($path);
-      global $wpdb;
-      $folder_id = (int)self::get_user_folder_id();
-      usi_log(__METHOD__.':'.__LINE__.':path='. print_r($path, true) . ' folder_id=' . $folder_id);
-      if (0 < $folder_id) {
-         $row = $wpdb->get_row($wpdb->prepare("SELECT `post_title` FROM `{$wpdb->posts}` WHERE (`ID` = %d) LIMIT 1", 
-            $folder_id), OBJECT);
-      usi_log(__METHOD__.':'.__LINE__.':row='. print_r($row, true));
-         if ($row) {
-/*
-'subdir'  (string) Subdirectory if uploads use year/month folders option is on.
-'basedir' (string) Path without subdir.
-'path'    (string) Base directory and subdirectory or full path to upload directory.
-'baseurl' (string) URL path without subdir.
-'url'     (string) Base URL and subdirectory or absolute URL to upload directory.
-'error'   (string|false) False or error message.
-https://www.vudoos.local/portal/puck/wp-content/uploads/D:/Users/JAS/My Web Sites/Clients/www.Vudoos.org/public_html/media/docuemnts/1.jpg
-(
-    [subdir]  => /2020/02
-    [basedir] => D:\Users\JAS\My Web Sites\Clients\www.Vudoos.org\public_html\portal\puck/wp-content/uploads
-    [path]    => D:\Users\JAS\My Web Sites\Clients\www.Vudoos.org\public_html\portal\puck/wp-content/uploads/2020/02
-    [baseurl] => https://www.vudoos.local/portal/puck/wp-content/uploads
-    [url]     => https://www.vudoos.local/portal/puck/wp-content/uploads/2020/02
-    [error] => 
-)
-(
-    [subdir]  => 
-    [basedir] => D:/Users/JAS/My Web Sites/Clients/www.Vudoos.org/public_html
-    [path]    => D:/Users/JAS/My Web Sites/Clients/www.Vudoos.org/public_html/media/docuemnts
-    [baseurl] => https://www.vudoos.local
-    [url]     => https://www.vudoos.local/media/docuemnts
-    [error] => 
-)
-*/
-            $path['subdir']  = '';
-            $path['basedir'] = $_SERVER['DOCUMENT_ROOT'];
-            $path['path']    = $path['basedir'] . $row->post_title;
-            $path['baseurl'] = 'http' . ($_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['SERVER_NAME'];
-            $path['url']     = $path['baseurl'] . $row->post_title;
-         }
-      }
-      usi_log(__METHOD__.':'.__LINE__.':path='. print_r($path, true));
-      return($path);
-   } // filter_upload_dir();
+   function action_add_attachment($id) { 
+      $post = get_post($id);
+      add_post_meta($id, USI_Media_Solutions::MEDIAPATH, $post->guid, true);
+   } // action_add_attachment();
 
    function action_admin_menu() {
 
@@ -119,22 +63,35 @@ https://www.vudoos.local/portal/puck/wp-content/uploads/D:/Users/JAS/My Web Site
 
    function action_post_upload_ui() {
 
-      $folder_id     = self::get_user_folder_id();
+      $folder_id     = !empty($_REQUEST['folder_id']) ? $_REQUEST['folder_id'] : self::get_user_folder_id();
 
       $folders       = self::get_folders();
 
-      $folders_title = esc_attr('Upload Folder', USI_Media_Solutions::TEXTDOMAIN);
+      $folder_title  = esc_attr('Upload Folder', USI_Media_Solutions::TEXTDOMAIN);
 
       if (empty(USI_Media_Solutions::$options['preferences']['organize-allow-root'])) {
-         if (1 >= count($folders)) $folders_title .= ' (' . esc_attr('Cannot upload to root folder', USI_Media_Solutions::TEXTDOMAIN) . ')';
+         if (1 >= count($folders)) $folder_title .= ' (' . esc_attr('Cannot upload to root folder', USI_Media_Solutions::TEXTDOMAIN) . ')';
          unset($folders[0]);
       }
 
-      $folders_html  = USI_WordPress_Solutions_Settings::fields_render_select(null, $folders, $folder_id);
+      $folder_html_id = USI_Media_Solutions::POSTFOLDER . '-id';
+
+      $folder_html    = USI_WordPress_Solutions_Settings::fields_render_select(' id="' . $folder_html_id . '"', $folders, $folder_id);
+
 
       echo '<div id="poststuff">' . PHP_EOL;
-      $this->action_post_upload_ui_postbox(1, $folders_title, $folders_html);
-      echo '</div><!--poststuff-->' . PHP_EOL;
+      $this->action_post_upload_ui_postbox(1, $folder_title, $folder_html);
+      echo 
+      '</div><!--poststuff-->' . PHP_EOL .
+      '  <script>' . PHP_EOL .
+      '  jQuery(document).ready(function($) {' . PHP_EOL .
+      "     var url = 'media-new.php?folder_id=';" . PHP_EOL .
+      "     $('#{$folder_html_id}').change(function(){window.location.href = url + $(this).val()});" . PHP_EOL .
+      '  });' . PHP_EOL .
+      '  </script>' . PHP_EOL;
+
+      update_user_option(get_current_user_id(), USI_Media_Solutions::USERFOLDER, $folder_id);
+
    } // action_post_upload_ui();
 
    function action_post_upload_ui_postbox($index, $title, $html) {
@@ -151,6 +108,48 @@ https://www.vudoos.local/portal/puck/wp-content/uploads/D:/Users/JAS/My Web Site
       '  </div><!--postbox-container-' . $index . '-->' . PHP_EOL;
    } // action_post_upload_ui_postbox();
 
+   function filter_attachment_link($link, $post_id) {
+      if ($path = get_post_meta($post_id, USI_Media_Solutions::MEDIAPATH, true)) {
+         return($path);
+      }
+      return($link);
+   } // filter_attachment_link()
+
+   function filter_upload_dir($path){    
+      if (!empty($path['error'])) return($path);
+      $folder_id = (int)self::get_user_folder_id();
+      if (0 < $folder_id) {
+         global $wpdb;
+         $post = $wpdb->get_row($wpdb->prepare("SELECT `post_title` FROM `{$wpdb->posts}` WHERE (`ID` = %d) LIMIT 1", 
+            $folder_id), OBJECT);
+         if ($post) {
+            $path['subdir']  = '';
+            $path['basedir'] = $_SERVER['DOCUMENT_ROOT'];
+            $path['path']    = $path['basedir'] . $post->post_title;
+            $path['baseurl'] = 'http' . ($_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['SERVER_NAME'];
+            $path['url']     = $path['baseurl'] . $post->post_title;
+         }
+      }
+      return($path);
+   } // filter_upload_dir();
+
+   function filter_wp_get_attachment_url($url, $post_id) {
+      if ($path = get_post_meta($post_id, USI_Media_Solutions::MEDIAPATH, true)) {
+         return($path);
+      }
+      return($url);
+   } // filter_wp_get_attachment_url();
+
+   function filter_wp_handle_upload($file){
+      remove_filter('upload_dir', array($this, 'filter_upload_dir'));
+      return($file);
+   } // filter_wp_handle_upload();
+ 
+   function filter_wp_handle_upload_prefilter($file){
+      add_filter('upload_dir', array($this, 'filter_upload_dir'));
+      return($file);
+   } // filter_wp_handle_upload_prefilter();
+
    public static function get_folders() {
 
       global $wpdb;
@@ -164,10 +163,6 @@ https://www.vudoos.local/portal/puck/wp-content/uploads/D:/Users/JAS/My Web Site
    } // get_folders();
 
    public static function get_user_folder_id() {
-      $user_id = get_current_user_id();
-      $folder_id = get_user_option(USI_Media_Solutions::USERFOLDER, $user_id);
-usi_log(__METHOD__.':'.__LINE__.':user_id=' . $user_id . ' folder_id=' . $folder_id);
-return($folder_id);
       return(get_user_option(USI_Media_Solutions::USERFOLDER, get_current_user_id()));
 
    } // get_user_folder_id();
