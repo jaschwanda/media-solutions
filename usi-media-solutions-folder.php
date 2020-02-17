@@ -118,15 +118,8 @@ add_filter('get_attached_file', array($this, 'filter_get_attached_file'), 20, 2)
 
    function filter_get_attached_file($file, $attachment_id) { 
       $meta = get_post_meta($attachment_id, '_wp_attachment_metadata');
-usi_log(__METHOD__.':'.__LINE__.':attachment_id=' . $attachment_id . ' file=' . $file . ' meta=' . print_r($meta, true));
+//usi_log(__METHOD__.':'.__LINE__.':attachment_id=' . $attachment_id . ' file=' . $file . ' meta=' . print_r($meta, true));
       if (!empty($meta[0]['file'])) return($meta[0]['file']);
-/*
-      if ($path = get_post_meta($attachment_id, USI_Media_Solutions::MEDIAPATH, true)) {
-//usi_log(__METHOD__.':'.__LINE__.':attachment_id=' . $attachment_id . ' file=' . $file . ' path=' . $path);
-  //       return($path);
-      }
-//usi_log(__METHOD__.':'.__LINE__.':attachment_id=' . $attachment_id . ' file=' . $file);
-*/
       return($file);
    } // filter_get_attached_file();
 
