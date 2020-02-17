@@ -41,6 +41,7 @@ class USI_Media_Solutions_Folder {
       add_filter('wp_get_attachment_url', array($this, 'filter_wp_get_attachment_url'), 10, 2);
       add_filter('wp_handle_upload', array($this, 'filter_wp_handle_upload'), 2);
       add_filter('wp_handle_upload_prefilter', array($this, 'filter_wp_handle_upload_prefilter'), 2);
+add_filter('get_attached_file', array($this, 'filter_get_attached_file'), 20, 2);
 
    } // __construct();
 
@@ -115,6 +116,20 @@ class USI_Media_Solutions_Folder {
       return($link);
    } // filter_attachment_link()
 
+   function filter_get_attached_file($file, $attachment_id) { 
+      $meta = get_post_meta($attachment_id, '_wp_attachment_metadata');
+usi_log(__METHOD__.':'.__LINE__.':attachment_id=' . $attachment_id . ' file=' . $file . ' meta=' . print_r($meta, true));
+      if (!empty($meta[0]['file'])) return($meta[0]['file']);
+/*
+      if ($path = get_post_meta($attachment_id, USI_Media_Solutions::MEDIAPATH, true)) {
+//usi_log(__METHOD__.':'.__LINE__.':attachment_id=' . $attachment_id . ' file=' . $file . ' path=' . $path);
+  //       return($path);
+      }
+//usi_log(__METHOD__.':'.__LINE__.':attachment_id=' . $attachment_id . ' file=' . $file);
+*/
+      return($file);
+   } // filter_get_attached_file();
+
    function filter_upload_dir($path){    
       if (!empty($path['error'])) return($path);
       $folder_id = (int)self::get_user_folder_id();
@@ -130,6 +145,7 @@ class USI_Media_Solutions_Folder {
             $path['url']     = $path['baseurl'] . $post->post_title;
          }
       }
+//usi_log(__METHOD__.':'.__LINE__.':path=' . print_r($path, true));
       return($path);
    } // filter_upload_dir();
 
