@@ -303,7 +303,7 @@ usi_log(__METHOD__.':'.__LINE__);
 function usi_MM_create_folder_menu_add() {
 usi_log(__METHOD__.':'.__LINE__);
 
-   //const VERSION = '1.0.0 (2016-08-27)';
+   //const VERSION = '1.1.1 (2020-02-19)';
 
    global $usi_MM_upload_folders_hook;
 
