@@ -8,7 +8,7 @@ if (!class_exists('USI_List_Table')) {
 
 class USI_Media_Solutions_Folder_List extends USI_List_Table {
 
-   const VERSION = '1.1.0 (2020-02-08)';
+   const VERSION = '1.1.1 (2020-02-19)';
 
    public function __construct() {
       parent::__construct(

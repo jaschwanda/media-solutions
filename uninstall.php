@@ -23,7 +23,7 @@ require_once('usi-media-solutions.php');
 
 final class USI_Media_Solutions_Uninstall {
 
-   const VERSION = '1.1.0 (2020-02-08)';
+   const VERSION = '1.1.1 (2020-02-19)';
 
    private function __construct() {
    } // __construct();

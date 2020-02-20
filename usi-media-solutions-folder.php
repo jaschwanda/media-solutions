@@ -29,7 +29,7 @@ require_once('usi-media-solutions-folder-list.php');
 
 class USI_Media_Solutions_Folder {
 
-   const VERSION = '1.1.0 (2020-02-08)';
+   const VERSION = '1.1.1 (2020-02-19)';
 
    private static $post_id   = 0;
    private static $post_path = null;

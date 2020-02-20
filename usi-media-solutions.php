@@ -15,7 +15,7 @@ Requires at least: 5.0
 Requires PHP:      5.6.25
 Tested up to:      5.3.2
 Text Domain:       usi-media-solutions
-Version:           1.1.0
+Version:           1.1.1
 */
 
 /*
@@ -54,7 +54,7 @@ Copyright (c) 2020 by Jim Schwanda.
 
 class USI_Media_Solutions {
 
-   const VERSION = '1.1.0 (2020-02-08)';
+   const VERSION = '1.1.1 (2020-02-19)';
 
    const NAME       = 'Media-Solutions';
    const PREFIX     = 'usi-media';
@@ -156,7 +156,7 @@ if (is_admin() && !defined('WP_UNINSTALL_PLUGIN')) {
       }
       if (!empty(USI_Media_Solutions::$options['updates']['git-update'])) {
          require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-update.php');
-         new USI_WordPress_Solutions_Update_GitHub(__FILE__, 'jaschwanda', 'media-solutions');
+         new USI_WordPress_Solutions_Update_GitHub(__FILE__, 'jaschwanda', 'media-solutions', '1b7f7291f7acc24a34a9121a992cc9ed25a536b4');
       }
    } else {
       add_action('admin_notices', array('USI_Media_Solutions', 'action_admin_notices'));

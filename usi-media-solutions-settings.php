@@ -22,7 +22,7 @@ require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-s
 
 class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.1.0 (2020-02-08)';
+   const VERSION = '1.1.1 (2020-02-19)';
 
    protected $is_tabbed = true;
 
@@ -85,7 +85,7 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
             'header_callback' => array($this, 'config_section_header_preferences'),
             'label' => 'Preferences',
             'localize_labels' => 'yes',
-            'localize_notes' => 2,
+            'localize_notes' => 2, // &nbsp; <i>__()</i>;
             'settings' => array(
                'organize-category' => array(
                   'type' => 'checkbox', 
@@ -119,7 +119,7 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
 
          'capabilities' => new USI_WordPress_Solutions_Capabilities($this),
 
-         'updates' => USI_WordPress_Solutions_Updates::section($this),
+         'updates' => new USI_WordPress_Solutions_Updates($this),
 
       );
 

@@ -20,7 +20,7 @@ require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-s
 
 class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.1.0 (2020-02-08)';
+   const VERSION = '1.1.1 (2020-02-19)';
 
    private $text = array();
 
