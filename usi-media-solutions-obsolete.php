@@ -5,7 +5,6 @@ defined('ABSPATH') or die('Accesss not allowed.');
 //add_action('add_attachment', 'usi_MM_add_attachment');
 //add_action('admin_enqueue_scripts', 'usi_MM_add_ajax_javascript');
 //add_action('admin_init', 'usi_MM_create_folder_settings');
-//add_action('admin_init', 'usi_MM_settings_init');
 //add_action('admin_menu', 'usi_MM_create_folder_menu_add');
 //add_action('init', 'usi_MM_attachment_register_taxonomy');
 //add_action('manage_media_custom_column', 'usi_MM_library_folder_column', 10, 2);
@@ -14,7 +13,6 @@ defined('ABSPATH') or die('Accesss not allowed.');
 //add_action('wp_ajax_usi_action_media_page_callback', 'usi_MM_media_page_callback');
 
 //add_filter('manage_media_columns', 'usi_MM_library_columns');
-//add_filter('manage_upload_sortable_columns', 'usi_MM_library_columns_sortable');
 //add_filter('media_row_actions', 'usi_MM_media_row_action', 10, 2);
 //add_filter('plugin_action_links', 'usi_MM_plugin_action_links', 10, 2);
 //add_filter('wp_get_attachment_url', 'usi_MM_get_attachment_url', 10, 2);
@@ -105,122 +103,14 @@ function usi_MM_create_folder_settings_field_callback($args) {
    }
 } // usi_MM_create_folder_settings_field_callback();
 
-function usi_MM_create_folder_settings_section_callback() {
-} // usi_MM_create_folder_settings_section_callback()
-
-function usi_MM_create_folder_settings_validate($wild) {
-   $safe = array();
-   $description = $safe['description'] = sanitize_text_field($wild['description']);
-   $folder = $safe['folder'] = sanitize_file_name($wild['folder']);
-   $parent_id = $safe['parent'] = (int)$wild['parent'];
-   if (empty($folder)) {
-      add_settings_error('usi-MM-create-folder-folder', esc_attr('error'), 'Please enter a valid folder.', 'error');   
-   } else if (empty($description)) {
-      add_settings_error('usi-MM-create-folder-description', esc_attr('error'), 'Please enter a valid description.', 'error');   
-   } else if (1 > $parent_id) {
-      add_settings_error('usi-MM-create-folder-parent', esc_attr('error'), 'Please select a parent folder.', 'error');   
-   } else {
-      global $wpdb;
-      $row = $wpdb->get_row($wpdb->prepare("SELECT `post_title` AS `path` FROM `{$wpdb->posts}` WHERE (`ID` = %d) LIMIT 1", 
-         $parent_id), OBJECT);
-      if (empty($row)) {
-         add_settings_error('usi-MM-create-folder-parent', esc_attr('error'), 'Could not find path for parent folder. [sql=' .
-            $wpdb->last_query . ']', 'error');   
-      } else {
-         $root = trim($_SERVER['DOCUMENT_ROOT'], '/');
-         $path = trim($row->path, '/');
-         $folder = trim($folder, '/');
-         $path_folder = '/' . $path . (strlen($path) ? '/' : '') . $folder;
-         ob_start();
-         $status = wp_mkdir_p($root . $path_folder);
-         $output = ob_get_contents();
-         ob_end_clean();
-         $folder_message = '<span style="font-family:courier new;"> ' . $path_folder . ' </span>';
-         if (!$status) {
-            add_settings_error('usi-MM-create-folder-parent', esc_attr('error'), 
-               __('Folder', USI_Media_Solutions::TEXTDOMAIN) . $folder_message . __('could not be created.', USI_Media_Solutions::TEXTDOMAIN), 'error');   
-         } else {
-            $post_id = usi_MM_create_folder_post($parent_id, $folder, $path_folder, $description);
-            if (0 < $post_id) {
-               add_settings_error('usi-MM-create-folder-parent', esc_attr('updated'), 
-                  __('Folder', USI_Media_Solutions::TEXTDOMAIN) . $folder_message . __('has been created.', USI_Media_Solutions::TEXTDOMAIN), 'updated');   
-               $parent_id = $post_id;
-            } else {
-               add_settings_error('usi-MM-create-folder-parent', esc_attr('error'), 
-                  __('Folder', USI_Media_Solutions::TEXTDOMAIN) . $folder_message . __('post could not be created.', USI_Media_Solutions::TEXTDOMAIN), 'error');   
-            }
-         }
-      }
-   }
-   update_user_option(get_current_user_id(), 'usi-ms-options-upload-folder', $parent_id);
-   return($safe);
-} // usi_MM_create_folder_settings_validate
-*/
-/*
 function usi_MM_plugin_action_links($links, $file) {
    static $this_plugin;
    if (!$this_plugin) $this_plugin = plugin_basename(__FILE__);
    if ($file == $this_plugin) $links[] = '<a href="' . get_bloginfo('wpurl') . '/wp-admin/options-media.php">Settings</a>';
    return($links);
 } // usi_MM_plugin_action_links();
-*/
 
-/*
-function usi_MM_settings_init() {
 
-   add_settings_section('usi_MM_settins_section', 'Media-Solutions Settings', null, 'media');
-
-   add_settings_field('usi-MM-options', 'Organization', 'usi_MM_settings_organize_callback', 
-      'media', 'usi_MM_settins_section');
-
-   if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
-      add_settings_field('usi-MM-options-capabilities', 'Capabilities', 'usi_MM_settings_capability_callback', 
-         'media', 'usi_MM_settins_section');
-   }
-
-   register_setting('media', 'usi-ms-options', 'usi_MM_settings_sanitize');
-
-} // usi_MM_settings_init();
-function usi_MM_settings_organize_callback($args) {
-   echo  '<table style="border:0; border-collapse:collapse; border-spacing:0; padding:0;">' .
-      '<tr><td><input type="checkbox" id="usi-ms-options-category" name="usi-ms-options[category]" value="1" ' . 
-      checked(1, (!empty(USI_Media_Solutions::$options['preferences']['organize-category']) ? USI_Media_Solutions::$options['preferences']['organize-category'] : null), false) . '/></td><td>' .   
-      '<label for="usi-ms-options-category">Organize media with <b>Categories</b></label></td></tr>' .
-
-      '<tr><td style="vertical-align:top;"><input type="checkbox" id="usi-ms-options-folder" name="usi-ms-options[folder]" value="1" ' . 
-      checked(1, (!empty(USI_Media_Solutions::$options['preferences']['organize-folder']) ? USI_Media_Solutions::$options['preferences']['organize-folder'] : ''), false) . '/></td><td>' .   
-      '<label for="usi-ms-options-folder">Organize media with <b>Folders</b></label><br />';
-      if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
-         echo '<input type="checkbox" id="usi-ms-options-allow_root" name="usi-ms-options[allow_root]" value="1" ' .
-            checked(1, (!empty(USI_Media_Solutions::$options['preferences']['organize-allow-root']) ? USI_Media_Solutions::$options['preferences']['organize-allow-root'] : null), false) . '/><label for="usi-ms-options-allow_root"> ' .
-            'Allow root folder uploads <i>(Not recommended)</i></label>';
-      } else {
-         echo '<i>Other options will be given if this is checked</i>';
-      }
-      echo '</td></tr>' .
-
-      '<tr><td><input type="checkbox" id="usi-ms-options-tag" name="usi-ms-options[tag]" value="1" ' . 
-      checked(1, (!empty(USI_Media_Solutions::$options['preferences']['organize-tag']) ? USI_Media_Solutions::$options['preferences']['organize-tag'] : null), false) . '/></td><td>' .
-      '<label for="usi-ms-options-tag">Organize media with <b>Tags</b></label></td></tr>' . 
-
-      '</table>' .
-
-} // usi_MM_settings_organize_callback();
-
-function usi_MM_settings_capability_callback($args) {
-   echo '<select name="usi-ms-options[capability_create_folder]">';
-   wp_dropdown_roles(USI_Media_Solutions::$options['capabilities']['create-folders']);
-   echo '</select><br /><i>Only users with the above role or higher have permission to create upload folders</i>';
-} // usi_MM_settings_capability_callback();
-
-function usi_MM_settings_sanitize($value) {
-   $value['version'] = USI_Media_Solutions::VERSION;
-   return($value);
-} // usi_MM_settings_sanitize();
-*/
-
-/*
- 
 function usi_MM_reload_media_page() {
 usi_log(__METHOD__.':'.__LINE__);
    $id = (int)(isset($_GET['id']) ? $_GET['id'] : 0);
@@ -568,11 +458,6 @@ function usi_MM_post_upload_ui_terms($checked_terms) {
    }
 } // usi_MM_post_upload_ui_terms();
 
-function usi_MM_library_columns_sortable($columns) {
-//usi_log(__METHOD__.':'.__LINE__);
-   if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) $columns['guid'] = 'guid';
-   return($columns);
-} // usi_MM_library_columns_sortable();
 
 function usi_MM_library_columns($input) {
 //usi_log(__METHOD__.':'.__LINE__);

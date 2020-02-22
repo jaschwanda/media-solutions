@@ -41,10 +41,13 @@ class USI_Media_Solutions_Folder {
 
       add_action('add_attachment', array($this, 'action_add_attachment'));
       add_action('admin_menu', array($this, 'action_admin_menu'));
+      add_action('manage_media_custom_column', array($this, 'action_manage_media_custom_column'), 10, 2);
       add_action('post-upload-ui', array($this, 'action_post_upload_ui'));
 
       add_filter('attachment_link', array($this, 'filter_attachment_link'), 20, 2 );
       add_filter('get_attached_file', array($this, 'filter_get_attached_file'), 20, 2);
+      add_filter('manage_media_columns', array($this, 'filter_manage_media_columns'));
+      add_filter('manage_upload_sortable_columns', array($this, 'filter_manage_upload_sortable_columns'));
       add_filter('wp_get_attachment_url', array($this, 'filter_wp_get_attachment_url'), 10, 2);
       add_filter('wp_handle_upload', array($this, 'filter_wp_handle_upload'), 2);
       add_filter('wp_handle_upload_prefilter', array($this, 'filter_wp_handle_upload_prefilter'), 2);
@@ -62,6 +65,19 @@ class USI_Media_Solutions_Folder {
       );
 
    } // action_admin_menu();
+
+   function action_manage_media_custom_column($column, $id) {
+      if ('guid' == $column) {
+         $guid = get_post_field('guid', $id);
+         $tokens = explode('/', $guid);
+         unset($tokens[count($tokens) - 1]);
+         unset($tokens[0]);
+         unset($tokens[1]);
+         unset($tokens[2]);
+         $folder = '/' . implode('/', $tokens);
+         echo '<a href="upload.php?guid=' . rawurlencode($folder) . '">' .  $folder . '</a>';
+      }  
+   } // action_manage_media_custom_column();
 
    function action_post_upload_ui() {
 
@@ -149,6 +165,21 @@ class USI_Media_Solutions_Folder {
       }
       return($link);
    } // filter_attachment_link()
+
+   function filter_manage_media_columns($input) {
+      $ith    = 0;
+      $output = array();
+      foreach ($input as $key => $value) {
+         if (2 == $ith++) $output['guid'] = 'Upload Folder';
+         $output[$key] = $value;
+      }
+      return($output);
+   } // filter_manage_media_columns();
+
+   function filter_manage_upload_sortable_columns($columns) {
+      $columns['guid'] = 'guid';
+      return($columns);
+   } // filter_manage_upload_sortable_columns();
 
    function filter_upload_dir($path){    
       if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder-use'])) {
