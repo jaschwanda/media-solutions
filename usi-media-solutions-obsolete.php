@@ -7,19 +7,13 @@ defined('ABSPATH') or die('Accesss not allowed.');
 //add_action('admin_init', 'usi_MM_create_folder_settings');
 //add_action('admin_menu', 'usi_MM_create_folder_menu_add');
 //add_action('init', 'usi_MM_attachment_register_taxonomy');
-//add_action('manage_media_custom_column', 'usi_MM_library_folder_column', 10, 2);
 //add_action('post-upload-ui', 'usi_MM_post_upload_ui');
 //add_action('restrict_manage_posts', 'usi_MM_attachment_category_filter');
 //add_action('wp_ajax_usi_action_media_page_callback', 'usi_MM_media_page_callback');
 
-//add_filter('manage_media_columns', 'usi_MM_library_columns');
 //add_filter('media_row_actions', 'usi_MM_media_row_action', 10, 2);
 //add_filter('plugin_action_links', 'usi_MM_plugin_action_links', 10, 2);
 //add_filter('wp_get_attachment_url', 'usi_MM_get_attachment_url', 10, 2);
-//if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
-//   add_filter('wp_handle_upload', 'usi_MM_handle_upload', 2);
-//   add_filter('wp_handle_upload_prefilter', 'usi_MM_handle_upload_prefilter', 2);
-//}
 //add_filter('post_mime_types', 'modify_post_mime_types');
 
 /* 
@@ -458,27 +452,6 @@ function usi_MM_post_upload_ui_terms($checked_terms) {
    }
 } // usi_MM_post_upload_ui_terms();
 
-
-function usi_MM_library_columns($input) {
-//usi_log(__METHOD__.':'.__LINE__);
-   $ith = 0;
-   $output = array();
-   $skip_author = false;
-   foreach ($input as $key => $value) {
-      if (3 == $ith++) if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) $output['guid'] = 'Upload Folder';
-      if ('author' == $key) {
-         $skip_author = true;
-      } else {
-         if ($skip_author && ('parent' == $key)) {
-            $skip_author = false;
-            $output['author'] = 'Author';         
-         } 
-         $output[$key] = $value;
-      }
-   }
-   return($output);
-} // usi_MM_library_columns();
-
 function usi_MM_add_attachment($id) { 
 //usi_log(__METHOD__.':'.__LINE__);
    if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
@@ -576,32 +549,6 @@ function usi_MM_get_active() {
    }
    return($usi_mm_option_active);
 } // usi_MM_get_active();
- 
-function usi_MM_handle_upload($file){
-//usi_log(__METHOD__.':'.__LINE__);
-    remove_filter('upload_dir', 'usi_MM_upload_dir');
-    return($file);
-} // usi_MM_handle_upload();
- 
-function usi_MM_handle_upload_prefilter($file){
-//usi_log(__METHOD__.':'.__LINE__);
-    add_filter('upload_dir', 'usi_MM_upload_dir');
-    return($file);
-} // usi_MM_handle_upload_prefilter();
-
-function usi_MM_library_folder_column($column, $id) {
-//usi_log(__METHOD__.':'.__LINE__);
-   if ('guid' == $column) {
-      $guid = get_post_field('guid', $id);
-      $tokens = explode('/', $guid);
-      unset($tokens[count($tokens) - 1]);
-      unset($tokens[0]);
-      unset($tokens[1]);
-      unset($tokens[2]);
-      $folder = '/' . implode('/', $tokens);
-      echo '<a href="upload.php?guid=' . rawurlencode($folder) . '">' .  $folder . '</a>';
-   }  
-} // usi_MM_library_folder_column();
 
 function usi_MM_settings_defaults() {
 //usi_log(__METHOD__.':'.__LINE__);
