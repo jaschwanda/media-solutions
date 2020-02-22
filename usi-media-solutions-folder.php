@@ -48,12 +48,13 @@ class USI_Media_Solutions_Folder {
       add_filter('get_attached_file', array($this, 'filter_get_attached_file'), 20, 2);
       add_filter('manage_media_columns', array($this, 'filter_manage_media_columns'));
       add_filter('manage_upload_sortable_columns', array($this, 'filter_manage_upload_sortable_columns'));
+      add_filter('media_row_actions', array($this, 'filter_media_row_actions'), 10, 2);
       add_filter('wp_get_attachment_url', array($this, 'filter_wp_get_attachment_url'), 10, 2);
       add_filter('wp_handle_upload', array($this, 'filter_wp_handle_upload'), 2);
       add_filter('wp_handle_upload_prefilter', array($this, 'filter_wp_handle_upload_prefilter'), 2);
 
    } // __construct();
-
+   
    function action_admin_menu() {
 
       $usi_MM_upload_folders_hook = add_media_page(
@@ -135,17 +136,6 @@ class USI_Media_Solutions_Folder {
       }
    } // action_add_attachment();
 
-   function filter_get_attached_file($file, $post_id) { 
-      $meta = get_post_meta($post_id, '_wp_attachment_metadata');
-      if (!empty($meta[0]['file'])) {
-         if ($post_id == USI_Media_Solutions::$options['preferences']['organize-folder-bug']) {
-            usi_log(__METHOD__.':post_id=' . $post_id . ' ' . $file. ' => ' . $meta[0]['file']);
-         }
-         return($meta[0]['file']);
-      }
-      return($file);
-   } // filter_get_attached_file();
-
    function filter_attachment_link($link, $post_id) {
       if ($folder = self::get_path($post_id)) {
          $meta = get_post_meta($post_id, '_wp_attachment_metadata');
@@ -159,6 +149,17 @@ class USI_Media_Solutions_Folder {
       }
       return($link);
    } // filter_attachment_link()
+
+   function filter_get_attached_file($file, $post_id) { 
+      $meta = get_post_meta($post_id, '_wp_attachment_metadata');
+      if (!empty($meta[0]['file'])) {
+         if ($post_id == USI_Media_Solutions::$options['preferences']['organize-folder-bug']) {
+            usi_log(__METHOD__.':post_id=' . $post_id . ' ' . $file. ' => ' . $meta[0]['file']);
+         }
+         return($meta[0]['file']);
+      }
+      return($file);
+   } // filter_get_attached_file();
 
    function filter_manage_media_columns($input) {
       $ith    = 0;
@@ -174,6 +175,19 @@ class USI_Media_Solutions_Folder {
       $columns['guid'] = 'guid';
       return($columns);
    } // filter_manage_upload_sortable_columns();
+
+   function filter_media_row_actions($actions, $object) {
+      $new_actions = array();
+      foreach ($actions as $key => $value) {
+         $new_actions[$key] = $value;
+         if ('edit' == $key) {
+            $new_actions['reload_media'] = '<a href="' . 
+               admin_url('upload.php?page=usi-MM-reload-media-page&id=' . $object->ID) . 
+               '">' . __('Reload', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
+         }
+      }
+      return($new_actions);
+   } // filter_media_row_actions()
 
    function filter_upload_dir($path){    
       if (!empty($path['error'])) return($path);

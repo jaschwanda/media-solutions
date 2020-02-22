@@ -5,31 +5,15 @@ defined('ABSPATH') or die('Accesss not allowed.');
 //add_action('add_attachment', 'usi_MM_add_attachment');
 //add_action('admin_enqueue_scripts', 'usi_MM_add_ajax_javascript');
 //add_action('admin_init', 'usi_MM_create_folder_settings');
-//add_action('admin_menu', 'usi_MM_create_folder_menu_add');
 //add_action('init', 'usi_MM_attachment_register_taxonomy');
 //add_action('post-upload-ui', 'usi_MM_post_upload_ui');
 //add_action('restrict_manage_posts', 'usi_MM_attachment_category_filter');
 //add_action('wp_ajax_usi_action_media_page_callback', 'usi_MM_media_page_callback');
 
-//add_filter('media_row_actions', 'usi_MM_media_row_action', 10, 2);
 //add_filter('plugin_action_links', 'usi_MM_plugin_action_links', 10, 2);
-//add_filter('wp_get_attachment_url', 'usi_MM_get_attachment_url', 10, 2);
 //add_filter('post_mime_types', 'modify_post_mime_types');
 
 /* 
-function usi_MM_create_folder_page() {
-?>
-  <div class="wrap">
-    <h2>Upload Folders</h2>
-    <?php settings_errors(); ?>
-    <form action="options.php" method="POST">
-      <?php settings_fields('usi-MM-create-folder-settings-group'); ?>
-      <?php do_settings_sections('usi-MM-create-folder-settings'); ?>
-      <?php submit_button('Create Upload Folder'); ?>
-    </form>
-  </div>
-<?php
-} // usi_MM_create_folder_page();
 
 function usi_MM_create_folder_settings() {
    if (false == get_option('usi-ms-options-create-folder')) {
@@ -184,57 +168,7 @@ usi_log(__METHOD__.':'.__LINE__);
 <?php
 } // usi_MM_reload_media_page();
 
-function usi_MM_create_folder_menu_add() {
-usi_log(__METHOD__.':'.__LINE__);
 
-   //const VERSION = '1.1.1 (2020-02-19)';
-
-   global $usi_MM_upload_folders_hook;
-
-   if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
-
-      $usi_MM_upload_folders_hook = add_media_page(
-         'usi-MM-upload-folders', // Text displayed in title tags of page when menu is selected;
-         'Upload Folders', // Text displayed in menu bar;
-         'upload_files', // The capability required to enable page;
-         / * lower case for option; * / 'usi-mm-upload-folders-page', // Menu page slug name;
-         'usi_MM_upload_folders_page' // Function called to render page content;
-      );
-
-      add_action('load-' . $usi_MM_upload_folders_hook, 'usi_MM_upload_folders_screen_options_load');
-      add_filter('get_user_option_manage' . $usi_MM_upload_folders_hook . 'hidden', 'usi_MM_folder_list_table::get_hidden_columns', 10, 3); 
-      add_filter('manage_' . $usi_MM_upload_folders_hook . '_columns', 'usi_MM_folder_list_table::get_columns_static', 0);
-
-      add_media_page(
-         'usi-MM-create-folders', // Text displayed in title tags of page when menu is selected;
-         'Create Folders', // Text displayed in menu bar;
-         usi_is_role_equal_or_greater(!empty(USI_Media_Solutions::$options['capabilities']['create-folders']) ? USI_Media_Solutions::$options['capabilities']['create-folders'] : null), // The capability required to enable page;
-         'usi-MM-create-folders-page', // Menu page slug name;
-         'usi_MM_create_folder_page' // Function called to render page content;
-      );
-
-      remove_submenu_page('upload.php', 'usi-MM-create-folders-page');
-
-   }
-
-   add_media_page(
-      'usi-MM-reload-media', // Text displayed in title tags of page when menu is selected;
-      'Reload Media', // Text displayed in menu bar;
-      'read', // The capability required to enable page;
-      'usi-MM-reload-media-page', // Menu page slug name;
-      'usi_MM_reload_media_page' // Function called to render page content;
-   );
-
-   remove_submenu_page('upload.php', 'usi-MM-reload-media-page');
-
-} // usi_MM_create_folder_menu_add();
-
-function usi_MM_media_row_action($actions, $object) {
-//usi_log(__METHOD__.':'.__LINE__);
-   if (isset($actions['edit'])) $actions['reload_media'] = '<a href="' . 
-      admin_url('upload.php?page=usi-MM-reload-media-page&id=' . $object->ID) . '">' . __('Reload', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
-   return($actions);
-} // usi_MM_media_row_action()
 
 function usi_MM_attachment_register_taxonomy() {
 //usi_log(__METHOD__.':'.__LINE__);
@@ -468,11 +402,6 @@ function usi_MM_add_attachment($id) {
    }
 } // usi_MM_add_attachment();
 
-function usi_MM_get_attachment_url($url, $post_id) {
-//usi_log(__METHOD__.':'.__LINE__);
-   if ($path = get_post_meta($post_id, 'usi-ms-path', true)) return($path);
-   return($url);
-} // usi_MM_get_attachment_url();
 
 if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
    require_once('usi-media-solutions-folder-list.php');
