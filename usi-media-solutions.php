@@ -78,7 +78,6 @@ class USI_Media_Solutions {
       if (empty(USI_Media_Solutions::$options)) {
          $defaults['preferences']['organize-category']   =
          $defaults['preferences']['organize-folder']     =
-         $defaults['preferences']['organize-folder-use'] =
          $defaults['preferences']['organize-allow-root'] =
          $defaults['preferences']['organize-tag']        = false;
          $defaults['preferences']['organize-folder-bug'] = 0;

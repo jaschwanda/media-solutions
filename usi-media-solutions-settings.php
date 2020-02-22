@@ -95,10 +95,6 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
                   'type' => 'checkbox', 
                   'label' => 'Organize With Folders', 
                ),
-               'organize-folder-use' => array(
-                  'type' => 'checkbox', 
-                  'label' => 'Use Organize Folders', 
-               ),
                'organize-folder-bug' => array(
                   'type' => 'number', 
                   'label' => 'Bug Organize Folders', 
