@@ -69,6 +69,7 @@ class USI_Media_Solutions {
       'view-folders' => 'View Upload Folders|administrator|editor',
       'create-folders' => 'Create Upload Folders|administrator',
       'create-tags' => 'Create Tags|administrator',
+      'reload-media' => 'Reload Media|administrator',
    );
 
    public static $options = array();
@@ -76,6 +77,7 @@ class USI_Media_Solutions {
    function __construct() {
 
       if (empty(USI_Media_Solutions::$options)) {
+         $defaults['preferences']['organize-allow-default'] =
          $defaults['preferences']['organize-category']   =
          $defaults['preferences']['organize-folder']     =
          $defaults['preferences']['organize-allow-root'] =
