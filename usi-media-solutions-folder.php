@@ -23,9 +23,15 @@ Copyright (c) 2020 by Jim Schwanda.
 // manage_media_media_column
 // media_send_to_editor	
 
+// wp_delete_attachment
+// _wp_attachment_backup_sizes
+// wp_delete_attachment_files
+// This action is documented in wp-includes/post.php
+// do_action( 'deleted_post', $post_id );
 
 require_once('usi-media-solutions-folder-add.php');
 require_once('usi-media-solutions-folder-list.php');
+require_once('usi-media-solutions-reload.php');
 
 class USI_Media_Solutions_Folder {
 
@@ -54,7 +60,17 @@ class USI_Media_Solutions_Folder {
       add_filter('wp_handle_upload_prefilter', array($this, 'filter_wp_handle_upload_prefilter'), 2);
 
    } // __construct();
-   
+
+   function action_add_attachment($post_id) {
+      // IF upload folder given;
+      if (!empty($_REQUEST['folder_id'])) {
+         $post = get_post(self::$post_id = $post_id);
+         $path = self::$post_path = '/' . trim(trim(dirname(str_replace(get_home_url(), '', $post->guid)), '\\'), '/');
+         add_post_meta($post_id, USI_Media_Solutions::MEDIAPATH, $path, true);
+         $this->log_folder(__METHOD__, $post_id, 'default', $path);
+      } // ENDIF upload folder given;
+   } // action_add_attachment();
+
    function action_admin_menu() {
 
       $usi_MM_upload_folders_hook = add_media_page(
@@ -82,16 +98,13 @@ class USI_Media_Solutions_Folder {
 
    function action_post_upload_ui() {
 
-      $folder_id     = !empty($_REQUEST['folder_id']) ? $_REQUEST['folder_id'] : self::get_user_folder_id();
+      $folder_id     = isset($_REQUEST['folder_id']) ? $_REQUEST['folder_id'] : self::get_user_folder_id();
 
       $folders       = self::get_folders();
 
       $folder_title  = esc_attr('Upload Folder', USI_Media_Solutions::TEXTDOMAIN);
 
-      if (empty(USI_Media_Solutions::$options['preferences']['organize-allow-root'])) {
-         if (1 >= count($folders)) $folder_title .= ' (' . esc_attr('Cannot upload to root folder', USI_Media_Solutions::TEXTDOMAIN) . ')';
-         unset($folders[0]);
-      }
+      if (1 >= count($folders)) $folder_title .= ' (' . esc_attr('No upload folders have been created', USI_Media_Solutions::TEXTDOMAIN) . ')';
 
       $folder_html_id = USI_Media_Solutions::POSTFOLDER . '-id';
 
@@ -127,37 +140,34 @@ class USI_Media_Solutions_Folder {
       '  </div><!--postbox-container-' . $index . '-->' . PHP_EOL;
    } // action_post_upload_ui_postbox();
 
-   function action_add_attachment($post_id) { 
-      $post = get_post(self::$post_id = $post_id);
-      $path = self::$post_path = '/' . trim(trim(dirname(str_replace(get_home_url(), '', $post->guid)), '\\'), '/');
-      add_post_meta($post_id, USI_Media_Solutions::MEDIAPATH, $path, true);
+   private function log_folder($method, $post_id, $from, $to) {
       if ($post_id == USI_Media_Solutions::$options['preferences']['organize-folder-bug']) {
-         usi_log(__METHOD__.':post_id=' . $post_id . ' post_path=' . $path);
+         usi_log($method . ':post_id=' . $post_id . ' ' . $from . ' => ' . $to);
       }
-   } // action_add_attachment();
+   } // log_folder();
 
    function filter_attachment_link($link, $post_id) {
+      // IF upload folder given;
       if ($folder = self::get_path($post_id)) {
          $meta = get_post_meta($post_id, '_wp_attachment_metadata');
          if (!empty($meta[0]['file'])) {
             $path = get_home_url() . $folder . ($folder ? '/' : '') . basename($meta[0]['file']);
-            if ($post_id == USI_Media_Solutions::$options['preferences']['organize-folder-bug']) {
-               usi_log(__METHOD__.':post_id=' . $post_id . ' ' . $link . ' => ' . $path);
-            }
+            $this->log_folder(__METHOD__, $post_id, $link, $path);
             return($path);
          }
-      }
+      } // ENDIF upload folder given;
       return($link);
    } // filter_attachment_link()
 
    function filter_get_attached_file($file, $post_id) { 
-      $meta = get_post_meta($post_id, '_wp_attachment_metadata');
-      if (!empty($meta[0]['file'])) {
-         if ($post_id == USI_Media_Solutions::$options['preferences']['organize-folder-bug']) {
-            usi_log(__METHOD__.':post_id=' . $post_id . ' ' . $file. ' => ' . $meta[0]['file']);
+      // IF upload folder given;
+      if (self::get_path($post_id)) {
+         $meta = get_post_meta($post_id, '_wp_attachment_metadata');
+         if (!empty($meta[0]['file'])) {
+            $this->log_folder(__METHOD__, $post_id, $file, $meta[0]['file']);
+            return($meta[0]['file']);
          }
-         return($meta[0]['file']);
-      }
+      } // ENDIF upload folder given;
       return($file);
    } // filter_get_attached_file();
 
@@ -182,47 +192,48 @@ class USI_Media_Solutions_Folder {
          $new_actions[$key] = $value;
          if ('edit' == $key) {
             $new_actions['reload_media'] = '<a href="' . 
-               admin_url('upload.php?page=usi-MM-reload-media-page&id=' . $object->ID) . 
+               admin_url('admin.php?page=usi-media-reload-settings&id=' . $object->ID) . 
                '">' . __('Reload', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
          }
       }
       return($new_actions);
    } // filter_media_row_actions()
 
-   function filter_upload_dir($path){    
-      if (!empty($path['error'])) return($path);
-      $folder_id = (int)self::get_user_folder_id();
-      if (0 < $folder_id) {
-         global $wpdb;
-         $post = $wpdb->get_row(
-            $wpdb->prepare(
-               "SELECT `post_title` FROM `{$wpdb->posts}` WHERE (`ID` = %d) LIMIT 1", 
-               $folder_id
-            ), 
-            OBJECT
-         );
-         if ($post) {
-            $path['subdir']  = '';
-            $path['basedir'] = $_SERVER['DOCUMENT_ROOT'];
-            $path['path']    = $path['basedir'] . $post->post_title;
-            $path['baseurl'] = 'http' . (is_ssl() ? 's' : '') . '://' . $_SERVER['SERVER_NAME'];
-            $path['url']     = $path['baseurl'] . $post->post_title;
-         }
-      }
+   function filter_upload_dir($path) {
+      // IF no upload error;
+      if (empty($path['error'])) {
+         // IF upload folder given;
+         if (0 < ($folder_id = (int)self::get_user_folder_id())) {
+            global $wpdb;
+            $post = $wpdb->get_row(
+               $wpdb->prepare(
+                  "SELECT `post_title` FROM `{$wpdb->posts}` WHERE (`ID` = %d) LIMIT 1", 
+                  $folder_id
+               ), 
+               OBJECT
+            );
+            if ($post) {
+               $path['subdir']  = '';
+               $path['basedir'] = $_SERVER['DOCUMENT_ROOT'];
+               $path['path']    = $path['basedir'] . $post->post_title;
+               $path['baseurl'] = 'http' . (is_ssl() ? 's' : '') . '://' . $_SERVER['SERVER_NAME'];
+               $path['url']     = $path['baseurl'] . $post->post_title;
+            }
+         } // ENDIF upload folder given;
+      } // ENDIF no upload error;
       return($path);
    } // filter_upload_dir();
 
    function filter_wp_get_attachment_url($url, $post_id) {
+      // IF upload folder given;
       if ($folder = self::get_path($post_id)) {
          $meta = get_post_meta($post_id, '_wp_attachment_metadata');
          if (!empty($meta[0]['file'])) {
             $path = get_home_url() . $folder . ($folder ? '/' : '') . basename($meta[0]['file']);
-            if ($post_id == USI_Media_Solutions::$options['preferences']['organize-folder-bug']) {
-               usi_log(__METHOD__.':post_id=' . $post_id . ' ' . $url . ' => ' . $path);
-            }
+            $this->log_folder(__METHOD__, $post_id, $url, $path);
             return($path);
          }
-      }
+      } // ENDIF upload folder given;
       return($url);
    } // filter_wp_get_attachment_url();
 
@@ -237,15 +248,17 @@ class USI_Media_Solutions_Folder {
    } // filter_wp_handle_upload_prefilter();
 
    public static function get_folders() {
-
       global $wpdb;
-
       $folders   = $wpdb->get_results("SELECT `ID`, `post_title` FROM `{$wpdb->posts}` " .
          " WHERE (`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "') OR (`post_type` = 'usi-ms-upload-folder')" .
          " ORDER BY `post_title`", ARRAY_N);
-
+      if (empty(USI_Media_Solutions::$options['preferences']['organize-allow-root'])) {
+         unset($folders[0]);
+      }
+      if (!empty(USI_Media_Solutions::$options['preferences']['organize-allow-default'])) {
+         array_unshift($folders, array(0 => 0, 1 => 'Default Upload Folder'));
+      }
       return($folders);
-
    } // get_folders();
 
    private static function get_path($post_id) {

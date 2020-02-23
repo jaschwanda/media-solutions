@@ -143,6 +143,7 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
       $sections = array(
          'settings' => array(
             'footer_callback' => array($this, 'section_footer'),
+            'localize_labels' => 'yes',
             'settings' => array(
                'parent' => array(
                   'f-class' => 'regular-text', 
@@ -164,15 +165,6 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
          ), // preferences;
 
       );
-
-      foreach ($sections as $name => & $section) {
-         foreach ($section['settings'] as $name => & $setting) {
-            if (!empty($setting['label'])) $setting['label'] = __($setting['label'], USI_Media_Solutions::TEXTDOMAIN);
-            if (!empty($setting['notes'])) $setting['notes'] = ' &nbsp; <i>' . 
-               __($setting['notes'], USI_Media_Solutions::TEXTDOMAIN) . '</i>';
-         }
-      }
-      unset($setting);
 
       return($sections);
 
