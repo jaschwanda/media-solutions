@@ -32,11 +32,13 @@ class USI_Media_Solutions_Reload extends USI_WordPress_Solutions_Settings {
 
       $back = get_post_meta($id, '_wp_attachment_backup_sizes');
 
+      $file = get_post_meta($id, '_wp_attachment_file');
+
       $meta = get_post_meta($id, '_wp_attachment_metadata');
 
       $post = get_post($id);
 
-usi_log(__METHOD__.':'.__LINE__.':meta=' . print_r($meta, true) . PHP_EOL . 'post=' . print_r($post, true) . PHP_EOL . 'back=' . print_r($back, true));
+      usi_log(__METHOD__.':'.__LINE__.':file=' . $file . PHP_EOL . 'meta=' . print_r($meta, true) . PHP_EOL . 'post=' . print_r($post, true) . PHP_EOL . 'back=' . print_r($back, true));
 
       $this->text['page_header'] = __('Reload Media File', USI_Media_Solutions::TEXTDOMAIN);
 
