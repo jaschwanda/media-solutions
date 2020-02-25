@@ -38,7 +38,13 @@ class USI_Media_Solutions_Reload extends USI_WordPress_Solutions_Settings {
 
       $post = get_post($id);
 
-      usi_log(__METHOD__.':'.__LINE__.':file=' . $file . PHP_EOL . 'meta=' . print_r($meta, true) . PHP_EOL . 'post=' . print_r($post, true) . PHP_EOL . 'back=' . print_r($back, true));
+      if (!empty($back)) usi_log(__METHOD__.':'.__LINE__.':back=' . print_r($back, true));
+
+      if (!empty($file)) usi_log(__METHOD__.':'.__LINE__.':file=' . print_r($file, true));
+
+      if (!empty($meta)) usi_log(__METHOD__.':'.__LINE__.':meta=' . print_r($meta, true));
+
+      if (!empty($post)) usi_log(__METHOD__.':'.__LINE__.':post=' . print_r($post, true));
 
       $this->text['page_header'] = __('Reload Media File', USI_Media_Solutions::TEXTDOMAIN);
 
