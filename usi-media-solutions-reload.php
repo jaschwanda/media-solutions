@@ -22,6 +22,8 @@ class USI_Media_Solutions_Reload extends USI_WordPress_Solutions_Settings {
 
    const VERSION = '1.1.1 (2020-02-19)';
 
+   private $meta = null;
+
    private $text = array();
 
    function __construct() {
@@ -30,21 +32,21 @@ class USI_Media_Solutions_Reload extends USI_WordPress_Solutions_Settings {
 
       $id   = !empty($_REQUEST['id']) ? $_REQUEST['id'] : 0;
 
-      $back = get_post_meta($id, '_wp_attachment_backup_sizes');
+      $this->back = get_post_meta($id, '_wp_attachment_backup_sizes');
 
-      $file = get_post_meta($id, '_wp_attachment_file');
+      $this->file = get_post_meta($id, '_wp_attachment_file');
 
-      $meta = get_post_meta($id, '_wp_attachment_metadata');
+      $this->meta = get_post_meta($id, '_wp_attachment_metadata'); 
 
-      $post = get_post($id);
+      $this->post = get_post($id); 
 
-      if (!empty($back)) usi_log(__METHOD__.':'.__LINE__.':back=' . print_r($back, true));
+      if (isset($this->back)) usi_log(__METHOD__.':'.__LINE__.':$back=' . print_r($this->back, true));
 
-      if (!empty($file)) usi_log(__METHOD__.':'.__LINE__.':file=' . print_r($file, true));
+      if (isset($this->file)) usi_log(__METHOD__.':'.__LINE__.':$file=' . print_r($this->file, true));
 
-      if (!empty($meta)) usi_log(__METHOD__.':'.__LINE__.':meta=' . print_r($meta, true));
+      if (isset($this->meta)) usi_log(__METHOD__.':'.__LINE__.':$meta=' . print_r($this->meta, true));
 
-      if (!empty($post)) usi_log(__METHOD__.':'.__LINE__.':post=' . print_r($post, true));
+      if (isset($this->post)) usi_log(__METHOD__.':'.__LINE__.':$post=' . print_r($this->post, true));
 
       $this->text['page_header'] = __('Reload Media File', USI_Media_Solutions::TEXTDOMAIN);
 
@@ -167,9 +169,32 @@ class USI_Media_Solutions_Reload extends USI_WordPress_Solutions_Settings {
                   'type' => 'text', 
                ),
             ),
-         ), // preferences;
+         ), // settings;
 
       );
+
+      $guid   = $this->post->guid;
+      $length = strlen($guid);
+      while ($length && ('/' != $guid[--$length]));
+      $base   = substr($guid, 0, $length + 1);
+
+      if (isset($this->back[0])) foreach ($this->back[0] as $key => $value) {
+         $file = $value['file'];
+         $sections['settings']['settings'][$key] = array(
+            'label' => $key, 
+            'type' => 'checkbox', 
+            'notes' => '<a href="' . $base . $value['file'] . '" target="_blank">b-' . $value['file'] . '</a>',
+         );
+      }
+
+      if (isset($this->meta[0]['sizes'])) foreach ($this->meta[0]['sizes'] as $key => $value) {
+         $file = $value['file'];
+         $sections['settings']['settings'][$key] = array(
+            'label' => $key, 
+            'type' => 'checkbox', 
+            'notes' => '<a href="' . $base . $value['file'] . '" target="_blank">m-' . $value['file'] . '</a>',
+         );
+      }
 
       return($sections);
 
