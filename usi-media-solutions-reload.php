@@ -40,14 +40,6 @@ class USI_Media_Solutions_Reload extends USI_WordPress_Solutions_Settings {
 
       $this->post = get_post($id); 
 
-      if (isset($this->back)) usi_log(__METHOD__.':'.__LINE__.':$back=' . print_r($this->back, true));
-
-      if (isset($this->file)) usi_log(__METHOD__.':'.__LINE__.':$file=' . print_r($this->file, true));
-
-      if (isset($this->meta)) usi_log(__METHOD__.':'.__LINE__.':$meta=' . print_r($this->meta, true));
-
-      if (isset($this->post)) usi_log(__METHOD__.':'.__LINE__.':$post=' . print_r($this->post, true));
-
       $this->text['page_header'] = __('Reload Media File', USI_Media_Solutions::TEXTDOMAIN);
 
       parent::__construct(
