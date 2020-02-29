@@ -18,9 +18,11 @@ Copyright (c) 2020 by Jim Schwanda.
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-settings.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-versions.php');
 
-class USI_Media_Solutions_Reload extends USI_WordPress_Solutions_Settings {
+class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
    const VERSION = '1.1.1 (2020-02-19)';
+
+   protected $is_tabbed = true;
 
    private $id   = 0;
 
@@ -33,22 +35,23 @@ class USI_Media_Solutions_Reload extends USI_WordPress_Solutions_Settings {
 
    function __construct() {
 
-      $this->options = get_option(USI_Media_Solutions::PREFIX . '-options-reload');
+      $this->options = get_option(USI_Media_Solutions::PREFIX . '-options-manage');
 
       if (!empty($_REQUEST['id'])) $this->load($_REQUEST['id']);
 
-      $this->text['page_header'] = __('Reload Media File', USI_Media_Solutions::TEXTDOMAIN);
+      $this->text['page_header'] = __('Manage Media', USI_Media_Solutions::TEXTDOMAIN);
 
       parent::__construct(
          array(
          // 'debug'       => 'usi_log',
-            'capability'  => USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'reload-media'), 
+            'capability'  => USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'manage-media'), 
             'name'        => $this->text['page_header'], 
-            'prefix'      => USI_Media_Solutions::PREFIX . '-reload',
+            'prefix'      => USI_Media_Solutions::PREFIX . '-manage',
             'text_domain' => USI_Media_Solutions::TEXTDOMAIN,
             'options'     => & $this->options,
             'hide'        => true,
             'page'        => 'menu',
+            'query'       => '&id=' . $this->id,
             'no_settings_link' => true
          )
       );
@@ -56,67 +59,70 @@ class USI_Media_Solutions_Reload extends USI_WordPress_Solutions_Settings {
    } // __construct();
 
    function fields_sanitize($input) {
-
-      if (!$this->id) $this->load($input['folder']['id']);
+usi_log('$this->id=' . $this->id . PHP_EOL . print_r($input, true));
+      if (!$this->id) $this->load($input['files']['id']);
 
       $update_back = $update_meta = false;
-      foreach ($input['files'] as $key => $value) {
+      $upload_path = wp_get_upload_dir();
+
+      foreach ($input['files'] as $name => $value) {
          $delete_file = null;
-         $delete_path = null;
-         if (isset($this->back[0][$key])) {
-            $delete_path = $this->back[0][$key]['file'];
-            $delete_file = $key;
+         $delete_name = null;
+         if (!empty($this->back[$name])) {
             $update_back = true;
-//            unset($this->back[0][$key]);
+            $delete_name = $name;
+            $delete_file = $this->back[$name]['file'];
+            unset($this->back[$name]);
          }
-         if (isset($this->meta[0]['sizes'][$key])) {
-            $delete_path = $this->meta[0]['sizes'][$key]['file'];
-            $delete_file = $key;
+         if (!empty($this->meta['sizes'][$name])) {
             $update_meta = true;
-//            unset($this->meta[0]['sizes'][$key]);
+            $delete_name = $name;
+            $delete_file = $this->meta['sizes'][$name]['file'];
+            unset($this->meta['sizes'][$name]);
          }
-         if ($delete_file) {
-            usi_log(__METHOD__.':'.__LINE__.':file=' . $delete_file . ' path=' . $delete_path);
-           //wp_delete_file($file);
-//wp_delete_attachment( $post_id )
+         if ($delete_name) {
+            $file = $upload_path['path'] . DIRECTORY_SEPARATOR . $delete_file;
+            usi_log(__METHOD__.':'.__LINE__.':file=' . $file);
+            wp_delete_file($file);
          }
       }
-/*
+
       if ($update_back) {
          update_post_meta($this->id, '_wp_attachment_backup_sizes', $this->back);
-         $back = get_post_meta($this->id, '_wp_attachment_backup_sizes');
+         $back = get_post_meta($this->id, '_wp_attachment_backup_sizes', true);
 $status = ($this->back == $back) ? 'good' : 'bad';
 usi_log(__METHOD__.':'.__LINE__.'back:status=' . $status . PHP_EOL . print_r($back, true) . PHP_EOL . print_r($this->back, true));
       }
 
       if ($update_meta) {
          update_post_meta($this->id, '_wp_attachment_metadata', $this->meta);
-         $meta = get_post_meta($this->id, '_wp_attachment_metadata');
+         $meta = get_post_meta($this->id, '_wp_attachment_metadata', true);
 $status = ($this->meta == $meta) ? 'good' : 'bad';
 usi_log(__METHOD__.':'.__LINE__.'meta:status=' . $status . PHP_EOL . print_r($meta, true) . PHP_EOL . print_r($this->meta, true));
       }
-*/
+
    } // fields_sanitize();
 
    private function load($id) {
 
       $this->id   = $id;
 
-      $this->back = get_post_meta($id, '_wp_attachment_backup_sizes');
+      $this->back = get_post_meta($id, '_wp_attachment_backup_sizes', true);
 
-      $this->file = get_post_meta($id, '_wp_attachment_file');
+      $this->file = get_post_meta($id, '_wp_attachment_file', true);
 
-      $this->meta = get_post_meta($id, '_wp_attachment_metadata'); 
+      $this->meta = get_post_meta($id, '_wp_attachment_metadata', true); 
+
+      $this->path = USI_Media_Solutions_Folder::get_path($id);
 
       $this->post = get_post($id); 
-
 /*
       if (isset($this->back)) usi_log(__METHOD__.':'.__LINE__.':$back=' . print_r($this->back, true));
       if (isset($this->file)) usi_log(__METHOD__.':'.__LINE__.':$file=' . print_r($this->file, true));
       if (isset($this->meta)) usi_log(__METHOD__.':'.__LINE__.':$meta=' . print_r($this->meta, true));
+      if (isset($this->path)) usi_log(__METHOD__.':'.__LINE__.':$path=' . $this->path);
       if (isset($this->post)) usi_log(__METHOD__.':'.__LINE__.':$post=' . print_r($this->post, true));
 */
-
    } // load();
 
    function page_render($options = null) {
@@ -127,17 +133,29 @@ usi_log(__METHOD__.':'.__LINE__.'meta:status=' . $status . PHP_EOL . print_r($me
 
       if (!is_object($this->post)) return;
 
-      $this->options['folder']['id'] = !empty($_REQUEST['id']) ? $_REQUEST['id'] : 0;
+      $this->options['files']['id'] = !empty($_REQUEST['id']) ? $_REQUEST['id'] : 0;
 
       $sections = array(
-         'folder' => array(
+
+         'files' => array(
+            'label' => 'Delete',
             'localize_labels' => 'yes',
-            'localize_notes' => 2, // &nbsp; <i>__()</i>;
+            'localize_notes' => 0, // Nothing;
+            'header_callback' => array($this, 'sections_files_header'),
+            'footer_callback' => array($this, 'sections_files_footer'),
             'settings' => array(
                'id' => array(
-                  'label' => 'Id', 
+                  'class' => 'hidden', 
                   'type' => 'hidden', 
                ),
+            ), // settings;
+         ), // files;
+
+         'reload' => array(
+            'label' => 'Reload',
+            'localize_notes' => 2, // &nbsp; <i>__()</i>;
+            'footer_callback' => array($this, 'sections_files_footer'),
+            'settings' => array(
                'folder' => array(
                   'f-class' => 'regular-text', 
                   'label' => 'Folder', 
@@ -148,35 +166,31 @@ usi_log(__METHOD__.':'.__LINE__.'meta:status=' . $status . PHP_EOL . print_r($me
                   'label' => 'Description', 
                   'type' => 'text', 
                ),
-            ),
+            ), // settings;
          ), // folder;
-         'files' => array(
-            'header_callback' => array($this, 'sections_files_header'),
-            'footer_callback' => array($this, 'sections_files_footer'),
-         ), // files;
 
       );
 
       $guid   = $this->post->guid;
       $length = strlen($guid);
-      while ($length && ('/' != $guid[--$length]));
+      while ($length && (DIRECTORY_SEPARATOR != $guid[--$length]));
       $base   = substr($guid, 0, $length + 1);
 
-      if (isset($this->back[0])) foreach ($this->back[0] as $key => $value) {
+      if (!empty($this->back)) foreach ($this->back as $name => $value) {
          $file = $value['file'];
-         $sections['files']['settings'][$key] = array(
-            'label' => $key, 
+         $sections['files']['settings'][$name] = array(
+            'label' => $name, 
             'type' => 'checkbox', 
-            'notes' => '<a href="' . $base . $value['file'] . '" target="_blank">' . $value['file'] . '</a>',
+            'notes' => '&nbsp; <a href="' . $base . $file . '" target="_blank">' . $file . '</a>',
          );
       }
 
-      if (isset($this->meta[0]['sizes'])) foreach ($this->meta[0]['sizes'] as $key => $value) {
+      if (!empty($this->meta['sizes'])) foreach ($this->meta['sizes'] as $name => $value) {
          $file = $value['file'];
-         $sections['files']['settings'][$key] = array(
-            'label' => $key, 
+         $sections['files']['settings'][$name] = array(
+            'label' => $name, 
             'type' => 'checkbox', 
-            'notes' => '<a href="' . $base . $value['file'] . '" target="_blank">' . $value['file'] . '</a>',
+            'notes' => '&nbsp; <a href="' . $base . $file . '" target="_blank">' . $file . '</a>',
          );
       }
 
@@ -185,18 +199,21 @@ usi_log(__METHOD__.':'.__LINE__.'meta:status=' . $status . PHP_EOL . print_r($me
    } // sections();
 
    function sections_files_footer() {
+      $button = ('reload' == $this->active_tab ? 'Reload' : 'Delete') . ' Media';
       echo '<p class="submit">' . PHP_EOL;
-      submit_button($this->text['page_header'], 'primary', 'submit', false); 
-      echo ' &nbsp; <a class="button button-secondary" href="admin.php?page=usi-mm-upload-folders-page">' .
+      submit_button(__($button, USI_Media_Solutions::TEXTDOMAIN), 'primary', 'submit', false); 
+      echo ' &nbsp; <a class="button button-secondary" href="upload.php">' .
+         __('Back To Library', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . 
+         ' &nbsp; <a class="button button-secondary" href="admin.php?page=usi-mm-upload-folders-page">' .
          __('Back To Folders', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . '</p>';
    } // sections_files_footer();
 
    function sections_files_header() {
-      echo '<h2>' . __('Delete Associated Files', USI_Media_Solutions::TEXTDOMAIN) . '</h2>' . PHP_EOL;
+      echo '<p>' . __('You can permanently delete the following thumbnails and associated files to free up space in your file system.', USI_Media_Solutions::TEXTDOMAIN) . '</p>' . PHP_EOL;
    } // sections_files_header();
 
-} // Class USI_Media_Solutions_Reload;
+} // Class USI_Media_Solutions_Manage;
 
-new USI_Media_Solutions_Reload();
+new USI_Media_Solutions_Manage();
 
 // --------------------------------------------------------------------------------------------------------------------------- // ?>

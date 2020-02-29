@@ -123,7 +123,7 @@ function usi_MM_posts_where($where, $wp_query) {
    global $pagenow, $wpdb;
    if ('upload.php' == $pagenow) {
       if (isset($_GET['guid'])) {
-         $guid = 'http' . ($_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . rawurldecode($_GET['guid']);
+         $guid = 'http' . (is_ssl() ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . rawurldecode($_GET['guid']);
          $where .= " AND ({$wpdb->posts}.`guid` LIKE '$guid%')";
       }
    }

@@ -31,7 +31,7 @@ Copyright (c) 2020 by Jim Schwanda.
 
 require_once('usi-media-solutions-folder-add.php');
 require_once('usi-media-solutions-folder-list.php');
-require_once('usi-media-solutions-reload.php');
+require_once('usi-media-solutions-manage.php');
 
 class USI_Media_Solutions_Folder {
 
@@ -149,9 +149,9 @@ class USI_Media_Solutions_Folder {
    function filter_attachment_link($link, $post_id) {
       // IF upload folder given;
       if ($folder = self::get_path($post_id)) {
-         $meta = get_post_meta($post_id, '_wp_attachment_metadata');
-         if (!empty($meta[0]['file'])) {
-            $path = get_home_url() . $folder . ($folder ? '/' : '') . basename($meta[0]['file']);
+         $meta = get_post_meta($post_id, '_wp_attachment_metadata', true);
+         if (!empty($meta['file'])) {
+            $path = get_home_url() . $folder . ($folder ? '/' : '') . basename($meta['file']);
             $this->log_folder(__METHOD__, $post_id, $link, $path);
             return($path);
          }
@@ -162,10 +162,10 @@ class USI_Media_Solutions_Folder {
    function filter_get_attached_file($file, $post_id) { 
       // IF upload folder given;
       if (self::get_path($post_id)) {
-         $meta = get_post_meta($post_id, '_wp_attachment_metadata');
-         if (!empty($meta[0]['file'])) {
-            $this->log_folder(__METHOD__, $post_id, $file, $meta[0]['file']);
-            return($meta[0]['file']);
+         $meta = get_post_meta($post_id, '_wp_attachment_metadata', true);
+         if (!empty($meta['file'])) {
+            $this->log_folder(__METHOD__, $post_id, $file, $meta['file']);
+            return($meta['file']);
          }
       } // ENDIF upload folder given;
       return($file);
@@ -191,9 +191,9 @@ class USI_Media_Solutions_Folder {
       foreach ($actions as $key => $value) {
          $new_actions[$key] = $value;
          if ('edit' == $key) {
-            $new_actions['reload_media'] = '<a href="' . 
-               admin_url('admin.php?page=usi-media-reload-settings&id=' . $object->ID) . 
-               '">' . __('Reload', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
+            $new_actions['manage_media'] = '<a href="' . 
+               admin_url('admin.php?page=usi-media-manage-settings&id=' . $object->ID) . 
+               '">' . __('Manage', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
          }
       }
       return($new_actions);
@@ -227,9 +227,9 @@ class USI_Media_Solutions_Folder {
    function filter_wp_get_attachment_url($url, $post_id) {
       // IF upload folder given;
       if ($folder = self::get_path($post_id)) {
-         $meta = get_post_meta($post_id, '_wp_attachment_metadata');
-         if (!empty($meta[0]['file'])) {
-            $path = get_home_url() . $folder . ($folder ? '/' : '') . basename($meta[0]['file']);
+         $meta = get_post_meta($post_id, '_wp_attachment_metadata', true);
+         if (!empty($meta['file'])) {
+            $path = get_home_url() . $folder . ($folder ? '/' : '') . basename($meta['file']);
             $this->log_folder(__METHOD__, $post_id, $url, $path);
             return($path);
          }
@@ -261,7 +261,7 @@ class USI_Media_Solutions_Folder {
       return($folders);
    } // get_folders();
 
-   private static function get_path($post_id) {
+   public static function get_path($post_id) {
       if (self::$post_id == $post_id) return(self::$post_path);
       return(self::$post_path = get_post_meta(self::$post_id = $post_id, USI_Media_Solutions::MEDIAPATH, true));
    } // get_path();

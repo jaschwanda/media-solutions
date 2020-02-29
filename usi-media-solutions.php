@@ -73,6 +73,8 @@ class USI_Media_Solutions {
       'view-folders' => 'View Upload Folders|administrator|editor',
       'create-folders' => 'Create Upload Folders|administrator',
       'create-tags' => 'Create Tags|administrator',
+      'manage-media' => 'Manage Media|administrator',
+      'delete-media' => 'Delete Media|administrator',
       'reload-media' => 'Reload Media|administrator',
    );
 
