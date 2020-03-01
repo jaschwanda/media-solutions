@@ -20,7 +20,7 @@ require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-s
 
 class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.1.1 (2020-02-19)';
+   const VERSION = '1.1.1 (2020-03-01)';
 
    protected $is_tabbed = true;
 
@@ -59,47 +59,34 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
    } // __construct();
 
    function fields_sanitize($input) {
-usi_log('$this->id=' . $this->id . PHP_EOL . print_r($input, true));
+
       if (!$this->id) $this->load($input['files']['id']);
+
+      if (!empty($_FILES)) {
+         usi_log(__METHOD__.':'.__LINE__.':files=' . print_r($_FILES, true));
+      }
 
       $update_back = $update_meta = false;
       $upload_path = wp_get_upload_dir();
 
       foreach ($input['files'] as $name => $value) {
          $delete_file = null;
-         $delete_name = null;
          if (!empty($this->back[$name])) {
             $update_back = true;
-            $delete_name = $name;
             $delete_file = $this->back[$name]['file'];
             unset($this->back[$name]);
          }
          if (!empty($this->meta['sizes'][$name])) {
             $update_meta = true;
-            $delete_name = $name;
             $delete_file = $this->meta['sizes'][$name]['file'];
             unset($this->meta['sizes'][$name]);
          }
-         if ($delete_name) {
-            $file = $upload_path['path'] . DIRECTORY_SEPARATOR . $delete_file;
-            usi_log(__METHOD__.':'.__LINE__.':file=' . $file);
-            wp_delete_file($file);
-         }
+         if ($delete_file) wp_delete_file($upload_path['path'] . DIRECTORY_SEPARATOR . $delete_file);
       }
 
-      if ($update_back) {
-         update_post_meta($this->id, '_wp_attachment_backup_sizes', $this->back);
-         $back = get_post_meta($this->id, '_wp_attachment_backup_sizes', true);
-$status = ($this->back == $back) ? 'good' : 'bad';
-usi_log(__METHOD__.':'.__LINE__.'back:status=' . $status . PHP_EOL . print_r($back, true) . PHP_EOL . print_r($this->back, true));
-      }
+      if ($update_back) update_post_meta($this->id, '_wp_attachment_backup_sizes', $this->back);
 
-      if ($update_meta) {
-         update_post_meta($this->id, '_wp_attachment_metadata', $this->meta);
-         $meta = get_post_meta($this->id, '_wp_attachment_metadata', true);
-$status = ($this->meta == $meta) ? 'good' : 'bad';
-usi_log(__METHOD__.':'.__LINE__.'meta:status=' . $status . PHP_EOL . print_r($meta, true) . PHP_EOL . print_r($this->meta, true));
-      }
+      if ($update_meta) update_post_meta($this->id, '_wp_attachment_metadata', $this->meta);
 
    } // fields_sanitize();
 
@@ -116,16 +103,17 @@ usi_log(__METHOD__.':'.__LINE__.'meta:status=' . $status . PHP_EOL . print_r($me
       $this->path = USI_Media_Solutions_Folder::get_path($id);
 
       $this->post = get_post($id); 
-/*
-      if (isset($this->back)) usi_log(__METHOD__.':'.__LINE__.':$back=' . print_r($this->back, true));
-      if (isset($this->file)) usi_log(__METHOD__.':'.__LINE__.':$file=' . print_r($this->file, true));
-      if (isset($this->meta)) usi_log(__METHOD__.':'.__LINE__.':$meta=' . print_r($this->meta, true));
-      if (isset($this->path)) usi_log(__METHOD__.':'.__LINE__.':$path=' . $this->path);
-      if (isset($this->post)) usi_log(__METHOD__.':'.__LINE__.':$post=' . print_r($this->post, true));
-*/
+
+   // if (isset($this->back)) usi_log(__METHOD__.':'.__LINE__.':$back=' . print_r($this->back, true));
+   // if (isset($this->file)) usi_log(__METHOD__.':'.__LINE__.':$file=' . print_r($this->file, true));
+   // if (isset($this->meta)) usi_log(__METHOD__.':'.__LINE__.':$meta=' . print_r($this->meta, true));
+   // if (isset($this->path)) usi_log(__METHOD__.':'.__LINE__.':$path=' . $this->path);
+   // if (isset($this->post)) usi_log(__METHOD__.':'.__LINE__.':$post=' . print_r($this->post, true));
+
    } // load();
 
    function page_render($options = null) {
+      if ('reload' == $this->active_tab) $this->enctype = ' enctype="multipart/form-data"';
       parent::page_render($this->text);
    } // page_render();
 
@@ -156,15 +144,9 @@ usi_log(__METHOD__.':'.__LINE__.'meta:status=' . $status . PHP_EOL . print_r($me
             'localize_notes' => 2, // &nbsp; <i>__()</i>;
             'footer_callback' => array($this, 'sections_files_footer'),
             'settings' => array(
-               'folder' => array(
-                  'f-class' => 'regular-text', 
-                  'label' => 'Folder', 
-                  'type' => 'text', 
-               ),
-               'description' => array(
-                  'f-class' => 'regular-text', 
-                  'label' => 'Description', 
-                  'type' => 'text', 
+               'file' => array(
+                  'label' => 'File', 
+                  'type' => 'file', 
                ),
             ), // settings;
          ), // folder;
@@ -176,8 +158,18 @@ usi_log(__METHOD__.':'.__LINE__.'meta:status=' . $status . PHP_EOL . print_r($me
       while ($length && (DIRECTORY_SEPARATOR != $guid[--$length]));
       $base   = substr($guid, 0, $length + 1);
 
-      if (!empty($this->back)) foreach ($this->back as $name => $value) {
+      $files  = array(); // List of iles added to list to prevent duplicates;
+
+      // Load default base file;
+      if (!empty($this->meta['file'])) {
+         $file = basename($this->meta['file']);
+         $files[$file] = true;
+         $this->text['page_header'] .= ' - <a href="' . $base . $file . '" target="_blank">' . $file . '</a>';
+      }
+
+      if (!empty($this->meta['sizes'])) foreach ($this->meta['sizes'] as $name => $value) {
          $file = $value['file'];
+         if (empty($files[$file])) $files[$file] = true;
          $sections['files']['settings'][$name] = array(
             'label' => $name, 
             'type' => 'checkbox', 
@@ -185,13 +177,16 @@ usi_log(__METHOD__.':'.__LINE__.'meta:status=' . $status . PHP_EOL . print_r($me
          );
       }
 
-      if (!empty($this->meta['sizes'])) foreach ($this->meta['sizes'] as $name => $value) {
+      if (!empty($this->back)) foreach ($this->back as $name => $value) {
          $file = $value['file'];
-         $sections['files']['settings'][$name] = array(
-            'label' => $name, 
-            'type' => 'checkbox', 
-            'notes' => '&nbsp; <a href="' . $base . $file . '" target="_blank">' . $file . '</a>',
-         );
+         if (empty($files[$file])) {
+            $files[$file] = true;
+            $sections['files']['settings'][$name] = array(
+               'label' => $name, 
+               'type' => 'checkbox', 
+               'notes' => '&nbsp; <a href="' . $base . $file . '" target="_blank">' . $file . '</a>',
+            );
+         }
       }
 
       return($sections);
