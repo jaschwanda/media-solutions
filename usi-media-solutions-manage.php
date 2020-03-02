@@ -204,7 +204,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
    } // sections_files_footer();
 
    function sections_files_header() {
-      echo '<p>' . __('You can permanently delete the following thumbnails and associated files to free up space in your file system.', USI_Media_Solutions::TEXTDOMAIN) . '</p>' . PHP_EOL;
+      echo '<p>' . __('You can permanently delete the following thumbnails and associated files to free up space in your file system. Go to the <a href="upload.php">media library</a> to permanently delete this file and all of its thumbnails and associated files in one step.', USI_Media_Solutions::TEXTDOMAIN) . '</p>' . PHP_EOL;
    } // sections_files_header();
 
 } // Class USI_Media_Solutions_Manage;
