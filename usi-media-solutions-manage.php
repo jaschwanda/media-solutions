@@ -155,20 +155,22 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
       $guid   = $this->post->guid;
       $length = strlen($guid);
-      while ($length && (DIRECTORY_SEPARATOR != $guid[--$length]));
+      while ($length && ('/' != $guid[--$length]));//DIRECTORY_SEPARATOR
       $base   = substr($guid, 0, $length + 1);
-
-      $files  = array(); // List of iles added to list to prevent duplicates;
+usi_log(__METHOD__.':'.__LINE__.':guid=' . $guid . ' base=' . $base . ' DIRECTORY_SEPARATOR=' . DIRECTORY_SEPARATOR);
+      $files  = array(); // List of files added to list to prevent duplicates;
 
       // Load default base file;
       if (!empty($this->meta['file'])) {
          $file = basename($this->meta['file']);
+usi_log(__METHOD__.':'.__LINE__.':file=' . $file);
          $files[$file] = true;
          $this->text['page_header'] .= ' - <a href="' . $base . $file . '" target="_blank">' . $file . '</a>';
       }
 
       if (!empty($this->meta['sizes'])) foreach ($this->meta['sizes'] as $name => $value) {
          $file = $value['file'];
+usi_log(__METHOD__.':'.__LINE__.':file=' . $file);
          if (empty($files[$file])) $files[$file] = true;
          $sections['files']['settings'][$name] = array(
             'label' => $name, 
