@@ -28,6 +28,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
    private $back = null;
    private $file = null;
+   private $many = true;
    private $meta = null;
    private $post = null;
 
@@ -63,6 +64,9 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
       if (!$this->id) $this->load($input['files']['id']);
 
       if (!empty($_FILES)) {
+// https://premium.wpmudev.org/blog/upload-file-functions/
+// https://makitweb.com/programmatically-file-upload-from-custom-plugin-in-wordpress/
+// https://pqina.nl/blog/uploading-files-to-wordpress-media-library/
          usi_log(__METHOD__.':'.__LINE__.':files=' . print_r($_FILES, true));
       }
 
@@ -155,28 +159,29 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
       $guid   = $this->post->guid;
       $length = strlen($guid);
-      while ($length && ('/' != $guid[--$length]));//DIRECTORY_SEPARATOR
+      while ($length && ('/' != $guid[--$length]));
       $base   = substr($guid, 0, $length + 1);
-usi_log(__METHOD__.':'.__LINE__.':guid=' . $guid . ' base=' . $base . ' DIRECTORY_SEPARATOR=' . DIRECTORY_SEPARATOR);
       $files  = array(); // List of files added to list to prevent duplicates;
 
       // Load default base file;
       if (!empty($this->meta['file'])) {
          $file = basename($this->meta['file']);
-usi_log(__METHOD__.':'.__LINE__.':file=' . $file);
          $files[$file] = true;
-         $this->text['page_header'] .= ' - <a href="' . $base . $file . '" target="_blank">' . $file . '</a>';
+      } else {
+         $this->many = false;
       }
+      $this->text['page_header'] .= ' - <a href="' . $guid . '" target="_blank">' . substr($guid, $length + 1) . '</a>';
 
       if (!empty($this->meta['sizes'])) foreach ($this->meta['sizes'] as $name => $value) {
          $file = $value['file'];
-usi_log(__METHOD__.':'.__LINE__.':file=' . $file);
-         if (empty($files[$file])) $files[$file] = true;
-         $sections['files']['settings'][$name] = array(
-            'label' => $name, 
-            'type' => 'checkbox', 
-            'notes' => '&nbsp; <a href="' . $base . $file . '" target="_blank">' . $file . '</a>',
-         );
+         if (empty($files[$file])) {
+            $files[$file] = true;
+            $sections['files']['settings'][$name] = array(
+               'label' => $name, 
+               'type' => 'checkbox', 
+               'notes' => '&nbsp; <a href="' . $base . $file . '" target="_blank">' . $file . '</a>',
+            );
+         }
       }
 
       if (!empty($this->back)) foreach ($this->back as $name => $value) {
@@ -206,7 +211,10 @@ usi_log(__METHOD__.':'.__LINE__.':file=' . $file);
    } // sections_files_footer();
 
    function sections_files_header() {
-      echo '<p>' . __('You can permanently delete the following thumbnails and associated files to free up space in your file system. Go to the <a href="upload.php">media library</a> to permanently delete this file and all of its thumbnails and associated files in one step.', USI_Media_Solutions::TEXTDOMAIN) . '</p>' . PHP_EOL;
+      echo '<p>' . ($this->many 
+         ? __('You can permanently delete the following thumbnails and associated files to free up space in your file system. Go to the <a href="upload.php">media library</a> to permanently delete this file and all of its thumbnails and associated files in one step.', USI_Media_Solutions::TEXTDOMAIN)
+         : __('Go to the <a href="upload.php">media library</a> to permanently delete this file in one step.', USI_Media_Solutions::TEXTDOMAIN)) . 
+         '</p>' . PHP_EOL;
    } // sections_files_header();
 
 } // Class USI_Media_Solutions_Manage;
