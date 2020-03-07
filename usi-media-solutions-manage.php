@@ -66,6 +66,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 // https://premium.wpmudev.org/blog/upload-file-functions/
 // https://makitweb.com/programmatically-file-upload-from-custom-plugin-in-wordpress/
 // https://pqina.nl/blog/uploading-files-to-wordpress-media-library/
+// media-new.php processes the wordpress single file upload.
  
       if (!empty($_FILES)) {
          usi_log(__METHOD__.':'.__LINE__.':files=' . print_r($_FILES, true));
