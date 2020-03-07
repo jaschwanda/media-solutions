@@ -63,10 +63,11 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
       if (!$this->id) $this->load($input['files']['id']);
 
-      if (!empty($_FILES)) {
 // https://premium.wpmudev.org/blog/upload-file-functions/
 // https://makitweb.com/programmatically-file-upload-from-custom-plugin-in-wordpress/
 // https://pqina.nl/blog/uploading-files-to-wordpress-media-library/
+ 
+      if (!empty($_FILES)) {
          usi_log(__METHOD__.':'.__LINE__.':files=' . print_r($_FILES, true));
       }
 
