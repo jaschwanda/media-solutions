@@ -69,6 +69,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
  
       if (!empty($_FILES)) {
          usi_log(__METHOD__.':'.__LINE__.':files=' . print_r($_FILES, true));
+         // $upload = wp_upload_bits($_FILES['image']['name'], null, file_get_contents($_FILES['image']['tmp_name']));
       }
 
       $update_back = $update_meta = false;
