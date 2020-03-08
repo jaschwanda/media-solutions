@@ -37,6 +37,7 @@ class USI_Media_Solutions_Folder {
 
    const VERSION = '1.1.1 (2020-02-19)';
 
+   private static $folder_id = 0;
    private static $post_id   = 0;
    private static $post_path = null;
 
@@ -47,6 +48,7 @@ class USI_Media_Solutions_Folder {
 
       add_action('add_attachment', array($this, 'action_add_attachment'));
       add_action('admin_menu', array($this, 'action_admin_menu'));
+      add_action('init', array($this, 'action_init'));
       add_action('manage_media_custom_column', array($this, 'action_manage_media_custom_column'), 10, 2);
       add_action('post-upload-ui', array($this, 'action_post_upload_ui'));
 
@@ -63,7 +65,7 @@ class USI_Media_Solutions_Folder {
 
    function action_add_attachment($post_id) {
       // IF upload folder given;
-      if (!empty($_REQUEST['folder_id'])) {
+      if (!empty(self::$folder_id)) {
          $post = get_post(self::$post_id = $post_id);
          $path = self::$post_path = '/' . trim(trim(dirname(str_replace(get_home_url(), '', $post->guid)), '\\'), '/');
          add_post_meta($post_id, USI_Media_Solutions::MEDIAPATH, $path, true);
@@ -72,7 +74,6 @@ class USI_Media_Solutions_Folder {
    } // action_add_attachment();
 
    function action_admin_menu() {
-
       $usi_MM_upload_folders_hook = add_media_page(
          'usi-MM-upload-folders', // Text displayed in title tags of page when menu is selected;
          'Upload Folders', // Text displayed in menu bar;
@@ -80,8 +81,11 @@ class USI_Media_Solutions_Folder {
          /* lower case for option; */ 'usi-mm-upload-folders-page', // Menu page slug name;
          'usi_MM_upload_folders_page' // Function called to render page content;
       );
-
    } // action_admin_menu();
+
+   function action_init() {
+      self::$folder_id = isset($_REQUEST['folder_id']) ? $_REQUEST['folder_id'] : self::get_user_folder_id();
+   } // action_init();
 
    function action_manage_media_custom_column($column, $id) {
       if ('guid' == $column) {
@@ -98,8 +102,6 @@ class USI_Media_Solutions_Folder {
 
    function action_post_upload_ui() {
 
-      $folder_id     = isset($_REQUEST['folder_id']) ? $_REQUEST['folder_id'] : self::get_user_folder_id();
-
       $folders       = self::get_folders();
 
       $folder_title  = esc_attr('Upload Folder', USI_Media_Solutions::TEXTDOMAIN);
@@ -108,7 +110,7 @@ class USI_Media_Solutions_Folder {
 
       $folder_html_id = USI_Media_Solutions::POSTFOLDER . '-id';
 
-      $folder_html    = USI_WordPress_Solutions_Settings::fields_render_select(' id="' . $folder_html_id . '"', $folders, $folder_id);
+      $folder_html    = USI_WordPress_Solutions_Settings::fields_render_select(' id="' . $folder_html_id . '"', $folders, self::$folder_id);
 
 
       echo '<div id="poststuff">' . PHP_EOL;
@@ -122,7 +124,7 @@ class USI_Media_Solutions_Folder {
       '  });' . PHP_EOL .
       '  </script>' . PHP_EOL;
 
-      update_user_option(get_current_user_id(), USI_Media_Solutions::USERFOLDER, $folder_id);
+      update_user_option(get_current_user_id(), USI_Media_Solutions::USERFOLDER, self::$folder_id);
 
    } // action_post_upload_ui();
 
@@ -139,12 +141,6 @@ class USI_Media_Solutions_Folder {
       '    </div><!--meta-box-sortables-->' . PHP_EOL .
       '  </div><!--postbox-container-' . $index . '-->' . PHP_EOL;
    } // action_post_upload_ui_postbox();
-
-   private function log_folder($method, $post_id, $from, $to) {
-      if ($post_id == USI_Media_Solutions::$options['preferences']['organize-folder-bug']) {
-         usi_log($method . ':post_id=' . $post_id . ' ' . $from . ' => ' . $to);
-      }
-   } // log_folder();
 
    function filter_attachment_link($link, $post_id) {
       // IF upload folder given;
@@ -203,12 +199,12 @@ class USI_Media_Solutions_Folder {
       // IF no upload error;
       if (empty($path['error'])) {
          // IF upload folder given;
-         if (0 < ($folder_id = (int)self::get_user_folder_id())) {
+         if (0 < self::$folder_id) {
             global $wpdb;
             $post = $wpdb->get_row(
                $wpdb->prepare(
                   "SELECT `post_title` FROM `{$wpdb->posts}` WHERE (`ID` = %d) LIMIT 1", 
-                  $folder_id
+                  self::$folder_id
                ), 
                OBJECT
             );
@@ -221,6 +217,7 @@ class USI_Media_Solutions_Folder {
             }
          } // ENDIF upload folder given;
       } // ENDIF no upload error;
+usi_log(__METHOD__.':'.__LINE__.':path=' . print_r($path, true));
       return($path);
    } // filter_upload_dir();
 
@@ -269,6 +266,12 @@ class USI_Media_Solutions_Folder {
    public static function get_user_folder_id() {
       return(get_user_option(USI_Media_Solutions::USERFOLDER, get_current_user_id()));
    } // get_user_folder_id();
+
+   private function log_folder($method, $post_id, $from, $to, $log = false) {
+      if ($log || ($post_id == USI_Media_Solutions::$options['preferences']['organize-folder-bug'])) {
+         usi_log($method . ':post_id=' . $post_id . ' ' . $from . ' => ' . $to);
+      }
+   } // log_folder();
 
 } // Class USI_Media_Solutions_Folder;
 
