@@ -15,7 +15,7 @@ Requires at least: 5.0
 Requires PHP:      5.6.25
 Tested up to:      5.3.2
 Text Domain:       usi-media-solutions
-Version:           1.1.1
+Version:           1.1.2
 */
 
 /*
@@ -58,7 +58,7 @@ Copyright (c) 2020 by Jim Schwanda.
 
 class USI_Media_Solutions {
 
-   const VERSION = '1.1.1 (2020-02-19)';
+   const VERSION = '1.1.2 (2020-03-08)';
 
    const NAME       = 'Media-Solutions';
    const PREFIX     = 'usi-media';
@@ -67,6 +67,8 @@ class USI_Media_Solutions {
    const MEDIAPATH  = 'usi-media-path';
    const POSTFOLDER = 'usi-media-folders';
    const USERFOLDER = 'usi-media-options-folder';
+
+   const OK_IMAGES  = array('gif', 'jpg', 'jpeg', 'png');
 
    public static $capabilities = array(
       'create-categories' => 'Create Categories|administrator',

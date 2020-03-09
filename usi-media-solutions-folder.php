@@ -35,7 +35,7 @@ require_once('usi-media-solutions-manage.php');
 
 class USI_Media_Solutions_Folder {
 
-   const VERSION = '1.1.1 (2020-02-19)';
+   const VERSION = '1.1.2 (2020-03-08)';
 
    private static $folder_id = 0;
    private static $post_id   = 0;

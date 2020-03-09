@@ -20,7 +20,7 @@ require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-s
 
 class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.1.1 (2020-03-01)';
+   const VERSION = '1.1.2 (2020-03-08)';
 
    protected $is_tabbed = true;
 
@@ -74,12 +74,23 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
  
          if (!empty($_FILES[$this->option_name]['tmp_name']['reload']['file']) &&
              !empty($_FILES[$this->option_name]['name']['reload']['file'])) {
+// Is this an image or not;
+// If image does it have any numbnails;
+// Delete image and thunmb nails;
+// Upload image;
             $file     = $this->file;
             $name     = $_FILES[$this->option_name]['name']['reload']['file'];
             $path     = isset($this->path) ? $this->path : null;
             $tmp_name = $_FILES[$this->option_name]['tmp_name']['reload']['file'];
             $type     = isset($this->post) ? $this->post->post_mime_type : null;
             usi_log(__METHOD__.':'.__LINE__.':file=' . $file . ' path=' . $path . ' type=' . $type . ' name=' . $name . ' tmp_name=' . $tmp_name);
+            
+            if ('image/' == substr($type, 0, 6)) {
+               usi_log(__METHOD__.':'.__LINE__.':file is image');
+               if (in_array(substr($type, 6), USI_Media_Solutions::OK_IMAGES)) {
+                  usi_log(__METHOD__.':'.__LINE__.':image is OK');
+               }
+            }
          }
 
          $update_back = $update_meta = false;
