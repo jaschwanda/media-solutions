@@ -24,15 +24,15 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
    protected $is_tabbed = true;
 
-   private $id   = 0;
+   private $id    = 0;
 
-   private $back = null;
-   private $file = null;
-   private $many = true;
-   private $meta = null;
-   private $post = null;
+   private $back  = null;
+   private $count = 0;
+   private $file  = null;
+   private $meta  = null;
+   private $post  = null;
 
-   private $text = array();
+   private $text  = array();
 
    function __construct() {
 
@@ -164,8 +164,8 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
             'label' => 'Delete',
             'localize_labels' => 'yes',
             'localize_notes' => 0, // Nothing;
-            'header_callback' => array($this, 'sections_files_header'),
-            'footer_callback' => array($this, 'sections_files_footer'),
+            'header_callback' => array($this, 'section_header'),
+            'footer_callback' => array($this, 'section_footer'),
             'settings' => array(
                'id' => array(
                   'class' => 'hidden', 
@@ -177,7 +177,8 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
          'reload' => array(
             'label' => 'Reload',
             'localize_notes' => 2, // &nbsp; <i>__()</i>;
-            'footer_callback' => array($this, 'sections_files_footer'),
+            'header_callback' => array($this, 'section_header'),
+            'footer_callback' => array($this, 'section_footer'),
             'settings' => array(
             ), // settings;
          ), // folder;
@@ -188,20 +189,20 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
       $length = strlen($guid);
       while ($length && ('/' != $guid[--$length]));
       $base   = substr($guid, 0, $length + 1);
+      $file   = substr($guid, $length + 1);
       $files  = array(); // List of files added to list to prevent duplicates;
-$file='';
+
       // Load default base file;
       if (!empty($this->meta['file'])) {
          $file = basename($this->meta['file']);
          $files[$file] = true;
-      } else {
-         $this->many = false;
       }
       $this->text['page_header'] .= ' - <a href="' . $base . $file . '" target="_blank">' . $file . '</a>';
 
       if (!empty($this->meta['sizes'])) foreach ($this->meta['sizes'] as $name => $value) {
          $file = $value['file'];
          if (empty($files[$file])) {
+            $this->count++;
             $files[$file] = true;
             $sections['files']['settings'][$name] = array(
                'label' => $name, 
@@ -214,6 +215,7 @@ $file='';
       if (!empty($this->back)) foreach ($this->back as $name => $value) {
          $file = $value['file'];
          if (empty($files[$file])) {
+            $this->count++;
             $files[$file] = true;
             $sections['files']['settings'][$name] = array(
                'label' => $name, 
@@ -224,35 +226,49 @@ $file='';
       }
 
 
-      if (isset($this->post) && ('image/' == substr($this->post->post_mime_type, 0, 6))) {
-      } else {
-            $sections['reload']['settings']['file'] = array(
-               'label' => 'File', 
-               'type' => 'file', 
-            );
+      if (!isset($this->post) || !$this->count || ('image/' != substr($this->post->post_mime_type, 0, 6))) {
+         $sections['reload']['settings']['file'] = array(
+            'label' => 'File', 
+            'type' => 'file', 
+         );
       }
 
       return($sections);
 
    } // sections();
 
-   function sections_files_footer() {
-      $button = ('reload' == $this->active_tab ? 'Reload' : 'Delete') . ' Media';
-      $disabled = '';
+   function section_footer() {
+      if ('files' == $this->active_tab) {
+         $button   = 'Delete Media';
+         $disabled = ($this->count ? '' : ' disabled');
+      } else {
+         $button   = 'Reload Media';
+         $disabled = ($this->count ? ' disabled' : '');
+      }
       echo '<p class="submit">' . PHP_EOL;
       submit_button(__($button, USI_Media_Solutions::TEXTDOMAIN), 'primary' . $disabled, 'submit', false); 
       echo ' &nbsp; <a class="button button-secondary" href="upload.php">' .
          __('Back To Library', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . 
          ' &nbsp; <a class="button button-secondary" href="admin.php?page=usi-mm-upload-folders-page">' .
          __('Back To Folders', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . '</p>';
-   } // sections_files_footer();
+   } // section_footer();
 
-   function sections_files_header() {
-      echo '<p>' . ($this->many 
-         ? __('You can permanently delete the following thumbnails and associated files to free up space in your file system. Go to the <a href="upload.php">media library</a> to permanently delete this file and all of its thumbnails and associated files in one step.', USI_Media_Solutions::TEXTDOMAIN)
-         : __('Go to the <a href="upload.php">media library</a> to permanently delete this file.', USI_Media_Solutions::TEXTDOMAIN)) . 
-         '</p>' . PHP_EOL;
-   } // sections_files_header();
+   function section_header() {
+      if ('files' == $this->active_tab) {
+         if ($this->count) {
+            $head = 'You can permanently delete the following thumbnails and associated files to free up space in your file system. Go to the <a href="upload.php">media library</a> to permanently delete all these files in one step.';
+         } else {
+            $head = 'Go to the <a href="upload.php">media library</a> to permanently delete this file.';
+         }
+      } else {
+         if ($this->count) {
+            $head = 'You must delete all thumbnails and associated files before you can reload this file.';
+         } else {
+            return;
+         }
+      }
+      echo '<p>' . __($head, USI_Media_Solutions::TEXTDOMAIN) . '</p>' . PHP_EOL;
+   } // section_header();
 
 } // Class USI_Media_Solutions_Manage;
 
