@@ -179,10 +179,6 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
             'localize_notes' => 2, // &nbsp; <i>__()</i>;
             'footer_callback' => array($this, 'sections_files_footer'),
             'settings' => array(
-               'file' => array(
-                  'label' => 'File', 
-                  'type' => 'file', 
-               ),
             ), // settings;
          ), // folder;
 
@@ -225,6 +221,15 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
                'notes' => '&nbsp; <a href="' . $base . $file . '" target="_blank">' . $file . '</a>',
             );
          }
+      }
+
+
+      if (isset($this->post) && ('image/' == substr($this->post->post_mime_type, 0, 6))) {
+      } else {
+            $sections['reload']['settings']['file'] = array(
+               'label' => 'File', 
+               'type' => 'file', 
+            );
       }
 
       return($sections);
