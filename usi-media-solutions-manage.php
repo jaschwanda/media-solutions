@@ -189,7 +189,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
       while ($length && ('/' != $guid[--$length]));
       $base   = substr($guid, 0, $length + 1);
       $files  = array(); // List of files added to list to prevent duplicates;
-
+$file='';
       // Load default base file;
       if (!empty($this->meta['file'])) {
          $file = basename($this->meta['file']);
@@ -238,8 +238,9 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
    function sections_files_footer() {
       $button = ('reload' == $this->active_tab ? 'Reload' : 'Delete') . ' Media';
+      $disabled = '';
       echo '<p class="submit">' . PHP_EOL;
-      submit_button(__($button, USI_Media_Solutions::TEXTDOMAIN), 'primary', 'submit', false); 
+      submit_button(__($button, USI_Media_Solutions::TEXTDOMAIN), 'primary' . $disabled, 'submit', false); 
       echo ' &nbsp; <a class="button button-secondary" href="upload.php">' .
          __('Back To Library', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . 
          ' &nbsp; <a class="button button-secondary" href="admin.php?page=usi-mm-upload-folders-page">' .
@@ -249,7 +250,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
    function sections_files_header() {
       echo '<p>' . ($this->many 
          ? __('You can permanently delete the following thumbnails and associated files to free up space in your file system. Go to the <a href="upload.php">media library</a> to permanently delete this file and all of its thumbnails and associated files in one step.', USI_Media_Solutions::TEXTDOMAIN)
-         : __('Go to the <a href="upload.php">media library</a> to permanently delete this file in one step.', USI_Media_Solutions::TEXTDOMAIN)) . 
+         : __('Go to the <a href="upload.php">media library</a> to permanently delete this file.', USI_Media_Solutions::TEXTDOMAIN)) . 
          '</p>' . PHP_EOL;
    } // sections_files_header();
 
