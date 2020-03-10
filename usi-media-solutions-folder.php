@@ -196,6 +196,10 @@ class USI_Media_Solutions_Folder {
    } // filter_media_row_actions()
 
    function filter_upload_dir($path) {
+// run all the time, but set variables for if new file uploaded;
+// if not new file, query database and get custom folder if any;
+global $post;
+if(!empty($post))usi_log(__METHOD__.':'.__LINE__.':post=' . print_r($post, true));
       // IF no upload error;
       if (empty($path['error'])) {
          // IF upload folder given;
@@ -235,11 +239,13 @@ usi_log(__METHOD__.':'.__LINE__.':path=' . print_r($path, true));
    } // filter_wp_get_attachment_url();
 
    function filter_wp_handle_upload($file){
+usi_log(__METHOD__.':'.__LINE__.':file=' . print_r($file, true));
       remove_filter('upload_dir', array($this, 'filter_upload_dir'));
       return($file);
    } // filter_wp_handle_upload();
  
    function filter_wp_handle_upload_prefilter($file){
+usi_log(__METHOD__.':'.__LINE__.':file=' . print_r($file, true));
       add_filter('upload_dir', array($this, 'filter_upload_dir'));
       return($file);
    } // filter_wp_handle_upload_prefilter();
