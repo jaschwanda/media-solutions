@@ -231,12 +231,14 @@ global $post;
    function filter_upload_dir2($path) {
       // IF no upload error;
 $id = 0;
+$log = false;
       if (empty($path['error'])) {
          global $post;
          if (!empty($post->ID)) {
-//            if (84 < $post->ID)usi_log(__METHOD__.':'.__LINE__.':post=' . print_r($post, true));
-  //          if (84 > $post->ID)return($path);
 $id = $post->ID;
+//            if (84 < $id)usi_log(__METHOD__.':'.__LINE__.':post=' . print_r($post, true));
+  //          if (84 > $id)return($path);
+if (84 < $id)$log=true;
             $folder = self::get_path($post->ID);
             if ($folder) {
 //usi_log(__METHOD__.':'.__LINE__.':id=' . $id . ' folder=' . $folder);
@@ -248,6 +250,7 @@ $id = $post->ID;
             }
          } else {
             if (0 < self::$folder_id) {
+$log=true;
                global $wpdb;
                $folder = $wpdb->get_row(
                   $wpdb->prepare(
@@ -265,7 +268,7 @@ $id = $post->ID;
                }
             } // ENDIF upload folder given;
          }
-usi_log(__METHOD__.':'.__LINE__.':id=' . $id . ' active=' . (self::$active ? 'yes' : 'no ') . ' path=' . print_r($path, true));
+if ($log)usi_log(__METHOD__.':'.__LINE__.':id=' . $id . ' active=' . (self::$active ? 'yes' : 'no ') . ' path=' . print_r($path, true));
       } // ENDIF no upload error;
       return($path);
    } // filter_upload_di2r();
