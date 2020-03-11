@@ -62,7 +62,6 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
       $this->options = get_option($this->option_name);
 
-      add_filter('upload_dir', array($this, 'filter_upload_dir'));
       add_action('delete_post', array($this, 'action_delete_post'));
       add_action('deleted_post', array($this, 'action_deleted_post'));
       add_action('delete_attachment', array($this, 'action_delete_attachment'));
@@ -89,17 +88,6 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
    function action_delete_attachment($post_id) {
       usi_log(__METHOD__.':'.__LINE__.':post_id=' . $post_id);
    } // action_delete_attachment();
-
-   function filter_upload_dir($path) {
-global $post;
-if(!empty($post))usi_log(__METHOD__.':'.__LINE__.':post=' . print_r($post, true));
-//usi_log($jim);
-//if(empty($post))usi_log(__METHOD__.':'.__LINE__);
-      // IF no upload error;
-      if (empty($path['error'])) {
-      } // ENDIF no upload error;
-      return($path);
-   } // filter_upload_dir();
 
    function fields_sanitize($input) {
 

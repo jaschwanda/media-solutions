@@ -40,6 +40,7 @@ class USI_Media_Solutions_Folder {
    private static $folder_id = 0;
    private static $post_id   = 0;
    private static $post_path = null;
+private static $active = false;
 
    function __construct() {
 
@@ -57,6 +58,7 @@ class USI_Media_Solutions_Folder {
       add_filter('manage_media_columns', array($this, 'filter_manage_media_columns'));
       add_filter('manage_upload_sortable_columns', array($this, 'filter_manage_upload_sortable_columns'));
       add_filter('media_row_actions', array($this, 'filter_media_row_actions'), 10, 2);
+      add_filter('upload_dir', array($this, 'filter_upload_dir2'));
       add_filter('wp_get_attachment_url', array($this, 'filter_wp_get_attachment_url'), 10, 2);
       add_filter('wp_handle_upload', array($this, 'filter_wp_handle_upload'), 2);
       add_filter('wp_handle_upload_prefilter', array($this, 'filter_wp_handle_upload_prefilter'), 2);
@@ -196,10 +198,11 @@ class USI_Media_Solutions_Folder {
    } // filter_media_row_actions()
 
    function filter_upload_dir($path) {
+      return($path);
 // run all the time, but set variables for if new file uploaded;
 // if not new file, query database and get custom folder if any;
 global $post;
-if(!empty($post))usi_log(__METHOD__.':'.__LINE__.':post=' . print_r($post, true));
+//if(!empty($post))usi_log(__METHOD__.':'.__LINE__.':post=' . print_r($post, true));
       // IF no upload error;
       if (empty($path['error'])) {
          // IF upload folder given;
@@ -221,9 +224,51 @@ if(!empty($post))usi_log(__METHOD__.':'.__LINE__.':post=' . print_r($post, true)
             }
          } // ENDIF upload folder given;
       } // ENDIF no upload error;
-usi_log(__METHOD__.':'.__LINE__.':path=' . print_r($path, true));
+//usi_log(__METHOD__.':'.__LINE__.':path=' . print_r($path, true));
       return($path);
    } // filter_upload_dir();
+
+   function filter_upload_dir2($path) {
+      // IF no upload error;
+$id = 0;
+      if (empty($path['error'])) {
+         global $post;
+         if (!empty($post->ID)) {
+//            if (84 < $post->ID)usi_log(__METHOD__.':'.__LINE__.':post=' . print_r($post, true));
+  //          if (84 > $post->ID)return($path);
+$id = $post->ID;
+            $folder = self::get_path($post->ID);
+            if ($folder) {
+//usi_log(__METHOD__.':'.__LINE__.':id=' . $id . ' folder=' . $folder);
+                  $path['subdir']  = '';
+                  $path['basedir'] = $_SERVER['DOCUMENT_ROOT'];
+                  $path['path']    = $path['basedir'] . $folder;
+                  $path['baseurl'] = 'http' . (is_ssl() ? 's' : '') . '://' . $_SERVER['SERVER_NAME'];
+                  $path['url']     = $path['baseurl'] . $folder;
+            }
+         } else {
+            if (0 < self::$folder_id) {
+               global $wpdb;
+               $folder = $wpdb->get_row(
+                  $wpdb->prepare(
+                     "SELECT `post_title` FROM `{$wpdb->posts}` WHERE (`ID` = %d) LIMIT 1", 
+                     self::$folder_id
+                  ), 
+                  OBJECT
+               );
+               if ($folder) {
+                  $path['subdir']  = '';
+                  $path['basedir'] = $_SERVER['DOCUMENT_ROOT'];
+                  $path['path']    = $path['basedir'] . $folder->post_title;
+                  $path['baseurl'] = 'http' . (is_ssl() ? 's' : '') . '://' . $_SERVER['SERVER_NAME'];
+                  $path['url']     = $path['baseurl'] . $folder->post_title;
+               }
+            } // ENDIF upload folder given;
+         }
+usi_log(__METHOD__.':'.__LINE__.':id=' . $id . ' active=' . (self::$active ? 'yes' : 'no ') . ' path=' . print_r($path, true));
+      } // ENDIF no upload error;
+      return($path);
+   } // filter_upload_di2r();
 
    function filter_wp_get_attachment_url($url, $post_id) {
       // IF upload folder given;
@@ -239,14 +284,16 @@ usi_log(__METHOD__.':'.__LINE__.':path=' . print_r($path, true));
    } // filter_wp_get_attachment_url();
 
    function filter_wp_handle_upload($file){
-usi_log(__METHOD__.':'.__LINE__.':file=' . print_r($file, true));
       remove_filter('upload_dir', array($this, 'filter_upload_dir'));
+      self::$active = false;
+//usi_log(__METHOD__.':'.__LINE__.':active=' . (self::$active ? 'yes' : 'no') . ' file=' . print_r($file, true));
       return($file);
    } // filter_wp_handle_upload();
  
    function filter_wp_handle_upload_prefilter($file){
-usi_log(__METHOD__.':'.__LINE__.':file=' . print_r($file, true));
       add_filter('upload_dir', array($this, 'filter_upload_dir'));
+      self::$active = true;
+//usi_log(__METHOD__.':'.__LINE__.':active=' . (self::$active ? 'yes' : 'no') . ' file=' . print_r($file, true));
       return($file);
    } // filter_wp_handle_upload_prefilter();
 
