@@ -62,11 +62,11 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
       $this->options = get_option($this->option_name);
 
-      add_action('delete_post', array($this, 'action_delete_post'));
-      add_action('deleted_post', array($this, 'action_deleted_post'));
-      add_action('delete_attachment', array($this, 'action_delete_attachment'));
-      add_action('after_delete_post', array($this, 'action_after_delete_post'));
-      add_action('pre_delete_post', array($this, 'action_pre_delete_post'));
+      //add_action('delete_post', array($this, 'action_delete_post'));
+      //add_action('deleted_post', array($this, 'action_deleted_post'));
+      //add_action('delete_attachment', array($this, 'action_delete_attachment'));
+      //add_action('after_delete_post', array($this, 'action_after_delete_post'));
+      //add_action('pre_delete_post', array($this, 'action_pre_delete_post'));
    } // __construct();
 
    function action_after_delete_post($post_id) {
@@ -110,21 +110,23 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
                $notice_type = 'notice-error';
                $notice_text = 'File not reloaded - all thumbnail and associated files must be delete before this file can be reloaded.';
 
-            // ELSE upload is premitted;
-            } else {
+            } else { // ELSE upload is premitted (there are associated files);
 
                // Delete the existing file;
-               wp_delete_file($this->file);
+               $upload_dir = wp_get_upload_dir();
+               // should we use wp_delete_file_from_directory();
+               wp_delete_file($upload_dir['basedir'] . DIRECTORY_SEPARATOR . $this->file);
 
-               $file     = $this->file;
-               $name     = $_FILES['usi-media-reload']['name'] = $this->base;
-               $path     = isset($this->path) ? $this->path : null;
-               $type     = isset($this->post) ? $this->post->post_mime_type : null;
-               usi_log(__METHOD__.':'.__LINE__.'file=' . $file . ' base=' . $this->base . ' path=' . $path . ' type=' . $type . ' name=' . $name . ' tmp_name=' . $_FILES['usi-media-reload']['tmp_name']);
+               // $file     = $this->file;
+               // $name     = $_FILES['usi-media-reload']['name'] = $this->base;
+               $_FILES['usi-media-reload']['name'] = $this->base;
+               // $path     = isset($this->path) ? $this->path : null;
+               // $type     = isset($this->post) ? $this->post->post_mime_type : null;
+               // usi_log(__METHOD__.':'.__LINE__.'file=' . $file . ' base=' . $this->base . ' path=' . $path . ' type=' . $type . ' name=' . $name . ' tmp_name=' . $_FILES['usi-media-reload']['tmp_name']);
 
                $overrides = array('test_form' => false);
-               $status    = wp_handle_upload($_FILES['usi-media-reload'], $overrides, '2020/02');
-               usi_log(__METHOD__.':'.__LINE__.'status=' . print_r($status, true));
+               $status    = wp_handle_upload($_FILES['usi-media-reload'], $overrides, '2020/03');
+               // usi_log(__METHOD__.':'.__LINE__.'status=' . print_r($status, true));
 
                if (!empty($status['error'])) {
                   $notice_type = 'notice-error';
@@ -140,7 +142,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
                      usi_log(__METHOD__.':'.__LINE__.':image is OK');
                   }
                }
-            }
+            } // ENDIF upload is premitted (there are associated files);
 
          } else { // ELSE files deleted;
 
@@ -212,7 +214,7 @@ usi_log(__METHOD__.':'.__LINE__.':delete_file=' . $upload_path['path'] . DIRECTO
       $this->link = substr($guid, 0, $length + 1);
       $this->base = substr($guid, $length + 1);
 
-      if (get_current_user_id()) {
+      if (true || get_current_user_id()) {
          $info = __METHOD__ . ':' . __LINE__ . PHP_EOL;
          if (isset($this->back)) $info .= 'back=' . print_r($this->back, true) . PHP_EOL;
          if (isset($this->base)) $info .= 'base=' . $this->base . PHP_EOL;

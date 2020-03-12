@@ -41,7 +41,7 @@ class USI_Media_Solutions_Folder {
    private static $post_id   = 0;
    private static $post_path = null;
 private static $active = false;
-
+private static $log = null;
    function __construct() {
 
       self::$post_id   = 0;
@@ -229,6 +229,7 @@ global $post;
    } // filter_upload_dir();
 
    function filter_upload_dir2($path) {
+$ipath = $path;
       // IF no upload error;
 $id = 0;
 $log = false;
@@ -268,7 +269,14 @@ $log=true;
                }
             } // ENDIF upload folder given;
          }
-if ($log)usi_log(__METHOD__.':'.__LINE__.':id=' . $id . ' active=' . (self::$active ? 'yes' : 'no ') . ' path=' . print_r($path, true));
+if ($log){
+   $l = __METHOD__.':id=' . $id . ' active=' . (self::$active ? 'yes' : 'no ') . PHP_EOL . 'i:path=' . print_r($ipath, true);
+if ($path!= $ipath) $l .= PHP_EOL . 'o:path=' . print_r($path, true);
+   if ($l != self::$log) {
+      usi_log($l);
+      self::$log = $l;
+   }
+}
       } // ENDIF no upload error;
       return($path);
    } // filter_upload_di2r();
