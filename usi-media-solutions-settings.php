@@ -48,7 +48,7 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
    function fields_sanitize($input) {
       // IF organize by folders not used;
       if (empty($input['preferences']['organize-folder'])) {
-         // Clear allow to add to root folder options;
+         // Clear "allow to add to root folder" options;
          $input['preferences']['organize-allow-default'] = 
          $input['preferences']['organize-allow-root']    = false;
       } else { // ELSE organize by folders in use;
