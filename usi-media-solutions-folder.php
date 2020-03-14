@@ -49,21 +49,36 @@ private static $log = null;
 
       add_action('add_attachment', array($this, 'action_add_attachment'));
       add_action('admin_menu', array($this, 'action_admin_menu'));
+      add_action('delete_post', array($this, 'action_delete_post'));
+      add_action('delete_attachment', array($this, 'action_delete_attachment'));
       add_action('init', array($this, 'action_init'));
       add_action('manage_media_custom_column', array($this, 'action_manage_media_custom_column'), 10, 2);
       add_action('post-upload-ui', array($this, 'action_post_upload_ui'));
 
       add_filter('attachment_link', array($this, 'filter_attachment_link'), 20, 2 );
-      add_filter('get_attached_file', array($this, 'filter_get_attached_file'), 20, 2);
       add_filter('manage_media_columns', array($this, 'filter_manage_media_columns'));
       add_filter('manage_upload_sortable_columns', array($this, 'filter_manage_upload_sortable_columns'));
       add_filter('media_row_actions', array($this, 'filter_media_row_actions'), 10, 2);
       add_filter('upload_dir', array($this, 'filter_upload_dir2'));
       add_filter('wp_get_attachment_url', array($this, 'filter_wp_get_attachment_url'), 10, 2);
-      add_filter('wp_handle_upload', array($this, 'filter_wp_handle_upload'), 2);
-      add_filter('wp_handle_upload_prefilter', array($this, 'filter_wp_handle_upload_prefilter'), 2);
+//      add_filter('wp_handle_upload', array($this, 'filter_wp_handle_upload'), 2);
+//      add_filter('wp_handle_upload_prefilter', array($this, 'filter_wp_handle_upload_prefilter'), 2);
+
 
    } // __construct();
+
+   function action_delete_post($post_id) {
+      $upload_path = wp_get_upload_dir();
+      if (empty($this->meta)) $this->meta = get_post_meta($post_id, '_wp_attachment_metadata', true); 
+      if (!empty($this->meta['sizes'])) foreach ($this->meta['sizes'] as $name => $value) {
+         $base = $value['file'];
+         wp_delete_file($upload_path['path'] . DIRECTORY_SEPARATOR . $base);
+      }
+   } // action_delete_post();
+
+   function action_delete_attachment($post_id) {
+      if (empty($this->meta)) $this->meta = get_post_meta($post_id, '_wp_attachment_metadata', true); 
+   } // action_delete_attachment();
 
    function action_add_attachment($post_id) {
       // IF upload folder given;
@@ -157,18 +172,6 @@ private static $log = null;
       return($link);
    } // filter_attachment_link()
 
-   function filter_get_attached_file($file, $post_id) { 
-      // IF upload folder given;
-      if (self::get_path($post_id)) {
-         $meta = get_post_meta($post_id, '_wp_attachment_metadata', true);
-         if (!empty($meta['file'])) {
-            $this->log_folder(__METHOD__, $post_id, $file, $meta['file']);
-            return($meta['file']);
-         }
-      } // ENDIF upload folder given;
-      return($file);
-   } // filter_get_attached_file();
-
    function filter_manage_media_columns($input) {
       $ith    = 0;
       $output = array();
@@ -196,7 +199,7 @@ private static $log = null;
       }
       return($new_actions);
    } // filter_media_row_actions()
-
+/*
    function filter_upload_dir($path) {
       return($path);
 // run all the time, but set variables for if new file uploaded;
@@ -227,7 +230,7 @@ global $post;
 //usi_log(__METHOD__.':'.__LINE__.':path=' . print_r($path, true));
       return($path);
    } // filter_upload_dir();
-
+*/
    function filter_upload_dir2($path) {
 $ipath = $path;
       // IF no upload error;
@@ -273,7 +276,7 @@ if ($log){
    $l = __METHOD__.':id=' . $id . ' active=' . (self::$active ? 'yes' : 'no ') . PHP_EOL . 'i:path=' . print_r($ipath, true);
 if ($path!= $ipath) $l .= PHP_EOL . 'o:path=' . print_r($path, true);
    if ($l != self::$log) {
-      usi_log($l);
+//      usi_log($l);
       self::$log = $l;
    }
 }
@@ -293,7 +296,7 @@ if ($path!= $ipath) $l .= PHP_EOL . 'o:path=' . print_r($path, true);
       } // ENDIF upload folder given;
       return($url);
    } // filter_wp_get_attachment_url();
-
+/*
    function filter_wp_handle_upload($file){
       remove_filter('upload_dir', array($this, 'filter_upload_dir'));
       self::$active = false;
@@ -307,7 +310,7 @@ if ($path!= $ipath) $l .= PHP_EOL . 'o:path=' . print_r($path, true);
 //usi_log(__METHOD__.':'.__LINE__.':active=' . (self::$active ? 'yes' : 'no') . ' file=' . print_r($file, true));
       return($file);
    } // filter_wp_handle_upload_prefilter();
-
+*/
    public static function get_folders() {
       global $wpdb;
       $folders   = $wpdb->get_results("SELECT `ID`, `post_title` FROM `{$wpdb->posts}` " .

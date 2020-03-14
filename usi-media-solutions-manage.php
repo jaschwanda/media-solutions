@@ -62,32 +62,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
       $this->options = get_option($this->option_name);
 
-      //add_action('delete_post', array($this, 'action_delete_post'));
-      //add_action('deleted_post', array($this, 'action_deleted_post'));
-      //add_action('delete_attachment', array($this, 'action_delete_attachment'));
-      //add_action('after_delete_post', array($this, 'action_after_delete_post'));
-      //add_action('pre_delete_post', array($this, 'action_pre_delete_post'));
    } // __construct();
-
-   function action_after_delete_post($post_id) {
-      usi_log(__METHOD__.':'.__LINE__.':post_id=' . $post_id);
-   } // action_after_delete_post();
-
-   function action_pre_delete_post($post_id) {
-      usi_log(__METHOD__.':'.__LINE__.':post_id=' . $post_id);
-   } // action_pre_delete_post();
-
-   function action_deleted_post($post_id) {
-      usi_log(__METHOD__.':'.__LINE__.':post_id=' . $post_id);
-   } // action_deleted_post();
-
-   function action_delete_post($post_id) {
-      usi_log(__METHOD__.':'.__LINE__.':post_id=' . $post_id);
-   } // action_delete_post();
-
-   function action_delete_attachment($post_id) {
-      usi_log(__METHOD__.':'.__LINE__.':post_id=' . $post_id);
-   } // action_delete_attachment();
 
    function fields_sanitize($input) {
 
@@ -125,6 +100,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
                // usi_log(__METHOD__.':'.__LINE__.'file=' . $file . ' base=' . $this->base . ' path=' . $path . ' type=' . $type . ' name=' . $name . ' tmp_name=' . $_FILES['usi-media-reload']['tmp_name']);
 
                $overrides = array('test_form' => false);
+//////////////////////////////////////////////////////////////////////////////
                $status    = wp_handle_upload($_FILES['usi-media-reload'], $overrides, '2020/03');
                // usi_log(__METHOD__.':'.__LINE__.'status=' . print_r($status, true));
 
@@ -149,6 +125,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
             $update_back = $update_meta = false;
             $upload_path = str_replace($this->base, '', $this->file);
 usi_log($upload_path);
+////////////////////////////////////////////////////////////////////
             $upload_path = wp_get_upload_dir();
 
             foreach ($input['files'] as $name => $value) {
@@ -166,7 +143,6 @@ usi_log($upload_path);
                   unset($this->meta['sizes'][$name]);
                }
                if ($delete_file) wp_delete_file($upload_path['path'] . DIRECTORY_SEPARATOR . $delete_file);
-usi_log(__METHOD__.':'.__LINE__.':delete_file=' . $upload_path['path'] . DIRECTORY_SEPARATOR . $delete_file);
             }
 
             if ($update_back) update_post_meta($this->id, '_wp_attachment_backup_sizes', $this->back);
@@ -214,7 +190,7 @@ usi_log(__METHOD__.':'.__LINE__.':delete_file=' . $upload_path['path'] . DIRECTO
       $this->link = substr($guid, 0, $length + 1);
       $this->base = substr($guid, $length + 1);
 
-      if (true || get_current_user_id()) {
+      if (get_current_user_id()) {
          $info = __METHOD__ . ':' . __LINE__ . PHP_EOL;
          if (isset($this->back)) $info .= 'back=' . print_r($this->back, true) . PHP_EOL;
          if (isset($this->base)) $info .= 'base=' . $this->base . PHP_EOL;
