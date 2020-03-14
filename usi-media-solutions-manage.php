@@ -76,6 +76,8 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
          // Clear notice variables;
          $notice_list = $notice_text = $notice_type = null;
 
+         $upload_dir  = wp_get_upload_dir();
+
          // IF file upload;
          if (!empty($_FILES)) {
 
@@ -88,14 +90,13 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
             } else { // ELSE upload is premitted (there are associated files);
 
                // Delete the existing file;
-               $upload_dir = wp_get_upload_dir();
                // should we use wp_delete_file_from_directory();
                wp_delete_file($upload_dir['basedir'] . DIRECTORY_SEPARATOR . $this->file);
 
                // $file     = $this->file;
                // $name     = $_FILES['usi-media-reload']['name'] = $this->base;
                $_FILES['usi-media-reload']['name'] = $this->base;
-               // $path     = isset($this->path) ? $this->path : null;
+               // $path     = isset($this->fold) ? $this->fold : null;
                // $type     = isset($this->post) ? $this->post->post_mime_type : null;
                // usi_log(__METHOD__.':'.__LINE__.'file=' . $file . ' base=' . $this->base . ' path=' . $path . ' type=' . $type . ' name=' . $name . ' tmp_name=' . $_FILES['usi-media-reload']['tmp_name']);
 
@@ -123,10 +124,6 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
          } else { // ELSE files deleted;
 
             $update_back = $update_meta = false;
-            $upload_path = str_replace($this->base, '', $this->file);
-usi_log($upload_path);
-////////////////////////////////////////////////////////////////////
-            $upload_path = wp_get_upload_dir();
 
             foreach ($input['files'] as $name => $value) {
                $delete_file = null;
@@ -142,7 +139,7 @@ usi_log($upload_path);
                   $notice_list .= ($notice_list ? ', ' : '') . $delete_file;
                   unset($this->meta['sizes'][$name]);
                }
-               if ($delete_file) wp_delete_file($upload_path['path'] . DIRECTORY_SEPARATOR . $delete_file);
+               if ($delete_file) wp_delete_file($upload_dir['path'] . DIRECTORY_SEPARATOR . $delete_file);
             }
 
             if ($update_back) update_post_meta($this->id, '_wp_attachment_backup_sizes', $this->back);
@@ -151,7 +148,7 @@ usi_log($upload_path);
 
             if ($notice_list) {
                $notice_type = 'notice-success';
-               $notice_text = ' have been deleted.';
+               $notice_text = ' deleted.';
             } else {
                $notice_type = 'notice-error';
                $notice_text = 'No files have been deleted.';
@@ -178,9 +175,9 @@ usi_log($upload_path);
 
       $this->file = get_post_meta($id, '_wp_attached_file', true);
 
-      $this->meta = get_post_meta($id, '_wp_attachment_metadata', true); 
+      $this->fold = USI_Media_Solutions_Folder::get_fold($id);
 
-      $this->path = USI_Media_Solutions_Folder::get_path($id);
+      $this->meta = get_post_meta($id, '_wp_attachment_metadata', true); 
 
       $this->post = get_post($id); 
 
@@ -195,9 +192,9 @@ usi_log($upload_path);
          if (isset($this->back)) $info .= 'back=' . print_r($this->back, true) . PHP_EOL;
          if (isset($this->base)) $info .= 'base=' . $this->base . PHP_EOL;
          if (isset($this->file)) $info .= 'file=' . $this->file . PHP_EOL;
+         if (isset($this->fold)) $info .= 'fold=' . print_r($this->fold, true) . PHP_EOL;
          if (isset($this->link)) $info .= 'link=' . $this->link . PHP_EOL;
          if (isset($this->meta)) $info .= 'meta=' . print_r($this->meta, true) . PHP_EOL;
-         if (isset($this->path)) $info .= 'path=' . $this->path . PHP_EOL;
          if (isset($this->post)) $info .= 'post=' . print_r($this->post, true) . PHP_EOL;
          usi_log($info);
       }

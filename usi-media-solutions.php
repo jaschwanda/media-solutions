@@ -64,7 +64,7 @@ class USI_Media_Solutions {
    const PREFIX     = 'usi-media';
    const TEXTDOMAIN = 'usi-media-solutions';
 
-   const MEDIAPATH  = 'usi-media-path';
+   const MEDIAFOLD  = 'usi-media-fold';
    const POSTFOLDER = 'usi-media-folders';
    const USERFOLDER = 'usi-media-options-folder';
 
