@@ -15,7 +15,7 @@ Requires at least: 5.0
 Requires PHP:      5.6.25
 Tested up to:      5.3.2
 Text Domain:       usi-media-solutions
-Version:           1.1.2
+Version:           1.1.3
 */
 
 /*
@@ -31,18 +31,16 @@ https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
 Copyright (c) 2020 by Jim Schwanda.
 */
 
-// Manage media 
-// - View all thumbnails and can delete;
-// - Upload new media - is it like editing an image or replacing?
+// Test reload to previous month folder;
+// Address that reloaded file is same type as original;
+// Address reload image thumbnail creation;
+// Adress old _mm_ tags post names;
+// Delete plugin code;
 
 // Add new folder gives success message and enter valid folder message on first run;
 // Remove notes and label fix up on settings;
 // Test user roles on create folder and upload media;
 // Orgnize by folder must create folder root post to seed add folder;
-
-// Test upload media;
-// Delete media
-// Reload media
 
 // Add file size to library columns
 // Select tags on Add New page.
@@ -58,7 +56,7 @@ Copyright (c) 2020 by Jim Schwanda.
 
 class USI_Media_Solutions {
 
-   const VERSION = '1.1.2 (2020-03-08)';
+   const VERSION = '1.1.3 (2020-03-14)';
 
    const NAME       = 'Media-Solutions';
    const PREFIX     = 'usi-media';

@@ -22,7 +22,7 @@ require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-s
 
 class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.1.2 (2020-03-08)';
+   const VERSION = '1.1.3 (2020-03-14)';
 
    protected $is_tabbed = true;
 
@@ -82,7 +82,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
          if (!empty($_FILES)) {
 
             // IF there are associated files (should not get here if associated files exist);
-            if (!empty($this->back) || !empty($this->meta)) {
+            if (!empty($this->back) || !empty($this->meta['sizes'])) {
 
                $notice_type = 'notice-error';
                $notice_text = 'File not reloaded - all thumbnail and associated files must be delete before this file can be reloaded.';
@@ -90,20 +90,14 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
             } else { // ELSE upload is premitted (there are associated files);
 
                // Delete the existing file;
-               // should we use wp_delete_file_from_directory();
                wp_delete_file($upload_dir['basedir'] . DIRECTORY_SEPARATOR . $this->file);
 
-               // $file     = $this->file;
-               // $name     = $_FILES['usi-media-reload']['name'] = $this->base;
+               // Load the name the reloaded file should take on in case it is different;
                $_FILES['usi-media-reload']['name'] = $this->base;
-               // $path     = isset($this->fold) ? $this->fold : null;
-               // $type     = isset($this->post) ? $this->post->post_mime_type : null;
-               // usi_log(__METHOD__.':'.__LINE__.'file=' . $file . ' base=' . $this->base . ' path=' . $path . ' type=' . $type . ' name=' . $name . ' tmp_name=' . $_FILES['usi-media-reload']['tmp_name']);
 
                $overrides = array('test_form' => false);
-//////////////////////////////////////////////////////////////////////////////
-               $status    = wp_handle_upload($_FILES['usi-media-reload'], $overrides, '2020/03');
-               // usi_log(__METHOD__.':'.__LINE__.'status=' . print_r($status, true));
+               $time      = empty($this->fold) ? dirname($this->file) : null;
+               $status    = wp_handle_upload($_FILES['usi-media-reload'], $overrides, $time);
 
                if (!empty($status['error'])) {
                   $notice_type = 'notice-error';
