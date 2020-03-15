@@ -109,10 +109,10 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
    function column_cb($item) {
 
       return('<input class="usi-media-folder-list"' .
-         ' data-id="' . esc_attr($item['variable_id']) . '"' .
+         ' data-id="' . esc_attr($item['folder_id']) . '"' .
          ' data-name="' . esc_attr($item['folder']) . '"' .
 //         ' data-value="' . esc_attr($item['value']) . '"' .
-         ' name="variable_id[]" type="checkbox" value="' . $item['variable_id'] .'" />'
+         ' name="folder_id[]" type="checkbox" value="' . $item['folder_id'] .'" />'
       );
 
     } // column_cb();
@@ -120,7 +120,7 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
    function column_default($item, $column_name) {
 
       switch($column_name) { 
-      case 'variable_id':
+      case 'folder_id':
 //      case 'notes':
 //      case 'owner':
 //      case 'value':
@@ -177,7 +177,7 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
       return(
          array(
             'cb' => '<input type="checkbox" />',
-            'variable_id' => __('ID', USI_Media_Solutions::TEXTDOMAIN),
+            'folder_id' => __('ID', USI_Media_Solutions::TEXTDOMAIN),
             'folder' => __('Folder', USI_Media_Solutions::TEXTDOMAIN),
 //            'value' => __( 'Value', USI_Media_Solutions::TEXTDOMAIN),
 //            'notes' => __('Notes', USI_Media_Solutions::TEXTDOMAIN),
@@ -202,7 +202,7 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
       $SAFE_order = (isset($_GET['order'])) ? (('desc' == strtolower($_GET['order'])) ? 'DESC' : '') : '';
       $WILD_orderby = (isset($_GET['orderby']) ? $_GET['orderby'] : '');
       switch ($WILD_orderby) {
-      default: $SAFE_orderby = 'variable_id` ' . $SAFE_order . ', `variable_id'; break;
+      default: $SAFE_orderby = 'folder_id` ' . $SAFE_order . ', `folder_id'; break;
 //      case 'notes': 
 //      case 'owner': 
       case 'folder': $SAFE_orderby = $WILD_orderby;
@@ -232,10 +232,11 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
          " WHERE (`variable_id` > 1)$SAFE_search $SAFE_orderby LIMIT $SAFE_skip,$SAFE_per_page", ARRAY_A);
 */
       $this->items = $wpdb->get_results(
-         "SELECT `{$wpdb->posts}`.`ID` AS `variable_id`, `{$wpdb->posts}`.`post_content`, `{$wpdb->posts}`.`post_title` AS `folder`, `{$wpdb->users}`.`display_name` FROM `{$wpdb->posts}`" .
+         "SELECT `{$wpdb->posts}`.`ID` AS `folder_id`, `{$wpdb->posts}`.`post_content`, `{$wpdb->posts}`.`post_title` AS `folder`, `{$wpdb->users}`.`display_name` FROM `{$wpdb->posts}`" .
          " INNER JOIN `{$wpdb->users}` ON (`{$wpdb->users}`.`ID` = `{$wpdb->posts}`.`post_author`)" .
-         " WHERE (`{$wpdb->posts}`.`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "') OR (`{$wpdb->posts}`.`post_type` = 'usi-ms-upload-folder')",
+         " WHERE (`{$wpdb->posts}`.`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "') OR (`{$wpdb->posts}`.`post_type` = 'usi-ms-upload-folder')" .
          //" ORDER BY $SAFE_order_by $SAFE_order LIMIT $SAFE_offset, $SAFE_per_page", 
+         " $SAFE_orderby ", // $SAFE_orderLIMIT $SAFE_offset, $SAFE_per_page", 
          ARRAY_A
       );
 
@@ -253,7 +254,7 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 
       return(
          array(
-            'variable_id' => array('variable_id', true),
+            'folder_id' => array('folder_id', true),
             'folder' => array('folder', false),
 //            'notes' => array('notes', false),
 //            'owner' => array('owner', false),
@@ -379,7 +380,7 @@ jQuery(document).ready(
          html += '</p><hr/><p>';
 
          if (count_of_folders) html += 
-            '<a class="button" href="?page=usi-media-folder-list&action=delete&variable_id=' +
+            '<a class="button" href="?page=usi-media-folder-list&action=delete&folder_id=' +
             id + '">' + text_delete + '</a> &nbsp; ';
 
          html += '<a class="button" href="" onclick="tb_remove()">' +
