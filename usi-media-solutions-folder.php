@@ -3,14 +3,14 @@
 defined('ABSPATH') or die('Accesss not allowed.');
 
 /*
-Sports-Solutions is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
+Media-Solutions is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
 License as published by the Free Software Foundation, either version 3 of the License, or any later version.
  
-Sports-Solutions is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+Media-Solutions is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
 warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  
-You should have received a copy of the GNU General Public License along with Sports-Solutions. If not, see 
-https://github.com/jaschwanda/sports-solutions/blob/master/LICENSE.md
+You should have received a copy of the GNU General Public License along with Media-Solutions. If not, see 
+https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
 
 Copyright (c) 2020 by Jim Schwanda.
 */
@@ -33,9 +33,9 @@ class USI_Media_Solutions_Folder {
       self::$post_fold = null;
 
       add_action('add_attachment', array($this, 'action_add_attachment'));
-      add_action('admin_menu', array($this, 'action_admin_menu'));
-      add_action('delete_post', array($this, 'action_delete_post'));
+// Check if we need delete_attachment
       add_action('delete_attachment', array($this, 'action_delete_attachment'));
+      add_action('delete_post', array($this, 'action_delete_post'));
       add_action('init', array($this, 'action_init'));
       add_action('manage_media_custom_column', array($this, 'action_manage_media_custom_column'), 10, 2);
       add_action('post-upload-ui', array($this, 'action_post_upload_ui'));
@@ -59,16 +59,6 @@ class USI_Media_Solutions_Folder {
          $this->log_folder(__METHOD__, $post_id, 'default', $path);
       } // ENDIF upload folder given;
    } // action_add_attachment();
-
-   function action_admin_menu() {
-      $usi_MM_upload_folders_hook = add_media_page(
-         'usi-MM-upload-folders', // Text displayed in title tags of page when menu is selected;
-         'Upload Folders', // Text displayed in menu bar;
-         USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'view-folders'), // The capability required to enable page;
-         /* lower case for option; */ 'usi-mm-upload-folders-page', // Menu page slug name;
-         'usi_MM_upload_folders_page' // Function called to render page content;
-      );
-   } // action_admin_menu();
 
    function action_delete_attachment($post_id) {
       if (empty($this->meta)) $this->meta = get_post_meta($post_id, '_wp_attachment_metadata', true); 

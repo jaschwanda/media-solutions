@@ -3,14 +3,14 @@
 defined('ABSPATH') or die('Accesss not allowed.');
 
 /*
-Sports-Solutions is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
+Media-Solutions is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
 License as published by the Free Software Foundation, either version 3 of the License, or any later version.
  
-Sports-Solutions is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+Media-Solutions is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
 warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  
-You should have received a copy of the GNU General Public License along with Sports-Solutions. If not, see 
-https://github.com/jaschwanda/sports-solutions/blob/master/LICENSE.md
+You should have received a copy of the GNU General Public License along with Media-Solutions. If not, see 
+https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
 
 Copyright (c) 2020 by Jim Schwanda.
 */
@@ -295,7 +295,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
       submit_button(__($button, USI_Media_Solutions::TEXTDOMAIN), 'primary' . $disabled, 'submit', false); 
       echo ' &nbsp; <a class="button button-secondary" href="upload.php">' .
          __('Back To Library', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . 
-         ' &nbsp; <a class="button button-secondary" href="admin.php?page=usi-mm-upload-folders-page">' .
+         ' &nbsp; <a class="button button-secondary" href="admin.php?page=' . USI_Media_SOlutions::MENUFOLDER . '">' .
          __('Back To Folders', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . '</p>';
    } // section_footer();
 

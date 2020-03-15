@@ -6,11 +6,109 @@ if (!class_exists('USI_List_Table')) {
    require_once('usi-list-table.php');
 }
 
-class USI_Media_Solutions_Folder_List extends USI_List_Table {
+class USI_Media_Solutions_Folder_List {
 
    const VERSION = '1.1.1 (2020-02-19)';
 
    public function __construct() {
+
+      add_action('admin_menu', array($this, 'action_admin_menu'));
+
+   } // __construct();
+
+   function action_admin_menu() {
+
+      $text = __('Upload Folders', USI_Media_Solutions::TEXTDOMAIN);
+
+      $this->hook = add_media_page(
+         $text, // Text displayed in title tags of page when menu is selected;
+         $text, // Text displayed in menu bar;
+         USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'view-folders'), // The capability required to enable page;
+         USI_Media_Solutions::MENUFOLDER, // Menu page slug name;
+         'usi_MM_upload_folders_page' // Function called to render page content;
+      );
+
+   } // action_admin_menu();
+
+} // USI_Media_Solutions_Folder_List;
+
+new USI_Media_Solutions_Folder_List();
+
+function usi_MM_post_clauses($clauses, $wp_query){
+   global $pagenow;
+   if ('upload.php' == $pagenow) {
+      if (isset($_GET['orderby'])) {
+         if ('guid' == $_GET['orderby']) {
+            // Not sure why this is needed, a WP bug perhaps?
+            $clauses['orderby'] = str_replace('post_date', 'guid', $clauses['orderby']);
+         }
+      }
+   }
+    return($clauses);
+} // usi_MM_post_clauses();
+
+function usi_MM_posts_where($where, $wp_query) {
+   global $pagenow, $wpdb;
+   if ('upload.php' == $pagenow) {
+      if (isset($_GET['guid'])) {
+         $guid = 'http' . (is_ssl() ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . rawurldecode($_GET['guid']);
+         $where .= " AND ({$wpdb->posts}.`guid` LIKE '$guid%')";
+      }
+   }
+   return($where);
+} // usi_MM_posts_where();
+
+function usi_MM_upload_folders_page() {
+   global $usi_mm_options;
+   $folders = new USI_Media_Solutions_Folder_Table();
+   $folders->prepare_items();
+?>
+  <div class="wrap">
+    <h2>
+    <?php
+    $title = __('Upload Folders');
+    echo esc_html($title);
+    if (current_user_can(USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'create-folders'))) { ?>
+      <a href="admin.php?page=usi-media-folder-add-settings" class="add-new-h2"><?php echo esc_html_x('Add Upload Folder', 'folder'); ?></a><?php
+    }
+    ?>
+    </h2>
+    <div class="meta-box-sortables ui-sortable">
+      <form method="post">                
+<?php $folders->display(); ?>
+      </form>
+    </div>
+  </div>
+<?php
+
+} // usi_MM_upload_folders_page();
+
+function usi_MM_upload_folders_screen_options_load() {
+   $args = array(
+      'label' => 'Number of upload folders per page',
+      'default' => 20,
+      'option' => 'usi_mm_option_upload_folders_per_page'
+   );
+   add_screen_option('per_page', $args);
+} // usi_MM_upload_folders_screen_options_load()
+
+function usi_MM_upload_folders_screen_options_set($status, $option, $value) {
+   if ('usi_mm_option_upload_folders_per_page' == $option) return($value);
+   return($status);
+} // usi_MM_upload_folders_screen_options_set();
+
+add_filter('posts_clauses', 'usi_MM_post_clauses', 10, 2);
+add_filter('posts_where', 'usi_MM_posts_where', 10, 2 );
+
+// This filter fires early, doing it in the class is too late;
+add_filter('set-screen-option', 'usi_MM_upload_folders_screen_options_set', 10, 3);
+
+class USI_Media_Solutions_Folder_Table extends USI_List_Table {
+
+   const VERSION = '1.1.1 (2020-02-19)';
+
+   public function __construct() {
+
       parent::__construct(
          array(
             'singular' => __('Folder', USI_Media_Solutions::TEXTDOMAIN), 
@@ -18,7 +116,34 @@ class USI_Media_Solutions_Folder_List extends USI_List_Table {
             'ajax' => false
          )
       );
+
+      $option = 'per_page';
+
+      $args = array(
+         'label' => __('Folders per page', USI_Media_Solutions::TEXTDOMAIN),
+         'default' => 20,
+         'option' => $option,
+      );
+
+      add_action('load-' . $this->hook, array($this, 'action_load_screen_options'));
+
+      add_screen_option($option, $args);
+
    } // __construct();
+
+   function action_load_screen_options() {
+
+      $option = 'per_page';
+
+      $args = array(
+         'label' => __('Folders per page', USI_Media_Solutions::TEXTDOMAIN),
+         'default' => 20,
+         'option' => $option,
+      );
+
+      add_screen_option($option, $args);
+
+   } // action_load_screen_options();
 
    public function column_default($item, $column_name) {
       switch($column_name) {
@@ -104,75 +229,6 @@ class USI_Media_Solutions_Folder_List extends USI_List_Table {
 
    } // prepare_items():
 
-} // Class USI_Media_Solutions_Folder_List;
-
-function usi_MM_post_clauses($clauses, $wp_query){
-   global $pagenow;
-   if ('upload.php' == $pagenow) {
-      if (isset($_GET['orderby'])) {
-         if ('guid' == $_GET['orderby']) {
-            // Not sure why this is needed, a WP bug perhaps?
-            $clauses['orderby'] = str_replace('post_date', 'guid', $clauses['orderby']);
-         }
-      }
-   }
-    return($clauses);
-} // usi_MM_post_clauses();
-
-function usi_MM_posts_where($where, $wp_query) {
-   global $pagenow, $wpdb;
-   if ('upload.php' == $pagenow) {
-      if (isset($_GET['guid'])) {
-         $guid = 'http' . (is_ssl() ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . rawurldecode($_GET['guid']);
-         $where .= " AND ({$wpdb->posts}.`guid` LIKE '$guid%')";
-      }
-   }
-   return($where);
-} // usi_MM_posts_where();
-
-function usi_MM_upload_folders_page() {
-   global $usi_mm_options;
-   $folders = new USI_Media_Solutions_Folder_List();
-   $folders->prepare_items();
-?>
-  <div class="wrap">
-    <h2>
-    <?php
-    $title = __('Upload Folders');
-    echo esc_html($title);
-    if (current_user_can(USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'create-folders'))) { ?>
-      <a href="admin.php?page=usi-media-folder-add-settings" class="add-new-h2"><?php echo esc_html_x('Add Upload Folder', 'folder'); ?></a><?php
-    }
-    ?>
-    </h2>
-    <div class="meta-box-sortables ui-sortable">
-      <form method="post">                
-<?php $folders->display(); ?>
-      </form>
-    </div>
-  </div>
-<?php
-
-} // usi_MM_upload_folders_page();
-
-function usi_MM_upload_folders_screen_options_load() {
-   $args = array(
-      'label' => 'Number of upload folders per page',
-      'default' => 20,
-      'option' => 'usi_mm_option_upload_folders_per_page'
-   );
-   add_screen_option('per_page', $args);
-} // usi_MM_upload_folders_screen_options_load()
-
-function usi_MM_upload_folders_screen_options_set($status, $option, $value) {
-   if ('usi_mm_option_upload_folders_per_page' == $option) return($value);
-   return($status);
-} // usi_MM_upload_folders_screen_options_set();
-
-add_filter('posts_clauses', 'usi_MM_post_clauses', 10, 2);
-add_filter('posts_where', 'usi_MM_posts_where', 10, 2 );
-
-// This filter fires early, doing it in the class is too late;
-add_filter('set-screen-option', 'usi_MM_upload_folders_screen_options_set', 10, 3);
+} // Class USI_Media_Solutions_Folder_Table;
 
 // --------------------------------------------------------------------------------------------------------------------------- // ?>

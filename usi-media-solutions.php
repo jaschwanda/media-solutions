@@ -31,6 +31,7 @@ https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
 Copyright (c) 2020 by Jim Schwanda.
 */
 
+// Check if we need delete_attachment
 // Test reload to previous month folder;
 // Address that reloaded file is same type as original;
 // Address reload image thumbnail creation;
@@ -63,6 +64,7 @@ class USI_Media_Solutions {
    const TEXTDOMAIN = 'usi-media-solutions';
 
    const MEDIAFOLD  = 'usi-media-fold';
+   const MENUFOLDER = 'usi-media-folders-list';
    const POSTFOLDER = 'usi-media-folders';
    const USERFOLDER = 'usi-media-options-folder';
 

@@ -3,14 +3,14 @@
 defined('ABSPATH') or die('Accesss not allowed.');
 
 /*
-Sports-Solutions is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
+Media-Solutions is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
 License as published by the Free Software Foundation, either version 3 of the License, or any later version.
  
-Sports-Solutions is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+Media-Solutions is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
 warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  
-You should have received a copy of the GNU General Public License along with Sports-Solutions. If not, see 
-https://github.com/jaschwanda/sports-solutions/blob/master/LICENSE.md
+You should have received a copy of the GNU General Public License along with Media-Solutions. If not, see 
+https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
 
 Copyright (c) 2020 by Jim Schwanda.
 */
@@ -126,7 +126,7 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
    function section_footer() {
       echo '<p class="submit">' . PHP_EOL;
       submit_button($this->text['page_header'], 'primary', 'submit', false); 
-      echo ' &nbsp; <a class="button button-secondary" href="admin.php?page=usi-mm-upload-folders-page">' .
+      echo ' &nbsp; <a class="button button-secondary" href="admin.php?page=' . USI_Media_SOlutions::MENUFOLDER . '">' .
          __('Back To Folders', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . '</p>';
    } // section_footer();
 
@@ -134,7 +134,7 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
 
       global $wpdb;
 
-      $this->options['settings']['parent'] = USI_Media_Solutions_Folder::get_user_folder_id();
+      $this->options['settings']['parent'] = USI_Media_Solutions_Folder::get_user_fold_id();
 
       $folders = $wpdb->get_results("SELECT `ID`, `post_title` FROM `{$wpdb->posts}` " .
          " WHERE (`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "') OR (`post_type` = 'usi-ms-upload-folder')" .
