@@ -39,10 +39,10 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 
       $columns = array(
          'id'       => 10, 
-//         'variable' => 15, 
-//         'value'    => 15, 
-//         'notes'    => 15, 
-//         'owner'    => 10, 
+         'variable' => 15, 
+         'value'    => 15, 
+         'notes'    => 15, 
+         'owner'    => 10, 
       );
 
       $hidden = $this->get_hidden_columns();
@@ -109,10 +109,10 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
    function column_cb($item) {
 
       return('<input class="usi-media-folder-list"' .
-         ' data-id="' . esc_attr($item['variable_id']) . '"'
-//         ' data-name="' . esc_attr($item['variable']) . '"' .
-//         ' data-value="' . esc_attr($item['value']) . '"' .
-//         ' name="variable_id[]" type="checkbox" value="' . $item['variable_id'] .'" />'
+         ' data-id="' . esc_attr($item['variable_id']) . '"' .
+         ' data-name="' . esc_attr($item['variable']) . '"' .
+         ' data-value="' . esc_attr($item['value']) . '"' .
+         ' name="variable_id[]" type="checkbox" value="' . $item['variable_id'] .'" />'
       );
 
     } // column_cb();
@@ -121,10 +121,10 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 
       switch($column_name) { 
       case 'variable_id':
-//      case 'notes':
-//      case 'owner':
-//      case 'value':
-//      case 'variable':
+      case 'notes':
+      case 'owner':
+      case 'value':
+      case 'variable':
          return $item[$column_name];
       default:
          return(print_r($item, true)); //Show the whole array for troubleshooting purposes
@@ -178,10 +178,10 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
          array(
             'cb' => '<input type="checkbox" />',
             'variable_id' => __('ID', USI_Media_Solutions::TEXTDOMAIN),
-//            'variable' => __('Variable', USI_Media_Solutions::TEXTDOMAIN),
-//            'value' => __( 'Value', USI_Media_Solutions::TEXTDOMAIN),
-//            'notes' => __('Notes', USI_Media_Solutions::TEXTDOMAIN),
-//            'owner' => __('Owner', USI_Media_Solutions::TEXTDOMAIN),
+            'variable' => __('Variable', USI_Media_Solutions::TEXTDOMAIN),
+            'value' => __( 'Value', USI_Media_Solutions::TEXTDOMAIN),
+            'notes' => __('Notes', USI_Media_Solutions::TEXTDOMAIN),
+            'owner' => __('Owner', USI_Media_Solutions::TEXTDOMAIN),
          )
       );
 
@@ -203,9 +203,9 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
       $WILD_orderby = (isset($_GET['orderby']) ? $_GET['orderby'] : '');
       switch ($WILD_orderby) {
       default: $SAFE_orderby = 'variable_id` ' . $SAFE_order . ', `variable_id'; break;
-//      case 'notes': 
-//      case 'owner': 
-//      case 'variable': $SAFE_orderby = $WILD_orderby;
+      case 'notes': 
+      case 'owner': 
+      case 'variable': $SAFE_orderby = $WILD_orderby;
       }
 
       $SAFE_orderby = 'ORDER BY `' . $SAFE_orderby . '` ' . $SAFE_order;
@@ -240,9 +240,9 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
       return(
          array(
             'variable_id' => array('variable_id', true),
-//            'variable' => array('variable', false),
-//            'notes' => array('notes', false),
-//            'owner' => array('owner', false),
+            'variable' => array('variable', false),
+            'notes' => array('notes', false),
+            'owner' => array('owner', false),
          )
       );
 
