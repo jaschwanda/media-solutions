@@ -39,8 +39,8 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 
       $columns = array(
          'id'       => 10, 
-         'variable' => 15, 
-         'value'    => 15, 
+         'folder' => 15, 
+//         'value'    => 15, 
 //         'notes'    => 15, 
 //         'owner'    => 10, 
       );
@@ -89,7 +89,7 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
       $option = 'per_page';
 
       $args = array(
-         'label' => __('Variables per page', USI_Media_Solutions::TEXTDOMAIN),
+         'label' => __('Folders per page', USI_Media_Solutions::TEXTDOMAIN),
          'default' => 20,
          'option' => $option,
       );
@@ -98,8 +98,8 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 
       parent::__construct( 
          array(
-            'singular' => __('variable', USI_Media_Solutions::TEXTDOMAIN), 
-            'plural' => __('variables', USI_Media_Solutions::TEXTDOMAIN),
+            'singular' => __('folder', USI_Media_Solutions::TEXTDOMAIN), 
+            'plural' => __('folders', USI_Media_Solutions::TEXTDOMAIN),
             'ajax' => false,
          ) 
       );
@@ -110,8 +110,8 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 
       return('<input class="usi-media-folder-list"' .
          ' data-id="' . esc_attr($item['variable_id']) . '"' .
-         ' data-name="' . esc_attr($item['variable']) . '"' .
-         ' data-value="' . esc_attr($item['value']) . '"' .
+         ' data-name="' . esc_attr($item['folder']) . '"' .
+//         ' data-value="' . esc_attr($item['value']) . '"' .
          ' name="variable_id[]" type="checkbox" value="' . $item['variable_id'] .'" />'
       );
 
@@ -123,8 +123,8 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
       case 'variable_id':
 //      case 'notes':
 //      case 'owner':
-      case 'value':
-      case 'variable':
+//      case 'value':
+      case 'folder':
          return $item[$column_name];
       default:
          return(print_r($item, true)); //Show the whole array for troubleshooting purposes
@@ -132,7 +132,7 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 
    } // column_default();
 
-   function column_variable($item) {
+   function column_folder($item) {
 
       $actions = array();
 /*
@@ -150,9 +150,9 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
             '">' . __('Delete', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
       }
 */
-      return($item['variable'] . ' ' . $this->row_actions($actions));
+      return($item['folder'] . ' ' . $this->row_actions($actions));
 
-   } // column_variable();
+   } // column_folder();
 
    function filter_set_screen_options($status, $option, $value) {
 
@@ -178,8 +178,8 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
          array(
             'cb' => '<input type="checkbox" />',
             'variable_id' => __('ID', USI_Media_Solutions::TEXTDOMAIN),
-            'variable' => __('Variable', USI_Media_Solutions::TEXTDOMAIN),
-            'value' => __( 'Value', USI_Media_Solutions::TEXTDOMAIN),
+            'folder' => __('Folder', USI_Media_Solutions::TEXTDOMAIN),
+//            'value' => __( 'Value', USI_Media_Solutions::TEXTDOMAIN),
 //            'notes' => __('Notes', USI_Media_Solutions::TEXTDOMAIN),
 //            'owner' => __('Owner', USI_Media_Solutions::TEXTDOMAIN),
          )
@@ -205,25 +205,39 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
       default: $SAFE_orderby = 'variable_id` ' . $SAFE_order . ', `variable_id'; break;
 //      case 'notes': 
 //      case 'owner': 
-      case 'variable': $SAFE_orderby = $WILD_orderby;
+      case 'folder': $SAFE_orderby = $WILD_orderby;
       }
 
       $SAFE_orderby = 'ORDER BY `' . $SAFE_orderby . '` ' . $SAFE_order;
-      $SAFE_search = ((isset($_POST['s']) && ('' != $_POST['s'])) ? $wpdb->prepare(' AND (`variable` = %s)', $_POST['s']) : '');
+      $SAFE_search = ((isset($_POST['s']) && ('' != $_POST['s'])) ? $wpdb->prepare(' AND (`folder` = %s)', $_POST['s']) : '');
+      $SAFE_search = ((isset($_POST['s']) && ('' != $_POST['s'])) ? $wpdb->prepare(' AND (`folder` = %s)', $_POST['s']) : '');
 
       $current_page = $this->get_pagenum();
       $SAFE_per_page = (int)$this->get_items_per_page('per_page', 20);
       $SAFE_skip = (int)($SAFE_per_page * ($paged - 1));
 
       $SAFE_variables_table = $wpdb->prefix . 'USI_variables';
-      $count_of_records = $wpdb->get_var("SELECT COUNT(*) FROM `$SAFE_variables_table` WHERE (`variable_id` > 1)$SAFE_search");
+//      $count_of_records = $wpdb->get_var("SELECT COUNT(*) FROM `$SAFE_variables_table` WHERE (`variable_id` > 1)$SAFE_search");
+      $count_of_records = $wpdb->get_var(
+         "SELECT COUNT(*) FROM `{$wpdb->posts}`" .
+         " WHERE (`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "') OR (`post_type` = 'usi-ms-upload-folder')"
+      );
 
       $SAFE_users_table = $wpdb->prefix . 'users';
+/*
       $this->items = $wpdb->get_results(
-         "SELECT `variable_id`, `variable`, `value` " . //`display_name` as `owner`, " .
+         "SELECT `variable_id`, `variable` " . //`display_name` as `owner`, " .
          " FROM `$SAFE_variables_table`" .
          " INNER JOIN `$SAFE_users_table` ON `$SAFE_users_table`.`ID` = `$SAFE_variables_table`.`user_id`" . 
          " WHERE (`variable_id` > 1)$SAFE_search $SAFE_orderby LIMIT $SAFE_skip,$SAFE_per_page", ARRAY_A);
+*/
+      $this->items = $wpdb->get_results(
+         "SELECT `{$wpdb->posts}`.`ID` AS `variable_id`, `{$wpdb->posts}`.`post_content`, `{$wpdb->posts}`.`post_title` AS `folder`, `{$wpdb->users}`.`display_name` FROM `{$wpdb->posts}`" .
+         " INNER JOIN `{$wpdb->users}` ON (`{$wpdb->users}`.`ID` = `{$wpdb->posts}`.`post_author`)" .
+         " WHERE (`{$wpdb->posts}`.`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "') OR (`{$wpdb->posts}`.`post_type` = 'usi-ms-upload-folder')",
+         //" ORDER BY $SAFE_order_by $SAFE_order LIMIT $SAFE_offset, $SAFE_per_page", 
+         ARRAY_A
+      );
 
       $this->set_pagination_args(
          array(
@@ -240,7 +254,7 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
       return(
          array(
             'variable_id' => array('variable_id', true),
-            'variable' => array('variable', false),
+            'folder' => array('folder', false),
 //            'notes' => array('notes', false),
 //            'owner' => array('owner', false),
          )
@@ -319,13 +333,13 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 jQuery(document).ready(
    function($) {
 
-      var text_confirm_prefix = '<?php _e("Please confirm that you want to delete the following variable(s)", USI_Media_Solutions::TEXTDOMAIN);?>';
+      var text_confirm_prefix = '<?php _e("Please confirm that you want to delete the following folder(s)", USI_Media_Solutions::TEXTDOMAIN);?>';
       var text_confirm_suffix = '<?php _e("This deletion is permanent and cannot be reversed", USI_Media_Solutions::TEXTDOMAIN);?>';
       var text_cancel = '<?php _e("Cancel", USI_Media_Solutions::TEXTDOMAIN);?>';
       var text_delete = '<?php _e("Delete", USI_Media_Solutions::TEXTDOMAIN);?>';
       var text_ok     = '<?php _e("Ok", USI_Media_Solutions::TEXTDOMAIN);?>';
       var text_please_action   = '<?php _e("Please select a bulk action before you click the Apply button.", USI_Media_Solutions::TEXTDOMAIN);?>';
-      var text_please_variable = '<?php _e("Please select one or more variables before you click the Apply button.", USI_Media_Solutions::TEXTDOMAIN);?>';
+      var text_please_folder   = '<?php _e("Please select one or more folders before you click the Apply button.", USI_Media_Solutions::TEXTDOMAIN);?>';
 
       function do_action() {
 
@@ -340,11 +354,11 @@ jQuery(document).ready(
             for (var i = 0; i < ids.length; i++) {
                if (ids[i].checked) {
                   id_list += (id_list.length ? ',' : '') + ids[i].getAttribute('data-id');
-                  text += (delete_count++ ? '<br/>' : '') + ids[i].getAttribute('data-name') + ' = ' + ids[i].getAttribute('data-value');
+                  text += (delete_count++ ? '<br/>' : '') + ids[i].getAttribute('data-name');
                }
             }
             if (!delete_count) {
-               text = text_please_variable;
+               text = text_please_folder;
             }
          }
 
@@ -352,11 +366,11 @@ jQuery(document).ready(
 
       } // do_action();
 
-      function show_confirmation(count_of_variables, id, text) {
+      function show_confirmation(count_of_folders, id, text) {
 
          var html = '<p>';
 
-         if (count_of_variables) {
+         if (count_of_folders) {
             html += text_confirm_prefix + ':</p><p>' + text + '</p><p>' + text_confirm_suffix + '.';
          } else {
             html += text;
@@ -364,16 +378,16 @@ jQuery(document).ready(
 
          html += '</p><hr/><p>';
 
-         if (count_of_variables) html += 
+         if (count_of_folders) html += 
             '<a class="button" href="?page=usi-media-folder-list&action=delete&variable_id=' +
             id + '">' + text_delete + '</a> &nbsp; ';
 
          html += '<a class="button" href="" onclick="tb_remove()">' +
-            (count_of_variables ? text_cancel : text_ok) + '</a>';
+            (count_of_folders ? text_cancel : text_ok) + '</a>';
 
          $('#usi-media-folder-list-confirm').html(html);
 
-         tb_show('Variable-Solutions', '#TB_inline?width=500&height=300&inlineId=usi-media-folder-list-confirm', null);
+         tb_show('Media-Solutions', '#TB_inline?width=500&height=300&inlineId=usi-media-folder-list-confirm', null);
 
          return(false);
 
@@ -387,7 +401,7 @@ jQuery(document).ready(
          function(event) {
             var obj = event.target;
             var id = obj.getAttribute('data-id');
-            var text = obj.getAttribute('data-name') + ' = ' + obj.getAttribute('data-value');
+            var text = obj.getAttribute('data-name');
             return(show_confirmation(1, id, text));
          }
       );
