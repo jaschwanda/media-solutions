@@ -18,7 +18,7 @@ class USI_Media_Solutions_Folder_List {
 
    function action_admin_menu() {
 
-      $text = __('Upload Folders', USI_Media_Solutions::TEXTDOMAIN);
+      $text = __('Upload Folders Original', USI_Media_Solutions::TEXTDOMAIN);
 
       $this->hook = add_media_page(
          $text, // Text displayed in title tags of page when menu is selected;

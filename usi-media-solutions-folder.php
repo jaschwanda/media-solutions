@@ -17,6 +17,7 @@ Copyright (c) 2020 by Jim Schwanda.
 
 require_once('usi-media-solutions-folder-add.php');
 require_once('usi-media-solutions-folder-list.php');
+require_once('usi-media-solutions-folder-table.php');
 require_once('usi-media-solutions-manage.php');
 
 class USI_Media_Solutions_Folder {

@@ -17,7 +17,7 @@ Copyright (c) 2020 by Jim Schwanda.
 
 if (!class_exists('WP_List_Table')) { require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php'); }
 
-final class USI_Media_Solutions_Folder_Table extends WP_List_Table {
+final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 
    const VERSION = '2.1.0 (2020-02-21)';
 
@@ -25,7 +25,7 @@ final class USI_Media_Solutions_Folder_Table extends WP_List_Table {
    private $category = null;
    private $options_category = null;
    private $page_hook = null;
-   private $page_slug = 'usi-vs-variables';
+   private $page_slug = 'usi-media-folder-list';
 
    function __construct() {
 
@@ -78,14 +78,16 @@ final class USI_Media_Solutions_Folder_Table extends WP_List_Table {
 
    function action_admin_menu() {
 
-      $this->page_hook = add_menu_page(
-         __(USI_Media_Solutions::NAME, USI_Media_Solutions::TEXTDOMAIN), // Text displayed in <title> when menu is selected;
-         __('Variables', USI_Media_Solutions::TEXTDOMAIN), // Text displayed in menu; 
-         USI_Media_Solutions::NAME . '-View-Variables', // Capability required to enable page; 
+      $text = __('Upload Folders', USI_Media_Solutions::TEXTDOMAIN);
+
+      $this->page_hook = add_media_page(
+         $text, // Text displayed in title tags of page when menu is selected;
+         $text, // Text displayed in menu bar;
+         USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'view-folders'), // The capability required to enable page;
          $this->page_slug, // Unique slug to of this menu; 
-         array($this, 'render_page'), // Function called to render page content;
-         USI_Media_Solutions::$options['preferences']['menu-icon'], // Menu icon;
-         USI_Media_Solutions::$options['preferences']['menu-position'] // Menu position;
+         //USI_Media_Solutions::MENUFOLDER, // Menu page slug name;
+         array($this, 'render_page') // Function called to render page content;
+         //'usi_MM_upload_folders_page' // Function called to render page content;
       );
 
       add_action('load-' . $this->page_hook, array($this, 'action_load_screen_options'));
@@ -116,7 +118,7 @@ final class USI_Media_Solutions_Folder_Table extends WP_List_Table {
 
    function column_cb($item) {
 
-      return('<input class="usi-vs-variable"' .
+      return('<input class="usi-media-folder-list"' .
          ' data-id="' . esc_attr($item['variable_id']) . '"' .
          ' data-name="' . esc_attr($item['variable']) . '"' .
          ' data-value="' . esc_attr($item['value']) . '"' .
@@ -151,22 +153,22 @@ final class USI_Media_Solutions_Folder_Table extends WP_List_Table {
    function column_variable($item) {
 
       $actions = array();
-
+/*
       if (USI_Media_Solutions_Admin::$variables_change || USI_Media_Solutions_Admin::$variables_edit) {
-         $actions['edit'] = '<a href="options-general.php?page=usi-vs-variable&variable_id=' .
+         $actions['edit'] = '<a href="options-general.php?page=usi-media-folder-list&variable_id=' .
             $item['variable_id'] . '">' . __('Edit', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
       }
 
       if (USI_Media_Solutions_Admin::$variables_delete) {
          $actions['delete'] = '<a' .
-            ' class="thickbox usi-vs-variable-delete-link"' .
+            ' class="thickbox usi-media-folder-list-delete-link"' .
             ' data-id="' . esc_attr($item['variable_id']) . '"' .
             ' data-name="' . esc_attr($item['variable']) . '"' .
             ' data-value="' . esc_attr($item['value']) . '"' .
             ' href=""' .
             '">' . __('Delete', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
       }
-
+*/
       return($item['variable'] . ' ' . $this->row_actions($actions));
 
    } // column_variable();
@@ -336,6 +338,7 @@ final class USI_Media_Solutions_Folder_Table extends WP_List_Table {
       $action = $this->current_action();
 
       if ('delete' == $action) {
+/*
          if (USI_Media_Solutions_Admin::$variables_delete) {
             $SAFE_variable_table = $wpdb->prefix . 'USI_variables';
             $ids = isset($_REQUEST['variable_id']) ? explode(',', $_REQUEST['variable_id']) : array();
@@ -354,24 +357,27 @@ final class USI_Media_Solutions_Folder_Table extends WP_List_Table {
          $message = '<div class="updated below-h2 notice is-dismissible" id="message"><p>' . $delete_text . '.</p>' .
             '<button type="button" class="notice-dismiss"><span class="screen-reader-text">' .
             __('Dismiss this notice', USI_Media_Solutions::TEXTDOMAIN) . '.</span></button></div>';
+*/
       } else {
          $message = null;
       }
 ?>
 
-<!-- usi-variable-solutions:render_page:begin ---------------------------------------------------------------------------------- -->
+<!-- usi-media-solutions:render_page:begin ---------------------------------------------------------------------------------- -->
 <div class="wrap">
   <h2><?php 
    _e('Variables', USI_Media_Solutions::TEXTDOMAIN); 
+/*
    if (USI_Media_Solutions_Admin::$variables_add) 
-      echo ' <a class="add-new-h2" href="options-general.php?page=usi-vs-variable">' . 
+      echo ' <a class="add-new-h2" href="options-general.php?page=usi-media-folder-list">' . 
          __('Add New', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
    if (USI_Media_Solutions_Admin::$variables_publish) 
       echo ' <a class="add-new-h2" href="options-general.php?page=usi-variable-settings&tab=publish">' . 
          __('Publish', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
+*/
   ?></h2>
   <?php if ($message) echo $message . PHP_EOL;?>
-  <form action="" method="post" name="usi-vs-variables">
+  <form action="" method="post" name="usi-media-folder-list">
     <input type="hidden" name="page" value="<?php echo $_REQUEST['page'];?>">
 <?php
       $this->prepare_items(); 
@@ -380,7 +386,7 @@ final class USI_Media_Solutions_Folder_Table extends WP_List_Table {
 ?>
   </form>
 </div>
-<div id="usi-vs-variable-confirm" style="display:none;"></div>
+<div id="usi-media-folder-list-confirm" style="display:none;"></div>
 <script>
 jQuery(document).ready(
    function($) {
@@ -395,7 +401,7 @@ jQuery(document).ready(
 
       function do_action() {
 
-         var ids = $('.usi-vs-variable');
+         var ids = $('.usi-media-folder-list');
          var id_list = '';
          var text = '';
 
@@ -431,15 +437,15 @@ jQuery(document).ready(
          html += '</p><hr/><p>';
 
          if (count_of_variables) html += 
-            '<a class="button" href="?page=usi-vs-variables&action=delete&variable_id=' +
+            '<a class="button" href="?page=usi-media-folder-list&action=delete&variable_id=' +
             id + '">' + text_delete + '</a> &nbsp; ';
 
          html += '<a class="button" href="" onclick="tb_remove()">' +
             (count_of_variables ? text_cancel : text_ok) + '</a>';
 
-         $('#usi-vs-variable-confirm').html(html);
+         $('#usi-media-folder-list-confirm').html(html);
 
-         tb_show('Variable-Solutions', '#TB_inline?width=500&height=300&inlineId=usi-vs-variable-confirm', null);
+         tb_show('Variable-Solutions', '#TB_inline?width=500&height=300&inlineId=usi-media-folder-list-confirm', null);
 
          return(false);
 
@@ -449,7 +455,7 @@ jQuery(document).ready(
 
       $('#doaction2').click(do_action); 
 
-      $('.usi-vs-variable-delete-link').click(
+      $('.usi-media-folder-list-delete-link').click(
          function(event) {
             var obj = event.target;
             var id = obj.getAttribute('data-id');
@@ -461,7 +467,7 @@ jQuery(document).ready(
    }
 );
 </script>
-<!-- usi-variable-solutions:render_page:end ------------------------------------------------------------------------------------ -->
+<!-- usi-media-solutions:render_page:end ------------------------------------------------------------------------------------ -->
 <?php
    } // render_page();
 
@@ -471,8 +477,8 @@ jQuery(document).ready(
 
    } // safe_name();
 
-} // Class USI_Media_Solutions_Folder_Table;
+} // Class USI_Media_Solutions_Folder_Table_New;
 
-new USI_Media_Solutions_Folder_Table();
+new USI_Media_Solutions_Folder_Table_New();
 
 // --------------------------------------------------------------------------------------------------------------------------- // ?>
