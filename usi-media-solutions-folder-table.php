@@ -42,7 +42,7 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
          'variable' => 15, 
          'value'    => 15, 
          'notes'    => 15, 
-         'owner'    => 10, 
+//         'owner'    => 10, 
       );
 
       $hidden = $this->get_hidden_columns();
@@ -122,7 +122,7 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
       switch($column_name) { 
       case 'variable_id':
       case 'notes':
-      case 'owner':
+//      case 'owner':
       case 'value':
       case 'variable':
          return $item[$column_name];
@@ -181,7 +181,7 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
             'variable' => __('Variable', USI_Media_Solutions::TEXTDOMAIN),
             'value' => __( 'Value', USI_Media_Solutions::TEXTDOMAIN),
             'notes' => __('Notes', USI_Media_Solutions::TEXTDOMAIN),
-            'owner' => __('Owner', USI_Media_Solutions::TEXTDOMAIN),
+//            'owner' => __('Owner', USI_Media_Solutions::TEXTDOMAIN),
          )
       );
 
@@ -204,7 +204,7 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
       switch ($WILD_orderby) {
       default: $SAFE_orderby = 'variable_id` ' . $SAFE_order . ', `variable_id'; break;
       case 'notes': 
-      case 'owner': 
+//      case 'owner': 
       case 'variable': $SAFE_orderby = $WILD_orderby;
       }
 
@@ -220,7 +220,7 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 
       $SAFE_users_table = $wpdb->prefix . 'users';
       $this->items = $wpdb->get_results(
-         "SELECT `variable_id`, `variable`, `value`, `display_name` as `owner`, " .
+         "SELECT `variable_id`, `variable`, `value`, " . //`display_name` as `owner`, " .
          "`$SAFE_variables_table`.`notes` FROM `$SAFE_variables_table`" .
          " INNER JOIN `$SAFE_users_table` ON `$SAFE_users_table`.`ID` = `$SAFE_variables_table`.`user_id`" . 
          " WHERE (`variable_id` > 1)$SAFE_search $SAFE_orderby LIMIT $SAFE_skip,$SAFE_per_page", ARRAY_A);
@@ -242,7 +242,7 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
             'variable_id' => array('variable_id', true),
             'variable' => array('variable', false),
             'notes' => array('notes', false),
-            'owner' => array('owner', false),
+//            'owner' => array('owner', false),
          )
       );
 
