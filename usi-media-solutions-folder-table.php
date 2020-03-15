@@ -14,6 +14,9 @@ https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
 Copyright (c) 2020 by Jim Schwanda.
 */
 
+// https://premiumcoding.com/wordpress-tutorial-how-to-extend-wp-list-table/
+// http://wordpress.stackexchange.com/questions/109955/custom-table-column-sortable-by-taxonomy-query
+
 if (!class_exists('WP_List_Table')) { require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php'); }
 
 final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
@@ -38,14 +41,14 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
       if($this->page_slug != ((isset($_GET['page'])) ? $_GET['page'] : '')) return;
 
       $columns = array(
-         'id'       => 10, 
          'folder' => 15, 
+         'id'       => 10, 
 //         'value'    => 15, 
 //         'notes'    => 15, 
 //         'owner'    => 10, 
       );
 
-      $hidden = $this->get_hidden_columns();
+      $hidden = $this->get_columns_hidden();
 
       foreach ($hidden as $hide) {
          unset($columns[$hide]);
@@ -75,9 +78,7 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
          $text, // Text displayed in menu bar;
          USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'view-folders'), // The capability required to enable page;
          $this->page_slug, // Unique slug to of this menu; 
-         //USI_Media_Solutions::MENUFOLDER, // Menu page slug name;
          array($this, 'render_page') // Function called to render page content;
-         //'usi_MM_upload_folders_page' // Function called to render page content;
       );
 
       add_action('load-' . $this->page_hook, array($this, 'action_load_screen_options'));
@@ -124,35 +125,14 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 //      case 'notes':
 //      case 'owner':
 //      case 'value':
+         return($item[$column_name]);
       case 'folder':
-         return $item[$column_name];
+         return('<a href="upload.php?guid=' . rawurlencode($item[$column_name]) . '">' .  $item[$column_name] . '</a>');
       default:
          return(print_r($item, true)); //Show the whole array for troubleshooting purposes
       }
 
    } // column_default();
-
-   function column_folder($item) {
-
-      $actions = array();
-/*
-      if (USI_Media_Solutions_Admin::$variables_change || USI_Media_Solutions_Admin::$variables_edit) {
-         $actions['edit'] = '<a href="options-general.php?page=usi-media-folder-list&variable_id=' .
-            $item['variable_id'] . '">' . __('Edit', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
-      }
-      if (USI_Media_Solutions_Admin::$variables_delete) {
-         $actions['delete'] = '<a' .
-            ' class="thickbox usi-media-folder-list-delete-link"' .
-            ' data-id="' . esc_attr($item['variable_id']) . '"' .
-            ' data-name="' . esc_attr($item['variable']) . '"' .
-            ' data-value="' . esc_attr($item['value']) . '"' .
-            ' href=""' .
-            '">' . __('Delete', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
-      }
-*/
-      return($item['folder'] . ' ' . $this->row_actions($actions));
-
-   } // column_folder();
 
    function filter_set_screen_options($status, $option, $value) {
 
@@ -187,11 +167,24 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 
     } // get_columns();
 
-   public function get_hidden_columns() {
+   public function get_columns_hidden() {
 
       return((array)get_user_option('manage' . $this->page_hook . 'columnshidden'));
 
-   } // get_hidden_columns();
+   } // get_columns_hidden();
+
+   function get_columns_sortable() {
+
+      return(
+         array(
+            'folder_id' => array('folder_id', true),
+            'folder' => array('folder', false),
+//            'notes' => array('notes', false),
+//            'owner' => array('owner', false),
+         )
+      );
+
+   } // get_columns_sortable();
 
    function get_list() {
 
@@ -250,19 +243,6 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 
    } // get_list();
 
-   function get_sortable_columns() {
-
-      return(
-         array(
-            'folder_id' => array('folder_id', true),
-            'folder' => array('folder', false),
-//            'notes' => array('notes', false),
-//            'owner' => array('owner', false),
-         )
-      );
-
-   } // get_sortable_columns();
-
    function no_items() {
 
       _e('No folders have been configured.', USI_Media_Solutions::TEXTDOMAIN);
@@ -271,10 +251,12 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 
    function prepare_items() {
 
-      $columns = $this->get_columns();
-      $hidden = $this->get_hidden_columns();
-      $sortable = $this->get_sortable_columns();
+      $columns  = $this->get_columns();
+      $hidden   = $this->get_columns_hidden();
+      $sortable = $this->get_columns_sortable();
+
       $this->_column_headers = array($columns, $hidden, $sortable);
+
       $this->get_list();
 
    } //prepare_items():
