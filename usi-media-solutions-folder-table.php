@@ -11,7 +11,6 @@ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Gen
  
 You should have received a copy of the GNU General Public License along with Media-Solutions. If not, see 
 https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
-
 Copyright (c) 2020 by Jim Schwanda.
 */
 
@@ -40,10 +39,10 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 
       $columns = array(
          'id'       => 10, 
-         'variable' => 15, 
-         'value'    => 15, 
-         'notes'    => 15, 
-         'owner'    => 10, 
+//         'variable' => 15, 
+//         'value'    => 15, 
+//         'notes'    => 15, 
+//         'owner'    => 10, 
       );
 
       $hidden = $this->get_hidden_columns();
@@ -110,10 +109,11 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
    function column_cb($item) {
 
       return('<input class="usi-media-folder-list"' .
-         ' data-id="' . esc_attr($item['variable_id']) . '"' .
-         ' data-name="' . esc_attr($item['variable']) . '"' .
-         ' data-value="' . esc_attr($item['value']) . '"' .
-         ' name="variable_id[]" type="checkbox" value="' . $item['variable_id'] .'" />');
+         ' data-id="' . esc_attr($item['variable_id']) . '"'
+//         ' data-name="' . esc_attr($item['variable']) . '"' .
+//         ' data-value="' . esc_attr($item['value']) . '"' .
+//         ' name="variable_id[]" type="checkbox" value="' . $item['variable_id'] .'" />'
+      );
 
     } // column_cb();
 
@@ -121,10 +121,10 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 
       switch($column_name) { 
       case 'variable_id':
-      case 'notes':
-      case 'owner':
-      case 'value':
-      case 'variable':
+//      case 'notes':
+//      case 'owner':
+//      case 'value':
+//      case 'variable':
          return $item[$column_name];
       default:
          return(print_r($item, true)); //Show the whole array for troubleshooting purposes
@@ -140,7 +140,6 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
          $actions['edit'] = '<a href="options-general.php?page=usi-media-folder-list&variable_id=' .
             $item['variable_id'] . '">' . __('Edit', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
       }
-
       if (USI_Media_Solutions_Admin::$variables_delete) {
          $actions['delete'] = '<a' .
             ' class="thickbox usi-media-folder-list-delete-link"' .
@@ -179,10 +178,10 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
          array(
             'cb' => '<input type="checkbox" />',
             'variable_id' => __('ID', USI_Media_Solutions::TEXTDOMAIN),
-            'variable' => __('Variable', USI_Media_Solutions::TEXTDOMAIN),
-            'value' => __( 'Value', USI_Media_Solutions::TEXTDOMAIN),
-            'notes' => __('Notes', USI_Media_Solutions::TEXTDOMAIN),
-            'owner' => __('Owner', USI_Media_Solutions::TEXTDOMAIN),
+//            'variable' => __('Variable', USI_Media_Solutions::TEXTDOMAIN),
+//            'value' => __( 'Value', USI_Media_Solutions::TEXTDOMAIN),
+//            'notes' => __('Notes', USI_Media_Solutions::TEXTDOMAIN),
+//            'owner' => __('Owner', USI_Media_Solutions::TEXTDOMAIN),
          )
       );
 
@@ -204,9 +203,9 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
       $WILD_orderby = (isset($_GET['orderby']) ? $_GET['orderby'] : '');
       switch ($WILD_orderby) {
       default: $SAFE_orderby = 'variable_id` ' . $SAFE_order . ', `variable_id'; break;
-      case 'notes': 
-      case 'owner': 
-      case 'variable': $SAFE_orderby = $WILD_orderby;
+//      case 'notes': 
+//      case 'owner': 
+//      case 'variable': $SAFE_orderby = $WILD_orderby;
       }
 
       $SAFE_orderby = 'ORDER BY `' . $SAFE_orderby . '` ' . $SAFE_order;
@@ -226,10 +225,6 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
          " INNER JOIN `$SAFE_users_table` ON `$SAFE_users_table`.`ID` = `$SAFE_variables_table`.`user_id`" . 
          " WHERE (`variable_id` > 1)$SAFE_search $SAFE_orderby LIMIT $SAFE_skip,$SAFE_per_page", ARRAY_A);
 
-      for ($ith = 0; $ith < count($this->items); $ith++) {
-         $this->items[$ith]['value'] = htmlentities($this->items[$ith]['value']);
-      }
-
       $this->set_pagination_args(
          array(
             'total_items' => $count_of_records,
@@ -245,9 +240,9 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
       return(
          array(
             'variable_id' => array('variable_id', true),
-            'variable' => array('variable', false),
-            'notes' => array('notes', false),
-            'owner' => array('owner', false),
+//            'variable' => array('variable', false),
+//            'notes' => array('notes', false),
+//            'owner' => array('owner', false),
          )
       );
 
@@ -255,7 +250,7 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 
    function no_items() {
 
-      _e('No variables have been configured.', USI_Media_Solutions::TEXTDOMAIN);
+      _e('No folders have been configured.', USI_Media_Solutions::TEXTDOMAIN);
 
     } // no_items();
 
