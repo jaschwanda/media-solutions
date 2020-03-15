@@ -22,21 +22,15 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
    const VERSION = '2.1.0 (2020-02-21)';
 
    private $all_categories = null;
-   private $category = null;
-   private $options_category = null;
    private $page_hook = null;
    private $page_slug = 'usi-media-folder-list';
 
    function __construct() {
 
-      $this->options_category = USI_Media_Solutions::PREFIX . '-options-category';
-
       add_action('admin_head', array($this, 'action_admin_head'));
       add_action('admin_menu', array($this, 'action_admin_menu'));
 
       add_filter('set-screen-option', array($this, 'filter_set_screen_options'), 10, 3);
-
-      $this->category = $this->all_categories = __('All Categories', USI_Media_Solutions::TEXTDOMAIN);
 
    } // __construct();
 
@@ -47,12 +41,9 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
       $columns = array(
          'id'       => 10, 
          'variable' => 15, 
-         'category' => 10, 
-         'type'     => 10, 
          'value'    => 15, 
          'notes'    => 15, 
          'owner'    => 10, 
-         'updated'  => 15,
       );
 
       $hidden = $this->get_hidden_columns();
@@ -130,20 +121,11 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 
       switch($column_name) { 
       case 'variable_id':
-      case 'category':
       case 'notes':
       case 'owner':
-      case 'type':
       case 'value':
       case 'variable':
          return $item[$column_name];
-      case 'updated':
-         $updated = strtotime($item['updated']);
-         if ((abs(time() - $updated)) < 86400){
-            return(sprintf('%s ago', human_time_diff($updated, strtotime(current_time('mysql')))));
-         } else {
-            return(date_i18n('j F, Y \a\t G:i', $updated));
-         }
       default:
          return(print_r($item, true)); //Show the whole array for troubleshooting purposes
       }
@@ -173,25 +155,6 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 
    } // column_variable();
 
-   function extra_tablenav($which) {
-
-      global $wpdb;
-
-      if ('top' == $which) {        
-         $SAFE_variables_table = $wpdb->prefix . 'USI_variables';
-         $rows = $wpdb->get_results("SELECT DISTINCT `category` FROM `$SAFE_variables_table` WHERE (`category` <> '') ORDER BY `category`", OBJECT_K);
-         echo '      <div class="alignleft actions bulkactions"><select id="' . $this->options_category . 
-            '" name="' . $this->options_category . '">' .
-            '<option ' . (($this->all_categories == $this->category) ? 'selected="selected" ' : '') . 'value="' . 
-            $this->all_categories . '">' . $this->all_categories . '</option>';
-         foreach ($rows as $row) {
-            echo '<option ' . (($row->category == $this->category) ? 'selected="selected" ' : '') . 'value="' . $row->category . '">' . $row->category . '</option>';
-         }
-         echo '</select><input class="button action" type="submit" name="usi-vs-filter" id="usi-vs-filter" value="Filter" /></div>' . PHP_EOL;
-      }
-
-   } // extra_tablenav();
-
    function filter_set_screen_options($status, $option, $value) {
 
       if ('per_page' == $option) return($value);
@@ -217,12 +180,9 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
             'cb' => '<input type="checkbox" />',
             'variable_id' => __('ID', USI_Media_Solutions::TEXTDOMAIN),
             'variable' => __('Variable', USI_Media_Solutions::TEXTDOMAIN),
-            'category' => __('Category', USI_Media_Solutions::TEXTDOMAIN),
-            'type' => __('Type', USI_Media_Solutions::TEXTDOMAIN),
             'value' => __( 'Value', USI_Media_Solutions::TEXTDOMAIN),
             'notes' => __('Notes', USI_Media_Solutions::TEXTDOMAIN),
             'owner' => __('Owner', USI_Media_Solutions::TEXTDOMAIN),
-            'updated' => __('Updated', USI_Media_Solutions::TEXTDOMAIN),
          )
       );
 
@@ -240,35 +200,17 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 
       $paged = (int)(isset($_GET['paged']) ? $_GET['paged'] : 1);
 
-      $filter = $this->safe_name(isset($_POST['usi-vs-filter']) ? $_POST['usi-vs-filter'] : '');
-      if ('Filter' == $filter) $paged = 1;
-
       $SAFE_order = (isset($_GET['order'])) ? (('desc' == strtolower($_GET['order'])) ? 'DESC' : '') : '';
       $WILD_orderby = (isset($_GET['orderby']) ? $_GET['orderby'] : '');
       switch ($WILD_orderby) {
-      default: $SAFE_orderby = 'category` ' . $SAFE_order . ', `variable'; break;
+      default: $SAFE_orderby = 'variable_id` ' . $SAFE_order . ', `variable_id'; break;
       case 'notes': 
       case 'owner': 
-      case 'type':
-      case 'updated':
-      case 'variable':
-      case 'variable_id': $SAFE_orderby = $WILD_orderby;
+      case 'variable': $SAFE_orderby = $WILD_orderby;
       }
 
       $SAFE_orderby = 'ORDER BY `' . $SAFE_orderby . '` ' . $SAFE_order;
       $SAFE_search = ((isset($_POST['s']) && ('' != $_POST['s'])) ? $wpdb->prepare(' AND (`variable` = %s)', $_POST['s']) : '');
-      if ('' == $SAFE_search) {
-         if (!empty($_POST[$this->options_category])) {
-            $this->category = $_POST[$this->options_category];
-         } else if (!empty($_GET['filter'])) {
-            $this->category = $_GET['filter'];
-         } else {
-            $category = get_user_option($this->options_category);
-            $this->category = (!empty($category) ? $category : $this->all_categories);
-         }
-         update_user_option(get_current_user_id(), $this->options_category, $this->category);
-         if ($this->all_categories != $this->category) $SAFE_search = $wpdb->prepare(' AND (`category` = %s)', $this->category);
-      }
 
       $current_page = $this->get_pagenum();
       $SAFE_per_page = (int)$this->get_items_per_page('per_page', 20);
@@ -279,13 +221,12 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 
       $SAFE_users_table = $wpdb->prefix . 'users';
       $this->items = $wpdb->get_results(
-         "SELECT `variable_id`, `category`, `variable`, `type`, `value`, `display_name` as `owner`, " .
-         "`$SAFE_variables_table`.`updated`, `$SAFE_variables_table`.`notes` FROM `$SAFE_variables_table`" .
+         "SELECT `variable_id`, `variable`, `value`, `display_name` as `owner`, " .
+         "`$SAFE_variables_table`.`notes` FROM `$SAFE_variables_table`" .
          " INNER JOIN `$SAFE_users_table` ON `$SAFE_users_table`.`ID` = `$SAFE_variables_table`.`user_id`" . 
          " WHERE (`variable_id` > 1)$SAFE_search $SAFE_orderby LIMIT $SAFE_skip,$SAFE_per_page", ARRAY_A);
 
       for ($ith = 0; $ith < count($this->items); $ith++) {
-         $this->items[$ith]['type'] = ('V' == $this->items[$ith]['type'] ? 'Variable' : 'Expression');
          $this->items[$ith]['value'] = htmlentities($this->items[$ith]['value']);
       }
 
@@ -304,12 +245,9 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
       return(
          array(
             'variable_id' => array('variable_id', true),
-            'category' => array('category', true),
             'variable' => array('variable', false),
             'notes' => array('notes', false),
             'owner' => array('owner', false),
-            'type' => array('type', false),
-            'updated' => array('updated', false),
          )
       );
 
@@ -366,15 +304,10 @@ final class USI_Media_Solutions_Folder_Table_New extends WP_List_Table {
 <!-- usi-media-solutions:render_page:begin ---------------------------------------------------------------------------------- -->
 <div class="wrap">
   <h2><?php 
-   _e('Variables', USI_Media_Solutions::TEXTDOMAIN); 
-/*
-   if (USI_Media_Solutions_Admin::$variables_add) 
-      echo ' <a class="add-new-h2" href="options-general.php?page=usi-media-folder-list">' . 
-         __('Add New', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
-   if (USI_Media_Solutions_Admin::$variables_publish) 
-      echo ' <a class="add-new-h2" href="options-general.php?page=usi-variable-settings&tab=publish">' . 
-         __('Publish', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
-*/
+   _e('Upload Folders', USI_Media_Solutions::TEXTDOMAIN); 
+   if (current_user_can(USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'create-folders')))
+      echo ' <a class="add-new-h2" href="admin.php?page=usi-media-folder-add-settings">' . 
+         __('Add Upload Folder', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
   ?></h2>
   <?php if ($message) echo $message . PHP_EOL;?>
   <form action="" method="post" name="usi-media-folder-list">
@@ -470,12 +403,6 @@ jQuery(document).ready(
 <!-- usi-media-solutions:render_page:end ------------------------------------------------------------------------------------ -->
 <?php
    } // render_page();
-
-   static function safe_name($category) {
-
-      return(strtolower(str_replace('-', '_', sanitize_title($category))));
-
-   } // safe_name();
 
 } // Class USI_Media_Solutions_Folder_Table_New;
 
