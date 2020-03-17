@@ -71,7 +71,7 @@ function usi_MM_create_folder_settings_field_callback($args) {
       $user_id = get_current_user_id();
       $folder_id =  (int)get_user_option('usi-ms-options-upload-folder', $user_id);
       $rows = $wpdb->get_results("SELECT `ID`, `post_title` FROM `{$wpdb->posts}` " .
-         " WHERE (`post_type` = 'usi-ms-upload-folder') ORDER BY `post_title`", OBJECT_K);
+         " WHERE (`post_type` = 'usi-media-folder') ORDER BY `post_title`", OBJECT_K);
       $html = '<select class="regular-text" id="usi-MM-create-folder-parent" name="usi-ms-options-create-folder[parent]">';
       foreach ($rows as $row) {
          $html .= '<option ' . (($row->ID == $folder_id) ? 'selected="selected" ' : '') . 'value="' . 
@@ -175,7 +175,7 @@ function usi_MM_attachment_register_taxonomy() {
    if (!empty(USI_Media_Solutions::$options['preferences']['organize-category'])) register_taxonomy_for_object_type('category', 'attachment');
    if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
       global $wpdb;
-      if (0 == $wpdb->get_var("SELECT COUNT(*) FROM `{$wpdb->posts}` WHERE (`post_type` = 'usi-ms-upload-folder')")) {
+      if (0 == $wpdb->get_var("SELECT COUNT(*) FROM `{$wpdb->posts}` WHERE (`post_type` = 'usi-media-folder')")) {
          usi_MM_create_folder_post(0, 'Root Folder', '/', 'Root Folder');
       }
    }
@@ -238,7 +238,7 @@ function usi_MM_post_upload_ui() {
       $user_id = get_current_user_id();
       $folder_id =  (int)get_user_option('usi-ms-options-upload-folder', $user_id);
       $rows = $wpdb->get_results("SELECT `ID`, `post_title` FROM `{$wpdb->posts}` " .
-         " WHERE (`post_type` = 'usi-ms-upload-folder') ORDER BY `post_title`", OBJECT_K);
+         " WHERE (`post_type` = 'usi-media-folder') ORDER BY `post_title`", OBJECT_K);
       $html = '<select class="regular-text" id="usi_MM_upload_folder"><option value="0">-- Default Upload Folder --</option>';
       $ignore = (!empty(USI_Media_Solutions::$options['preferences']['organize-allow-root']) ? '': '/');
       foreach ($rows as $row) {
@@ -444,7 +444,7 @@ function usi_MM_attachment_category_filter() {
       if ('upload' == $screen->id) {
          global $wpdb;
          $rows = $wpdb->get_results("SELECT `post_title` FROM `{$wpdb->posts}` " .
-            " WHERE (`post_type` = 'usi-ms-upload-folder') ORDER BY `post_title`", OBJECT_K);
+            " WHERE (`post_type` = 'usi-media-folder') ORDER BY `post_title`", OBJECT_K);
          $guid = (isset($_GET['guid']) ? 'http' . ($_SERVER['HTTPS'] ? 's' : '') . '://' . 
             $_SERVER['SERVER_NAME'] . rawurldecode($_GET['guid']) : '');
          $guid = (isset($_GET['guid']) ? rawurldecode($_GET['guid']) : '');

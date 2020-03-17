@@ -35,7 +35,7 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
          // 'debug'       => 'usi_log',
             'capability'  => USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'create-folders'), 
             'name'        => $this->text['page_header'], 
-            'prefix'      => USI_Media_Solutions::PREFIX . '-folder-add',
+            'prefix'      => USI_Media_Solutions::PREFIX . '-folders-add',
             'text_domain' => USI_Media_Solutions::TEXTDOMAIN,
             'options'     => & $this->options,
             'hide'        => true,
@@ -126,7 +126,7 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
    function section_footer() {
       echo '<p class="submit">' . PHP_EOL;
       submit_button($this->text['page_header'], 'primary', 'submit', false); 
-      echo ' &nbsp; <a class="button button-secondary" href="admin.php?page=' . USI_Media_SOlutions::MENUFOLDER . '">' .
+      echo ' &nbsp; <a class="button button-secondary" href="admin.php?page=' . USI_Media_Solutions::MENUFOLDER . '">' .
          __('Back To Folders', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . '</p>';
    } // section_footer();
 
@@ -137,7 +137,7 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
       $this->options['settings']['parent'] = USI_Media_Solutions_Folder::get_user_fold_id();
 
       $folders = $wpdb->get_results("SELECT `ID`, `post_title` FROM `{$wpdb->posts}` " .
-         " WHERE (`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "') OR (`post_type` = 'usi-ms-upload-folder')" .
+         " WHERE (`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "')" .
          " ORDER BY `post_title`", ARRAY_N);
 
       $sections = array(

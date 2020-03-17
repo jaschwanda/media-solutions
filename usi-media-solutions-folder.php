@@ -33,9 +33,7 @@ class USI_Media_Solutions_Folder {
       self::$post_fold = null;
 
       add_action('add_attachment', array($this, 'action_add_attachment'));
-// Check if we need delete_attachment
       add_action('delete_attachment', array($this, 'action_delete_attachment'));
-      add_action('delete_post', array($this, 'action_delete_post'));
       add_action('init', array($this, 'action_init'));
       add_action('manage_media_custom_column', array($this, 'action_manage_media_custom_column'), 10, 2);
       add_action('post-upload-ui', array($this, 'action_post_upload_ui'));
@@ -61,17 +59,13 @@ class USI_Media_Solutions_Folder {
    } // action_add_attachment();
 
    function action_delete_attachment($post_id) {
-      if (empty($this->meta)) $this->meta = get_post_meta($post_id, '_wp_attachment_metadata', true); 
-   } // action_delete_attachment();
-
-   function action_delete_post($post_id) {
       $upload_path = wp_get_upload_dir();
       if (empty($this->meta)) $this->meta = get_post_meta($post_id, '_wp_attachment_metadata', true); 
       if (!empty($this->meta['sizes'])) foreach ($this->meta['sizes'] as $name => $value) {
          $base = $value['file'];
          wp_delete_file($upload_path['path'] . DIRECTORY_SEPARATOR . $base);
       }
-   } // action_delete_post();
+   } // action_delete_attachment();
 
    function action_init() {
       self::$fold_id = isset($_REQUEST['fold_id']) ? $_REQUEST['fold_id'] : self::get_user_fold_id();
@@ -164,7 +158,7 @@ class USI_Media_Solutions_Folder {
       $new_actions = array();
       foreach ($actions as $key => $value) {
          $new_actions[$key] = $value;
-         if ('edit' == $key) {
+         if (('edit' == $key) && USI_WordPress_Solutions_Capabilities::current_user_can(USI_Media_Solutions::PREFIX, 'manage-media')) {
             $new_actions['manage_media'] = '<a href="' . 
                admin_url('admin.php?page=usi-media-manage-settings&id=' . $object->ID) . 
                '">' . __('Manage', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
@@ -233,7 +227,7 @@ class USI_Media_Solutions_Folder {
    public static function get_folders() {
       global $wpdb;
       $folders   = $wpdb->get_results("SELECT `ID`, `post_title` FROM `{$wpdb->posts}` " .
-         " WHERE (`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "') OR (`post_type` = 'usi-ms-upload-folder')" .
+         " WHERE (`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "')" .
          " ORDER BY `post_title`", ARRAY_N);
       if (empty(USI_Media_Solutions::$options['preferences']['organize-allow-root'])) {
          unset($folders[0]);

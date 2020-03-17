@@ -26,7 +26,6 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
 
    private $all_categories = null;
    private $page_hook = null;
-   private $page_slug = 'usi-media-folder-list';
 
    function __construct() {
 
@@ -39,7 +38,7 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
 
    function action_admin_head() {
 
-      if($this->page_slug != ((isset($_GET['page'])) ? $_GET['page'] : '')) return;
+      if (USI_Media_Solutions::MENUFOLDER != ((isset($_GET['page'])) ? $_GET['page'] : '')) return;
 
       $columns = array(
          'id'          => 10, 
@@ -79,7 +78,7 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
          $text, // Text displayed in title tags of page when menu is selected;
          $text, // Text displayed in menu bar;
          USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'view-folders'), // The capability required to enable page;
-         $this->page_slug, // Unique slug to of this menu; 
+         USI_Media_Solutions::MENUFOLDER, // Unique slug to of this menu; 
          array($this, 'render_page') // Function called to render page content;
       );
 
@@ -111,7 +110,7 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
 
    function column_cb($item) {
 
-      return('<input class="usi-media-folder-list"' .
+      return('<input class="usi-media-folders-list"' .
          ' data-id="' . esc_attr($item['folder_id']) . '"' .
          ' data-name="' . esc_attr($item['folder']) . '"' .
          ' name="folder_id[]" type="checkbox" value="' . $item['folder_id'] .'" />'
@@ -252,13 +251,13 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
 
       $count_of_records = $wpdb->get_var(
          "SELECT COUNT(*) FROM `{$wpdb->posts}`" .
-         " WHERE ((`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "') OR (`post_type` = 'usi-ms-upload-folder'))$SAFE_search"
+         " WHERE (`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "')$SAFE_search"
       );
 
       $this->items = $wpdb->get_results(
          "SELECT `{$wpdb->posts}`.`ID` AS `folder_id`, `{$wpdb->posts}`.`post_content` AS `description`, `{$wpdb->posts}`.`post_title` AS `folder`, `{$wpdb->users}`.`display_name` AS `owner` FROM `{$wpdb->posts}`" .
          " INNER JOIN `{$wpdb->users}` ON (`{$wpdb->users}`.`ID` = `{$wpdb->posts}`.`post_author`)" .
-         " WHERE ((`{$wpdb->posts}`.`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "') OR (`{$wpdb->posts}`.`post_type` = 'usi-ms-upload-folder'))$SAFE_search" .
+         " WHERE (`{$wpdb->posts}`.`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "')$SAFE_search" .
          " ORDER BY $SAFE_orderby $SAFE_order LIMIT $SAFE_skip, $SAFE_perpage", 
          ARRAY_A
       );
@@ -340,12 +339,12 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
 <div class="wrap">
   <h2><?php 
    _e('Upload Folders', USI_Media_Solutions::TEXTDOMAIN); 
-   if (current_user_can(USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'create-folders')))
-      echo ' <a class="add-new-h2" href="admin.php?page=usi-media-folder-add-settings">' . 
+   if (USI_WordPress_Solutions_Capabilities::current_user_can(USI_Media_Solutions::PREFIX, 'create-folders'))
+      echo ' <a class="add-new-h2" href="admin.php?page=usi-media-folders-add-settings">' . 
          __('Add Upload Folder', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
   ?></h2>
   <?php if ($message) echo $message . PHP_EOL;?>
-  <form action="" method="post" name="usi-media-folder-list">
+  <form action="" method="post" name="usi-media-folders-list">
     <input type="hidden" name="page" value="<?php echo $_REQUEST['page'];?>">
 <?php
       $this->prepare_items(); 
@@ -354,7 +353,7 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
 ?>
   </form>
 </div>
-<div id="usi-media-folder-list-confirm" style="display:none;"></div>
+<div id="usi-media-folders-list-confirm" style="display:none;"></div>
 <script>
 jQuery(document).ready(
    function($) {
@@ -369,7 +368,7 @@ jQuery(document).ready(
 
       function do_action() {
 
-         var ids     = $('.usi-media-folder-list');
+         var ids     = $('.usi-media-folders-list');
          var id_list = '';
          var text    = '';
 
@@ -405,15 +404,15 @@ jQuery(document).ready(
          html += '</p><hr/><p>';
 
          if (count_of_folders) html += 
-            '<a class="button" href="?page=usi-media-folder-list&action=delete&folder_id=' +
+            '<a class="button" href="?page=usi-media-folders-list&action=delete&folder_id=' +
             id + '">' + text_delete + '</a> &nbsp; ';
 
          html += '<a class="button" href="" onclick="tb_remove()">' +
             (count_of_folders ? text_cancel : text_ok) + '</a>';
 
-         $('#usi-media-folder-list-confirm').html(html);
+         $('#usi-media-folders-list-confirm').html(html);
 
-         tb_show('Media-Solutions', '#TB_inline?width=500&height=300&inlineId=usi-media-folder-list-confirm', null);
+         tb_show('Media-Solutions', '#TB_inline?width=500&height=300&inlineId=usi-media-folders-list-confirm', null);
 
          return(false);
 
@@ -423,7 +422,7 @@ jQuery(document).ready(
 
       $('#doaction2').click(do_action); 
 
-      $('.usi-media-folder-list-delete-link').click(
+      $('.usi-media-folders-list-delete-link').click(
          function(event) {
             var obj = event.target;
             var id = obj.getAttribute('data-id');

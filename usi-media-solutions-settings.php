@@ -55,7 +55,7 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
          global $wpdb;
          // Add root folder post if there are no folder posts;
          if (0 == $wpdb->get_var("SELECT COUNT(*) FROM `{$wpdb->posts}` WHERE " .
-            "(`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "') OR (`post_type` = 'usi-ms-upload-folder')")) {
+            "(`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "')")) {
                USI_Media_Solutions::folder_create_post(0, 'Root Folder', '/', 'Root Folder');
          }
       } // ENDIF organize by folders in use;

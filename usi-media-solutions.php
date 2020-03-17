@@ -30,17 +30,18 @@ https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
 
 Copyright (c) 2020 by Jim Schwanda.
 */
+/*
+posts.post_type 'usi-ms-upload-folder' => 'usi-media-folder'
+*/
 
-// Check if we need delete_attachment
-// Test reload to previous month folder;
+// delete empty folder;
 // Address that reloaded file is same type as original;
+// Test reload to previous month folder;
 // Address reload image thumbnail creation;
-// Adress old _mm_ tags post names;
 // Delete plugin code;
 
 // Add new folder gives success message and enter valid folder message on first run;
 // Remove notes and label fix up on settings;
-// Test user roles on create folder and upload media;
 // Orgnize by folder must create folder root post to seed add folder;
 
 // Add file size to library columns

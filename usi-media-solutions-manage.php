@@ -26,6 +26,9 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
    protected $is_tabbed = true;
 
+   private $ok_delete   = true;
+   private $ok_reload   = true;
+
    private $count = 0;
    private $id    = 0;
 
@@ -79,7 +82,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
          $upload_dir  = wp_get_upload_dir();
 
          // IF file upload;
-         if (!empty($_FILES)) {
+         if (!empty($_FILES) && USI_WordPress_Solutions_Capabilities::current_user_can(USI_Media_Solutions::PREFIX, 'reload-media')) {
 
             // IF there are associated files (should not get here if associated files exist);
             if (!empty($this->back) || !empty($this->meta['sizes'])) {
@@ -115,7 +118,8 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
                }
             } // ENDIF upload is premitted (there are associated files);
 
-         } else { // ELSE files deleted;
+         // ELSEIF user can delete files;
+         } else if (USI_WordPress_Solutions_Capabilities::current_user_can(USI_Media_Solutions::PREFIX, 'delete-media')) {
 
             $update_back = $update_meta = false;
 
@@ -148,7 +152,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
                $notice_text = 'No files have been deleted.';
             }
 
-         } // ENDIF files deleted;
+         } // ELSEIF user can delete files;
 
          // Display file administrator notice if any;
          if ($notice_type) {
@@ -206,6 +210,9 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
       $this->options['files']['id'] = !empty($_REQUEST['id']) ? $_REQUEST['id'] : 0;
 
+      $this->ok_delete = USI_WordPress_Solutions_Capabilities::current_user_can(USI_Media_Solutions::PREFIX, 'delete-media');
+      $this->ok_reload = USI_WordPress_Solutions_Capabilities::current_user_can(USI_Media_Solutions::PREFIX, 'reload-media');
+
       $sections = array(
 
          'files' => array(
@@ -222,16 +229,20 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
             ), // settings;
          ), // files;
 
-         'reload' => array(
+      );
+
+      if ($this->ok_reload) {
+
+         $sections['reload'] = array(
             'label' => 'Reload',
             'localize_notes' => 2, // &nbsp; <i>__()</i>;
             'header_callback' => array($this, 'section_header'),
             'footer_callback' => array($this, 'section_footer'),
             'settings' => array(
             ), // settings;
-         ), // folder;
+         ); // reload;
 
-      );
+      }
 
       $base  = $this->base;
       $files = array(); // List of files added to list to prevent duplicates;
@@ -250,6 +261,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
             $files[$base] = true;
             $sections['files']['settings'][$name] = array(
                'label' => $name, 
+               'readonly' => !$this->ok_delete,
                'type' => 'checkbox', 
                'notes' => '&nbsp; <a href="' . $this->link . $base . '" target="_blank">' . $base . '</a>',
             );
@@ -271,12 +283,14 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
          }
       }
 
-      if (!isset($this->post) || !$this->count || ('image/' != substr($this->post->post_mime_type, 0, 6))) {
-         $sections['reload']['settings']['file'] = array(
-            'label' => 'File', 
-            'name' => 'usi-media-reload', 
-            'type' => 'file', 
-         );
+      if ($this->ok_reload) {
+         if (!isset($this->post) || !$this->count || ('image/' != substr($this->post->post_mime_type, 0, 6))) {
+            $sections['reload']['settings']['file'] = array(
+               'label' => 'File', 
+               'name' => 'usi-media-reload', 
+               'type' => 'file', 
+            );
+         }
       }
 
       return($sections);
@@ -286,7 +300,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
    function section_footer() {
       if ('files' == $this->active_tab) {
          $button   = 'Delete Media';
-         $disabled = ($this->count ? '' : ' disabled');
+         $disabled = ($this->ok_delete && $this->count ? '' : ' disabled');
       } else {
          $button   = 'Reload Media';
          $disabled = ($this->count ? ' disabled' : '');
@@ -295,14 +309,16 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
       submit_button(__($button, USI_Media_Solutions::TEXTDOMAIN), 'primary' . $disabled, 'submit', false); 
       echo ' &nbsp; <a class="button button-secondary" href="upload.php">' .
          __('Back To Library', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . 
-         ' &nbsp; <a class="button button-secondary" href="admin.php?page=' . USI_Media_SOlutions::MENUFOLDER . '">' .
+         ' &nbsp; <a class="button button-secondary" href="upload.php?page=' . USI_Media_Solutions::MENUFOLDER . '">' .
          __('Back To Folders', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . '</p>';
    } // section_footer();
 
    function section_header() {
       if ('files' == $this->active_tab) {
          if ($this->count) {
-            $head = 'You can permanently delete the following thumbnails and associated files to free up space in your file system. Go to the <a href="upload.php">media library</a> to permanently delete all these files in one step.';
+            $head = $this->ok_delete 
+               ? 'You can permanently delete the following thumbnails and associated files to free up space in your file system. Go to the <a href="upload.php">media library</a> to permanently delete all these files in one step.'
+               : 'You do not have permission to delete the following thumbnails and associated files. Go to the <a href="upload.php">media library</a> to permanently delete all these files in one step.';
          } else {
             $head = 'Go to the <a href="upload.php">media library</a> to permanently delete this file.';
          }
