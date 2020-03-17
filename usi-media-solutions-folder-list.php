@@ -14,6 +14,7 @@ https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
 Copyright (c) 2020 by Jim Schwanda.
 */
 
+// https://premium.wpmudev.org/blog/wordpress-admin-tables/
 // https://premiumcoding.com/wordpress-tutorial-how-to-extend-wp-list-table/
 // http://wordpress.stackexchange.com/questions/109955/custom-table-column-sortable-by-taxonomy-query
 // https://fullstackgeek.blogspot.com/2019/08/calculate-directory-size-in-php.html
@@ -32,6 +33,7 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
       add_action('admin_head', array($this, 'action_admin_head'));
       add_action('admin_menu', array($this, 'action_admin_menu'));
 
+      add_filter('page_row_actions', array($this, 'filter_media_row_actions'), 10, 2);
       add_filter('set-screen-option', array($this, 'filter_set_screen_options'), 10, 3);
 
    } // __construct();
@@ -134,6 +136,41 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
       }
 
    } // column_default();
+
+   function column_folder($item) {
+/*
+      $actions = array();
+
+      if (USI_Variable_Solutions_Admin::$variables_change || USI_Variable_Solutions_Admin::$variables_edit) {
+         $actions['edit'] = '<a href="options-general.php?page=usi-vs-variable&variable_id=' .
+            $item['variable_id'] . '">' . __('Edit', USI_Variable_Solutions::TEXTDOMAIN) . '</a>';
+      }
+
+      if (USI_Variable_Solutions_Admin::$variables_delete) {
+         $actions['delete'] = '<a' .
+            ' class="thickbox usi-vs-variable-delete-link"' .
+            ' data-id="' . esc_attr($item['variable_id']) . '"' .
+            ' data-name="' . esc_attr($item['variable']) . '"' .
+            ' data-value="' . esc_attr($item['value']) . '"' .
+            ' href=""' .
+            '">' . __('Delete', USI_Variable_Solutions::TEXTDOMAIN) . '</a>';
+      }
+
+      return($item['variable'] . ' ' . $this->row_actions($actions));
+*/
+      $actions = array();
+         $actions['edit'] = '<a href="options-general.php?page=usi-vs-variable&variable_id=' .
+            $item['folder_id'] . '">' . __('Edit', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
+      return('<a href="upload.php?guid=' . rawurlencode($item['folder']) . '">' .  $item['folder'] . '</a>' . ' ' . $this->row_actions($actions));
+
+   } // column_variable();
+
+   function filter_media_row_actions($actions, $object) {
+usi_log(print_r($actions, true));
+      $new_actions = array();
+      $new_actions = $actions;
+      return($new_actions);
+   } // filter_media_row_actions()
 
    function filter_set_screen_options($status, $option, $value) {
 

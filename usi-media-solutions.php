@@ -34,6 +34,8 @@ Copyright (c) 2020 by Jim Schwanda.
 posts.post_type 'usi-ms-upload-folder' => 'usi-media-folder'
 */
 
+// upload folder list remove / folder with query where instead of unset array result;
+// upload folder list takes you to library for that folder;
 // delete empty folder;
 // Address that reloaded file is same type as original;
 // Test reload to previous month folder;
