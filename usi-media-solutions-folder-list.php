@@ -216,10 +216,10 @@ usi_log(print_r($actions, true));
 
       return(
          array(
-            'folder_id'   => 'orderby',
-            'folder'      => 'orderby',
-            'description' => 'orderby',
-            'owner'       => 'orderby',
+            'folder_id'   => array('folder_id', true),
+            'folder'      => array('folder', true),
+            'description' => array('description', true),
+            'owner'       => array('owner', true),
          )
       );
 
@@ -245,29 +245,21 @@ usi_log(print_r($actions, true));
       return(array($file_count, $total_size));
    } // get_folder_info();
 
-   function get_formated_binary_size($size_in_bytes) {
-
-      if (1024 > $size_in_bytes) {
-         return(number_format($size_in_bytes) . ' bytes');
-      } else if ((1024 * 1024) > $size_in_bytes) {
-         return(number_format($size_in_bytes / 1024, 1) . ' KB');
-      } else if ((1024 * 1024 * 1024) > $size_in_bytes) {
-         return(number_format($size_in_bytes / (1024 * 1024), 1) . ' MB');
-      } else if ((1024 * 1024 * 1024 * 1024) > $size_in_bytes) {
-         return(number_format($size_in_bytes / (1024 * 1024 * 1024), 1) . ' GB');
-      } else if ((1024 * 1024 * 1024 * 1024 * 1024) > $size_in_bytes) {
-         return(number_format($size_in_bytes / (1024 * 1024 * 1024 * 1024), 1) . ' TB');
-      } else {
-         return('Greater than 1024 TB');
-      }
-
-   } // get_formated_binary_size();
-
    function get_list() {
 
       global $wpdb;
 
       $paged = (int)(isset($_GET['paged']) ? $_GET['paged'] : 1);
+
+      $SAFE_where = " WHERE (`{$wpdb->posts}`.`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "')";
+
+      if (empty(USI_Media_Solutions::$options['preferences']['organize-allow-root'])) {
+         $SAFE_where .= " AND (`{$wpdb->posts}`.`post_title` <> '/')";
+      }
+
+      if (!empty($_POST['s'])) {
+         $SAFE_where .= $wpdb->prepare(" AND (`{$wpdb->posts}`.`post_title` = %s)", $_POST['s']);
+      }
 
       $WILD_orderby = (isset($_GET['orderby']) ? $_GET['orderby'] : '');
       switch ($WILD_orderby) {
@@ -280,36 +272,25 @@ usi_log(print_r($actions, true));
       }
       $SAFE_order   = (isset($_GET['order'])) ? (('desc' == strtolower($_GET['order'])) ? 'DESC' : '') : '';
 
-      $SAFE_search  = ((isset($_POST['s']) && ('' != $_POST['s'])) ? $wpdb->prepare(" AND (`{$wpdb->posts}`.`post_title` = %s)", $_POST['s']) : '');
-
       $current_page = $this->get_pagenum();
       $SAFE_perpage = (int)$this->get_items_per_page('per_page', 20);
       $SAFE_skip    = (int)($SAFE_perpage * ($paged - 1));
 
-      $count_of_records = $wpdb->get_var(
-         "SELECT COUNT(*) FROM `{$wpdb->posts}`" .
-         " WHERE (`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "')$SAFE_search"
-      );
+      $count_of_records = $wpdb->get_var("SELECT COUNT(*) FROM `{$wpdb->posts}`" . $SAFE_where);
 
       $this->items = $wpdb->get_results(
-         "SELECT `{$wpdb->posts}`.`ID` AS `folder_id`, `{$wpdb->posts}`.`post_content` AS `description`, `{$wpdb->posts}`.`post_title` AS `folder`, `{$wpdb->users}`.`display_name` AS `owner` FROM `{$wpdb->posts}`" .
+         "SELECT `{$wpdb->posts}`.`ID` AS `folder_id`, `{$wpdb->posts}`.`post_content` AS `description`," .
+         "`{$wpdb->posts}`.`post_title` AS `folder`, `{$wpdb->users}`.`display_name` AS `owner` FROM `{$wpdb->posts}`" .
          " INNER JOIN `{$wpdb->users}` ON (`{$wpdb->users}`.`ID` = `{$wpdb->posts}`.`post_author`)" .
-         " WHERE (`{$wpdb->posts}`.`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "')$SAFE_search" .
-         " ORDER BY $SAFE_orderby $SAFE_order LIMIT $SAFE_skip, $SAFE_perpage", 
+         "$SAFE_where ORDER BY $SAFE_orderby $SAFE_order LIMIT $SAFE_skip, $SAFE_perpage", 
          ARRAY_A
       );
 
       foreach ($this->items as $row => $fields) {
-         if (empty(USI_Media_Solutions::$options['preferences']['organize-allow-root'])) {
-            if ('/' == $fields['folder']) {
-               unset($this->items[$row]);
-               $count_of_records--;
-               continue;
-            }
-         }
          $folder_info = $this->get_folder_info($_SERVER['DOCUMENT_ROOT'] . '/' . $fields['folder']);
          $this->items[$row]['files'] = number_format($folder_info[0]);
-         $this->items[$row]['size']  = $this->get_formated_binary_size($folder_info[1]);
+         $this->items[$row]['size']  = str_replace(array('.0 B', ' B'), ' bytes', size_format($folder_info[1], 1));
+
       }
 
       $this->set_pagination_args(

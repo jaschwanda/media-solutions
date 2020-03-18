@@ -1,5 +1,6 @@
 <?php // ------------------------------------------------------------------------------------------------------------------------ //
-
+//https://danielbachhuber.com/tip/add-a-custom-taxonomy-dropdown-filter-to-the-wordpress-media-library/
+//https://stackoverflow.com/questions/49282747/wordpress-plugin-development-category-filter-in-media-library-makes-the-page-to
 defined('ABSPATH') or die('Accesss not allowed.');
 
 //add_action('add_attachment', 'usi_MM_add_attachment');
@@ -14,72 +15,6 @@ defined('ABSPATH') or die('Accesss not allowed.');
 //add_filter('post_mime_types', 'modify_post_mime_types');
 
 /* 
-
-function usi_MM_create_folder_settings() {
-   if (false == get_option('usi-ms-options-create-folder')) {
-      add_option('usi-ms-options-create-folder', 
-         apply_filters('usi_MM_create_folder_settings_defaults', usi_MM_create_folder_settings_defaults()));
-   }
-
-   add_settings_section('usi-MM-create-folder-section', null, 
-      'usi_MM_create_folder_settings_section_callback', 'usi-MM-create-folder-settings');
-
-   add_settings_field('usi-MM-create-folder-parent', 'Parent', 'usi_MM_create_folder_settings_field_callback', 
-      'usi-MM-create-folder-settings', 'usi-MM-create-folder-section', 
-      array('field' => 'parent', 'label_for' => 'usi-MM-create-folder-parent'));
-
-   add_settings_field('usi-MM-create-folder-folder', 'Folder', 'usi_MM_create_folder_settings_field_callback', 
-      'usi-MM-create-folder-settings', 'usi-MM-create-folder-section', 
-      array('field' => 'folder', 'label_for' => 'usi-MM-create-folder-folder'));
-
-   add_settings_field('usi-MM-create-folder-description', 'Description', 'usi_MM_create_folder_settings_field_callback', 
-      'usi-MM-create-folder-settings', 'usi-MM-create-folder-section', 
-      array('field' => 'description', 'label_for' => 'usi-MM-create-folder-description'));
-
-   register_setting('usi-MM-create-folder-settings-group', 
-      'usi-ms-options-create-folder', 'usi_MM_create_folder_settings_validate');
-
-   add_filter('option_page_capability_usi-MM-create-folder-settings-group', 'usi_MM_create_folder_settings_capabilities');
-} // usi_MM_create_folder_settings();
-
-function usi_MM_create_folder_settings_capabilities($capability) {
-   // Return capability everyone has or only admins;
-   return(usi_is_role_equal_or_greater(USI_Media_Solutions::$options['capabilities']['create-folders']) ? 'read' : 'manage_capabilites');
-} // usi_MM_create_folder_settings_capabilities();
-
-function usi_MM_create_folder_settings_defaults() {
-   $defaults = array(
-      'description' => 'description',
-      'folder' => 'folder',
-      'parent' => 0
-   );
-   return(apply_filters('usi_MM_create_folder_settings_defaults', $defaults));
-} // end usi_MM_create_folder_settings_defaults
- 
-function usi_MM_create_folder_settings_field_callback($args) {
-   $field = $args['field'];
-   $options = get_option('usi-ms-options-create-folder');
-   if ('parent' != $field) {
-      $errors = get_settings_errors();
-      $value = (isset($errors[0]['setting']) && 
-         (($errors[0]['setting'] == 'usi-MM-create-folder-description') || ($errors[0]['setting'] == 'usi-MM-create-folder-folder')))
-         ? esc_attr($options[$field]) : '';
-      echo '<input id="usi-MM-create-folder-' . $field . '" name="usi-ms-options-create-folder[' . 
-         $field . ']" type="text" value="' . $value . '" />';
-   } else {
-      global $wpdb;
-      $user_id = get_current_user_id();
-      $folder_id =  (int)get_user_option('usi-ms-options-upload-folder', $user_id);
-      $rows = $wpdb->get_results("SELECT `ID`, `post_title` FROM `{$wpdb->posts}` " .
-         " WHERE (`post_type` = 'usi-media-folder') ORDER BY `post_title`", OBJECT_K);
-      $html = '<select class="regular-text" id="usi-MM-create-folder-parent" name="usi-ms-options-create-folder[parent]">';
-      foreach ($rows as $row) {
-         $html .= '<option ' . (($row->ID == $folder_id) ? 'selected="selected" ' : '') . 'value="' . 
-            $row->ID . '">' . $row->post_title . '</option>';
-      }
-      echo $html . '</select>'; 
-   }
-} // usi_MM_create_folder_settings_field_callback();
 
 function usi_MM_plugin_action_links($links, $file) {
    static $this_plugin;
@@ -491,35 +426,6 @@ function usi_MM_settings_defaults() {
    );
    return(apply_filters('usi_MM_settings_defaults', $defaults));
 } // end usi_MM_settings_defaults
- 
-function usi_MM_upload_dir($path){    
-//usi_log(__METHOD__.':'.__LINE__);
-   if (!empty($path['error'])) return($path);
-   global $wpdb;
-   $folder_id = (int)get_user_option('usi-ms-options-upload-folder', get_current_user_id());
-   if (0 < $folder_id) {
-      $row = $wpdb->get_row($wpdb->prepare("SELECT `post_title` FROM `{$wpdb->posts}` WHERE (`ID` = %d) LIMIT 1", 
-         $folder_id), OBJECT);
-      if ($row) {
-         $path['basedir'] = $_SERVER['DOCUMENT_ROOT'];
-         $path['baseurl'] = 'http' . ($_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['SERVER_NAME'];
-         $path['subdir']  = '';
-         $path['path'] = $path['basedir'] . $row->post_title;
-         $path['url'] = $path['baseurl'] . $row->post_title;
-
-/*
-    $customdir = $row->post_title;
-    $path['path']    = str_replace($path['subdir'], '', $path['path']); //remove default subdir (year/month)
-    $path['url']     = str_replace($path['subdir'], '', $path['url']);      
-    $path['subdir']  = $customdir;
-    $path['path']   .= $customdir; 
-    $path['url']    .= $customdir;  
-*/
-
-      }
-   }
-   return($path);
-} // usi_MM_upload_dir();
 
 */
 // --------------------------------------------------------------------------------------------------------------------------- // ?>

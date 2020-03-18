@@ -48,9 +48,10 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
    function fields_sanitize($input) {
       // IF organize by folders not used;
       if (empty($input['preferences']['organize-folder'])) {
-         // Clear "allow to add to root folder" options;
+         // Clear options that require organiza by folder option;
          $input['preferences']['organize-allow-default'] = 
-         $input['preferences']['organize-allow-root']    = false;
+         $input['preferences']['organize-allow-root']    =
+         $input['preferences']['library-show-fold']      = false;
       } else { // ELSE organize by folders in use;
          global $wpdb;
          // Add root folder post if there are no folder posts;
@@ -109,9 +110,19 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
                   'notes' => 'Not recommended',
                   'readonly' => $readonly,
                ),
+               'library-show-fold' => array(
+                  'type' => 'checkbox', 
+                  'label' => 'Show Folder In Media Library', 
+                  'prefix' => '<span style="display:inline-block; width:16px;"></span>',
+                  'readonly' => $readonly,
+               ),
                'organize-tag' => array(
                   'type' => 'checkbox', 
                   'label' => 'Organize With Tags', 
+               ),
+               'library-show-size' => array(
+                  'type' => 'checkbox', 
+                  'label' => 'Show Size In Media Library', 
                ),
                'organize-folder-bug' => array(
                   'type' => 'number', 

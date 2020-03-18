@@ -34,7 +34,7 @@ Copyright (c) 2020 by Jim Schwanda.
 posts.post_type 'usi-ms-upload-folder' => 'usi-media-folder'
 */
 
-// upload folder list remove / folder with query where instead of unset array result;
+// Table column size in wordpress-solutions
 // upload folder list takes you to library for that folder;
 // delete empty folder;
 // Address that reloaded file is same type as original;
@@ -92,14 +92,43 @@ class USI_Media_Solutions {
          $defaults['preferences']['organize-category']   =
          $defaults['preferences']['organize-folder']     =
          $defaults['preferences']['organize-allow-root'] =
-         $defaults['preferences']['organize-tag']        = false;
+         $defaults['preferences']['organize-tag']        = 
+         $defaults['preferences']['library-show-fold']   =
+         $defaults['preferences']['library-show-size']   = false;
          $defaults['preferences']['organize-folder-bug'] = 0;
          USI_Media_Solutions::$options = get_option(self::PREFIX . '-options', $defaults);
       }
 
       add_action('init', array($this, 'action_init'));
 
+add_filter('post_mime_types', array($this, 'modify_post_mime_types'));
+
    } // __construct();
+function modify_post_mime_types($post_mime_types) {
+usi_log(__METHOD__.':'.__LINE__.':mime=' . print_r($post_mime_types, true));
+/*
+   $post_mime_types['text/csv'] = array( __( 'CSV' ), __( 'Manage CSV' ), 
+   _n_noop( 'CSV <span class="count">(%s)</span>', 'CSVs <span class="count">(%s)</span>' ) );
+   $post_mime_types['application/pdf'] = array( __( 'PDFs' ), __( 'Manage PDFs1' ), 
+   _n_noop( 'PDF2 <span class="count">(%s)</span>', 'PDF3s <span class="count">(%s)</span>' ) );
+ $post_mime_types['application/vnd.ms-excel'] = array( __( 'XLSs' ), __( 'Manage XLSs' ), _n_noop( 'XLS <span class="count">(%s)</span>', 'XLSs <span class="count">(%s)</span>' ) );
+
+$post_mime_types['application/msword'] = array( __( 'DOCs' ), __( 'Manage DOCs' ), _n_noop( 'DOC <span class="count">(%s)</span>', 'DOC <span class="count">(%s)</span>' ) );
+$post_mime_types['application/vnd.ms-excel'] = array( __( 'XLSs' ), __( 'Manage XLSs' ), _n_noop( 'XLS <span class="count">(%s)</span>', 'XLSs <span class="count">(%s)</span>' ) );
+$post_mime_types['application/pdf'] = array( __( 'PDFs' ), __( 'Manage PDFs' ), _n_noop( 'PDF <span class="count">(%s)</span>', 'PDFs <span class="count">(%s)</span>' ) );
+$post_mime_types['application/zip'] = array( __( 'ZIPs' ), __( 'Manage ZIPs' ), _n_noop( 'ZIP <span class="count">(%s)</span>', 'ZIPs <span class="count">(%s)</span>' ) );
+		
+http://wpsmackdown.com/add-remove-filetypes-wordpress-media-library/
+
+'pdf' => 'application/pdf',
+'swf' => 'application/x-shockwave-flash',
+'mov|qt' => 'video/quicktime',
+'flv' => 'video/x-flv',
+'js' => 'application/javascript',
+'avi' => 'video/avi',
+'divx' => 'video/divx',*/
+   return $post_mime_types;
+}
 
    private static function action_admin_notices() {
       global $pagenow;
@@ -175,4 +204,19 @@ if (is_admin() && !defined('WP_UNINSTALL_PLUGIN')) {
    }
 }
 
+function media_add_author_dropdown() {
+    $scr = get_current_screen();
+    if ( $scr->base !== 'upload' ) return;
+
+    $author   = filter_input(INPUT_GET, 'author', FILTER_SANITIZE_STRING );
+    $selected = (int)$author > 0 ? $author : '-1';
+    $args = array(
+        'show_option_none'   => 'All Authors',
+        'name'               => 'author',
+        'selected'           => $selected
+    );
+    wp_dropdown_users( $args );
+echo ' jim ';
+}
+add_action('restrict_manage_posts', 'media_add_author_dropdown');
 // --------------------------------------------------------------------------------------------------------------------------- // ?>

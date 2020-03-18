@@ -33,6 +33,7 @@ class USI_Media_Solutions_Folder {
       self::$post_fold = null;
 
       add_action('add_attachment', array($this, 'action_add_attachment'));
+      add_action('admin_print_styles-upload.php', array($this, 'action_admin_print_styles_upload'));
       add_action('delete_attachment', array($this, 'action_delete_attachment'));
       add_action('init', array($this, 'action_init'));
       add_action('manage_media_custom_column', array($this, 'action_manage_media_custom_column'), 10, 2);
@@ -58,6 +59,14 @@ class USI_Media_Solutions_Folder {
       } // ENDIF upload folder given;
    } // action_add_attachment();
 
+   function action_admin_print_styles_upload() {
+      echo '<style>
+      .fixed .column-title{width:25%;}
+      .fixed .column-fold{width:17%;}
+      .fixed .column-size{width:8%;}
+      </style>';
+   } // action_admin_print_styles_upload();
+
    function action_delete_attachment($post_id) {
       $upload_path = wp_get_upload_dir();
       if (empty($this->meta)) $this->meta = get_post_meta($post_id, '_wp_attachment_metadata', true); 
@@ -72,16 +81,18 @@ class USI_Media_Solutions_Folder {
    } // action_init();
 
    function action_manage_media_custom_column($column, $id) {
-      if ('guid' == $column) {
-         $guid = get_post_field('guid', $id);
-         $tokens = explode('/', $guid);
+      if ('fold' == $column) {
+         $fold = get_post_field('guid', $id);
+         $tokens = explode('/', $fold);
          unset($tokens[count($tokens) - 1]);
          unset($tokens[0]);
          unset($tokens[1]);
          unset($tokens[2]);
          $folder = '/' . implode('/', $tokens);
-         echo '<a href="upload.php?guid=' . rawurlencode($folder) . '">' .  $folder . '</a>';
-      }  
+         echo '<a href="upload.php?fold=' . rawurlencode($folder) . '">' .  $folder . '</a>';
+      } else if ('size' === $column) {
+         echo size_format(filesize(get_attached_file($id)), 1);
+      }
    } // action_manage_media_custom_column();
 
    function action_post_upload_ui() {
@@ -143,28 +154,28 @@ class USI_Media_Solutions_Folder {
       $ith    = 0;
       $output = array();
       foreach ($input as $key => $value) {
-         if (2 == $ith++) $output['guid'] = 'Upload Folder';
+         if (2 == $ith++) {
+            if (!empty(USI_Media_Solutions::$options['preferences']['library-show-fold'])) {
+               $output['fold'] = __('Upload Folder', USI_Media_Solutions::TEXTDOMAIN);
+            }
+            if (!empty(USI_Media_Solutions::$options['preferences']['library-show-size'])) {
+               $output['size'] = __('File Size', USI_Media_Solutions::TEXTDOMAIN);
+            }
+         }
          $output[$key] = $value;
       }
       return($output);
    } // filter_manage_media_columns();
 
    function filter_manage_upload_sortable_columns($columns) {
-      $columns['guid'] = 'guid';
+      $columns['fold'] = 'fold';
       return($columns);
    } // filter_manage_upload_sortable_columns();
 
    function filter_media_row_actions($actions, $object) {
-      $new_actions = array();
-      foreach ($actions as $key => $value) {
-         $new_actions[$key] = $value;
-         if (('edit' == $key) && USI_WordPress_Solutions_Capabilities::current_user_can(USI_Media_Solutions::PREFIX, 'manage-media')) {
-            $new_actions['manage_media'] = '<a href="' . 
-               admin_url('admin.php?page=usi-media-manage-settings&id=' . $object->ID) . 
-               '">' . __('Manage', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
-         }
-      }
-      return($new_actions);
+      $actions['manage_media'] = '<a href="' . admin_url('admin.php?page=usi-media-manage-settings&id=' . 
+         $object->ID) . '">' . __('Manage', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
+      return($actions);
    } // filter_media_row_actions()
 
    function filter_upload_dir($path) {
