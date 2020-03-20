@@ -225,6 +225,7 @@ usi_log(print_r($actions, true));
 
    } // get_columns_sortable();
 
+   // Returns array: number of files, total size of folder;
    function get_folder_info($folder) {
       $file_count  = 0;
       $total_size  = 0;
@@ -289,7 +290,7 @@ usi_log(print_r($actions, true));
       foreach ($this->items as $row => $fields) {
          $folder_info = $this->get_folder_info($_SERVER['DOCUMENT_ROOT'] . '/' . $fields['folder']);
          $this->items[$row]['files'] = number_format($folder_info[0]);
-         $this->items[$row]['size']  = str_replace(array('.0 B', ' B'), ' bytes', size_format($folder_info[1], 1));
+         $this->items[$row]['size']  = USI_Media_Solutions_Folder::size_format($folder_info[1]);
 
       }
 

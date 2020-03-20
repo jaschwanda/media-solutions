@@ -17,7 +17,6 @@ Copyright (c) 2020 by Jim Schwanda.
 
 require_once('usi-media-solutions-folder-add.php');
 require_once('usi-media-solutions-folder-list.php');
-require_once('usi-media-solutions-manage.php');
 
 class USI_Media_Solutions_Folder {
 
@@ -43,8 +42,15 @@ class USI_Media_Solutions_Folder {
       add_filter('manage_media_columns', array($this, 'filter_manage_media_columns'));
       add_filter('manage_upload_sortable_columns', array($this, 'filter_manage_upload_sortable_columns'));
       add_filter('media_row_actions', array($this, 'filter_media_row_actions'), 10, 2);
+      add_filter('posts_where' , array($this, 'filter_posts_where'));
       add_filter('upload_dir', array($this, 'filter_upload_dir'));
       add_filter('wp_get_attachment_url', array($this, 'filter_wp_get_attachment_url'), 10, 2);
+
+      $this->manage_slug = USI_Media_Solutions::PREFIX . '-manage-settings';
+
+      if (!empty($_GET['page']) && ($this->manage_slug == $_GET['page'])) {
+         require_once('usi-media-solutions-manage.php');
+      }
 
    } // __construct();
 
@@ -81,7 +87,7 @@ class USI_Media_Solutions_Folder {
    } // action_init();
 
    function action_manage_media_custom_column($column, $id) {
-      if ('fold' == $column) {
+      if ('guid' == $column) {
          $fold = get_post_field('guid', $id);
          $tokens = explode('/', $fold);
          unset($tokens[count($tokens) - 1]);
@@ -89,9 +95,9 @@ class USI_Media_Solutions_Folder {
          unset($tokens[1]);
          unset($tokens[2]);
          $folder = '/' . implode('/', $tokens);
-         echo '<a href="upload.php?fold=' . rawurlencode($folder) . '">' .  $folder . '</a>';
+         echo '<a href="upload.php?guid=' . rawurlencode($folder) . '"&attachment-filter>' .  $folder . '</a>';
       } else if ('size' === $column) {
-         echo size_format(filesize(get_attached_file($id)), 1);
+         echo self::size_format(filesize(get_attached_file($id)));
       }
    } // action_manage_media_custom_column();
 
@@ -156,7 +162,7 @@ class USI_Media_Solutions_Folder {
       foreach ($input as $key => $value) {
          if (2 == $ith++) {
             if (!empty(USI_Media_Solutions::$options['preferences']['library-show-fold'])) {
-               $output['fold'] = __('Upload Folder', USI_Media_Solutions::TEXTDOMAIN);
+               $output['guid'] = __('Upload Folder', USI_Media_Solutions::TEXTDOMAIN);
             }
             if (!empty(USI_Media_Solutions::$options['preferences']['library-show-size'])) {
                $output['size'] = __('File Size', USI_Media_Solutions::TEXTDOMAIN);
@@ -168,15 +174,24 @@ class USI_Media_Solutions_Folder {
    } // filter_manage_media_columns();
 
    function filter_manage_upload_sortable_columns($columns) {
-      $columns['fold'] = 'fold';
+      $columns['guid'] = 'guid';
       return($columns);
    } // filter_manage_upload_sortable_columns();
 
    function filter_media_row_actions($actions, $object) {
-      $actions['manage_media'] = '<a href="' . admin_url('admin.php?page=usi-media-manage-settings&id=' . 
+      $actions['manage_media'] = '<a href="' . admin_url('admin.php?page=' . $this->manage_slug . '&id=' . 
          $object->ID) . '">' . __('Manage', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
       return($actions);
    } // filter_media_row_actions()
+
+   function filter_posts_where($where) {
+      if (!empty($_REQUEST['guid'])) {
+         usi_log(__METHOD__.':'.__LINE__.':guid=' . $_REQUEST['guid']);
+         $where .= " AND (vudoos_posts.guid like 'https://www.vudoos.local{$_REQUEST['guid']}%')";
+         usi_log(__METHOD__.':'.__LINE__.':where=' . print_r($where, true));
+      }
+      return($where);
+   } // filter_posts_where();
 
    function filter_upload_dir($path) {
       $original = $path;
@@ -258,6 +273,10 @@ class USI_Media_Solutions_Folder {
          usi_log($method . ':post_id=' . $post_id . ' ' . $from . ' => ' . $to);
       }
    } // log_folder();
+
+   public static function size_format($bytes) {
+      return(str_replace(array('.0 B', ' B'), ' bytes', size_format($bytes, 1)));
+   } // size_format();
 
 } // Class USI_Media_Solutions_Folder;
 

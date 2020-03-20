@@ -46,7 +46,7 @@ posts.post_type 'usi-ms-upload-folder' => 'usi-media-folder'
 // Remove notes and label fix up on settings;
 // Orgnize by folder must create folder root post to seed add folder;
 
-// Add file size to library columns
+// filter by tax: https://developer.wordpress.org/reference/hooks/restrict_manage_posts/
 // Select tags on Add New page.
 // Usage report
 // PHPMailer - PHP email creation and transport class.
@@ -105,7 +105,7 @@ add_filter('post_mime_types', array($this, 'modify_post_mime_types'));
 
    } // __construct();
 function modify_post_mime_types($post_mime_types) {
-usi_log(__METHOD__.':'.__LINE__.':mime=' . print_r($post_mime_types, true));
+//usi_log(__METHOD__.':'.__LINE__.':mime=' . print_r($post_mime_types, true));
 /*
    $post_mime_types['text/csv'] = array( __( 'CSV' ), __( 'Manage CSV' ), 
    _n_noop( 'CSV <span class="count">(%s)</span>', 'CSVs <span class="count">(%s)</span>' ) );
@@ -203,20 +203,34 @@ if (is_admin() && !defined('WP_UNINSTALL_PLUGIN')) {
       add_action('admin_notices', array('USI_Media_Solutions', 'action_admin_notices'));
    }
 }
-
+/*
+function filterPostMimeTypes($post_mime_types) {
+    $post_mime_types['application'] = array('Document', 'Manage Documents', _n_noop('Document <span class="count">(%s)</span>', 'Documents <span class="count">(%s)</span>'));
+$post_mime_types['application/pdf'] = array( __( 'PDFs' ), __( 'Manage PDFs' ), _n_noop( 'PDF <span class="count">(%s)</span>', 'PDFs <span class="count">(%s)</span>' ) );
+ 
+//usi_log(print_r($post_mime_types, true));
+    return $post_mime_types;
+}
+add_filter('post_mime_types', 'filterPostMimeTypes');
+*/
 function media_add_author_dropdown() {
+    global $typenow;
+//usi_log(__METHOD__.':'.__LINE__.':typenow=' . print_r($typenow, true));
+    global $wp_query;
+//usi_log(__METHOD__.':'.__LINE__.':wp_query=' . print_r($wp_query, true));
     $scr = get_current_screen();
     if ( $scr->base !== 'upload' ) return;
-
     $author   = filter_input(INPUT_GET, 'author', FILTER_SANITIZE_STRING );
-    $selected = (int)$author > 0 ? $author : '-1';
+    $selected = (int)$author > 0 ? $author : 0;
     $args = array(
-        'show_option_none'   => 'All Authors',
         'name'               => 'author',
-        'selected'           => $selected
+        'option_none_value'  => 0,
+        'selected'           => $selected,
+        'show_option_none'   => 'All Authors',
     );
     wp_dropdown_users( $args );
-echo ' jim ';
+echo ' &nbsp; ';
 }
-add_action('restrict_manage_posts', 'media_add_author_dropdown');
+//add_action('restrict_manage_posts', 'media_add_author_dropdown');
+
 // --------------------------------------------------------------------------------------------------------------------------- // ?>
