@@ -34,8 +34,8 @@ Copyright (c) 2020 by Jim Schwanda.
 posts.post_type 'usi-ms-upload-folder' => 'usi-media-folder'
 */
 
+// Owner filter;
 // Table column size in wordpress-solutions
-// upload folder list takes you to library for that folder;
 // delete empty folder;
 // Address that reloaded file is same type as original;
 // Test reload to previous month folder;
@@ -93,6 +93,7 @@ class USI_Media_Solutions {
          $defaults['preferences']['organize-folder']     =
          $defaults['preferences']['organize-allow-root'] =
          $defaults['preferences']['organize-tag']        = 
+         $defaults['preferences']['library-author']      =
          $defaults['preferences']['library-show-fold']   =
          $defaults['preferences']['library-show-size']   = false;
          $defaults['preferences']['organize-folder-bug'] = 0;

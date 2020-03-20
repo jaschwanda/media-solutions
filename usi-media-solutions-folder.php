@@ -186,9 +186,10 @@ class USI_Media_Solutions_Folder {
 
    function filter_posts_where($where) {
       if (!empty($_REQUEST['guid'])) {
-         usi_log(__METHOD__.':'.__LINE__.':guid=' . $_REQUEST['guid']);
-         $where .= " AND (vudoos_posts.guid like 'https://www.vudoos.local{$_REQUEST['guid']}%')";
-         usi_log(__METHOD__.':'.__LINE__.':where=' . print_r($where, true));
+         global $wpdb;
+         $home   = get_home_url();
+         $guid   = $_REQUEST['guid'];
+         $where .= " AND (`{$wpdb->posts}`.`guid` REGEXP '{$home}{$guid}/[^/]+$')";
       }
       return($where);
    } // filter_posts_where();
@@ -203,7 +204,7 @@ class USI_Media_Solutions_Folder {
                $path['subdir']  = '';
                $path['basedir'] = $_SERVER['DOCUMENT_ROOT'];
                $path['path']    = $path['basedir'] . $fold['path'];
-               $path['baseurl'] = 'http' . (is_ssl() ? 's' : '') . '://' . $_SERVER['SERVER_NAME'];
+               $path['baseurl'] = get_home_url();
                $path['url']     = $path['baseurl'] . $fold['path'];
             }
          } else {
@@ -220,7 +221,7 @@ class USI_Media_Solutions_Folder {
                   $path['subdir']  = '';
                   $path['basedir'] = $_SERVER['DOCUMENT_ROOT'];
                   $path['path']    = $path['basedir'] . $folder->post_title;
-                  $path['baseurl'] = 'http' . (is_ssl() ? 's' : '') . '://' . $_SERVER['SERVER_NAME'];
+                  $path['baseurl'] = get_home_url();
                   $path['url']     = $path['baseurl'] . $folder->post_title;
                }
             } // ENDIF upload folder given;

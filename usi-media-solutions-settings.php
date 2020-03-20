@@ -124,6 +124,10 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
                   'type' => 'checkbox', 
                   'label' => 'Show Size In Media Library', 
                ),
+               'library-author' => array(
+                  'type' => 'checkbox', 
+                  'label' => 'Author Filter in Media Library',
+               ),
                'organize-folder-bug' => array(
                   'type' => 'number', 
                   'label' => 'Bug Organize Folders', 
