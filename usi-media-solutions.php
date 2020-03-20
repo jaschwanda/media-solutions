@@ -102,6 +102,10 @@ class USI_Media_Solutions {
 
       add_action('init', array($this, 'action_init'));
 
+      if (!empty(USI_Media_Solutions::$options['preferences']['library-author'])) {
+         add_action('restrict_manage_posts', array($this, 'action_restrict_manage_posts'));
+      }
+
 add_filter('post_mime_types', array($this, 'modify_post_mime_types'));
 
    } // __construct();
@@ -164,6 +168,21 @@ http://wpsmackdown.com/add-remove-filetypes-wordpress-media-library/
 
    } // action_init();
 
+   function action_restrict_manage_posts() {
+      global $pagenow;
+      if ('upload.php' == $pagenow) {
+         $author = filter_input(INPUT_GET, 'author', FILTER_SANITIZE_STRING );
+         $args   = array(
+            'name'               => 'author',
+            'option_none_value'  => 0,
+            'selected'           => (int)$author > 0 ? $author : 0,
+            'show_option_none'   => __('All Authors', self::TEXTDOMAIN),
+         );
+         wp_dropdown_users($args);
+         echo ' &nbsp; ';
+      }
+   } // action_restrict_manage_posts();
+
    public static function folder_create_post($parent_id, $folder, $path_folder, $description) {
 
       $post = array(
@@ -214,24 +233,5 @@ $post_mime_types['application/pdf'] = array( __( 'PDFs' ), __( 'Manage PDFs' ), 
 }
 add_filter('post_mime_types', 'filterPostMimeTypes');
 */
-function media_add_author_dropdown() {
-    global $typenow;
-//usi_log(__METHOD__.':'.__LINE__.':typenow=' . print_r($typenow, true));
-    global $wp_query;
-//usi_log(__METHOD__.':'.__LINE__.':wp_query=' . print_r($wp_query, true));
-    $scr = get_current_screen();
-    if ( $scr->base !== 'upload' ) return;
-    $author   = filter_input(INPUT_GET, 'author', FILTER_SANITIZE_STRING );
-    $selected = (int)$author > 0 ? $author : 0;
-    $args = array(
-        'name'               => 'author',
-        'option_none_value'  => 0,
-        'selected'           => $selected,
-        'show_option_none'   => 'All Authors',
-    );
-    wp_dropdown_users( $args );
-echo ' &nbsp; ';
-}
-//add_action('restrict_manage_posts', 'media_add_author_dropdown');
 
 // --------------------------------------------------------------------------------------------------------------------------- // ?>
