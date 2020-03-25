@@ -32,7 +32,6 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
 
       parent::__construct(
          array(
-         // 'debug'       => 'usi_log',
             'capability'  => USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'create-folders'), 
             'name'        => $this->text['page_header'], 
             'prefix'      => USI_Media_Solutions::PREFIX . '-folders-add',
@@ -95,7 +94,6 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
             } else {
                $post_id = USI_Media_Solutions::folder_create_post($parent_id, $folder, $path_folder, $description);
                if (is_wp_error($post_id) || !$post_id) {
-                  usi_log(__METHOD__.':post_id=' . print_r($post_id, true));
                   $notice_text = 'Folder %s post could not be created.';
                } else {
                   $notice_text = 'Folder %s has been created.';

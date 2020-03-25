@@ -66,13 +66,13 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
    function filter_plugin_row_meta($links, $file) {
       if (false !== strpos($file, USI_Media_Solutions::TEXTDOMAIN)) {
          $links[0] = USI_WordPress_Solutions_Versions::link(
-            $links[0], 
+            $links[0], // Original link text;
             USI_Media_Solutions::NAME, // Title;
             USI_Media_Solutions::VERSION, // Version;
             USI_Media_Solutions::TEXTDOMAIN, // Text domain;
             __DIR__ // Folder containing plugin or theme;
          );
-         $links[] = '<a href="https://www.usi2solve.com/donate/sports-solutions" target="_blank">' . 
+         $links[] = '<a href="https://www.usi2solve.com/donate/media-solutions" target="_blank">' . 
             __('Donate', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
       }
       return($links);

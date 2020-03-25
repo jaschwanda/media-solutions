@@ -50,7 +50,6 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
       parent::__construct(
          array(
-         // 'debug'       => 'usi_log',
             'capability'  => USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'manage-media'), 
             'name'        => $this->text['page_header'], 
             'prefix'      => USI_Media_Solutions::PREFIX . '-manage',
@@ -111,9 +110,9 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
                }
 
                if ('image/' == substr($type, 0, 6)) {
-                  usi_log(__METHOD__.':'.__LINE__.':file is image');
+                  // (__METHOD__.':'.__LINE__.':file is image');
                   if (in_array(substr($type, 6), USI_Media_Solutions::OK_IMAGES)) {
-                     usi_log(__METHOD__.':'.__LINE__.':image is OK');
+                     // (__METHOD__.':'.__LINE__.':image is OK');
                   }
                }
             } // ENDIF upload is premitted (there are associated files);

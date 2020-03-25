@@ -21,6 +21,8 @@ Copyright (c) 2020 by Jim Schwanda.
 
 if (!class_exists('WP_List_Table')) { require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php'); }
 
+require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-static.php');
+
 final class USI_Media_Solutions_Folder_List extends WP_List_Table {
 
    const VERSION = '2.1.0 (2020-02-21)';
@@ -30,20 +32,21 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
 
    function __construct() {
 
-      add_action('admin_head', array($this, 'action_admin_head'));
-      add_action('admin_menu', array($this, 'action_admin_menu'));
+      if (!empty($_GET['page']) && (USI_Media_Solutions::MENUFOLDER == $_GET['page'])) {
+         add_action('admin_head', array($this, 'action_admin_head'));
+         add_filter('page_row_actions', array($this, 'filter_media_row_actions'), 10, 2);
+         add_filter('set-screen-option', array($this, 'filter_set_screen_options'), 10, 3);
+      }
 
-      add_filter('page_row_actions', array($this, 'filter_media_row_actions'), 10, 2);
-      add_filter('set-screen-option', array($this, 'filter_set_screen_options'), 10, 3);
+      add_action('admin_menu', array($this, 'action_admin_menu'));
 
    } // __construct();
 
    function action_admin_head() {
 
-      if (USI_Media_Solutions::MENUFOLDER != ((isset($_GET['page'])) ? $_GET['page'] : '')) return;
-
       $columns = array(
-         'id'          => 10, 
+         'cb'          => 3, 
+         'folder_id'   => 5, 
          'folder'      => 20, 
          'description' => 20, 
          'files'       => 10, 
@@ -51,24 +54,7 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
          'owner'       => 10, 
       );
 
-      $hidden = $this->get_columns_hidden();
-
-      foreach ($hidden as $hide) {
-         unset($columns[$hide]);
-      }
-
-      $total = 0;
-      foreach ($columns as $width) { 
-         $total += $width;
-      }
-
-      echo '<style>' . PHP_EOL;
-      foreach ($columns as $name => $width) { 
-         $percent = number_format(100 * $width / $total, 1);
-         echo '.wp-list-table .column-' . $name . '{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:' . 
-            $percent . '%;}' . PHP_EOL;
-      }
-      echo '</style>' . PHP_EOL;
+      echo USI_WordPress_Solutions_Static::column_style($columns, 'overflow:hidden; text-overflow:ellipsis; white-space:nowrap;');
 
    } // action_admin_head();
 
@@ -159,14 +145,13 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
       return($item['variable'] . ' ' . $this->row_actions($actions));
 */
       $actions = array();
-         $actions['edit'] = '<a href="options-general.php?page=usi-vs-variable&variable_id=' .
-            $item['folder_id'] . '">' . __('Edit', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
+//         $actions['edit'] = '<a href="options-general.php?page=usi-vs-variable&variable_id=' .
+  //          $item['folder_id'] . '">' . __('Edit', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
       return('<a href="upload.php?guid=' . rawurlencode($item['folder']) . '">' .  $item['folder'] . '</a>' . ' ' . $this->row_actions($actions));
 
    } // column_variable();
 
    function filter_media_row_actions($actions, $object) {
-usi_log(print_r($actions, true));
       $new_actions = array();
       $new_actions = $actions;
       return($new_actions);

@@ -31,6 +31,8 @@ class USI_Media_Solutions_Folder {
       self::$post_id   = 0;
       self::$post_fold = null;
 
+//      if (media library) {
+
       add_action('add_attachment', array($this, 'action_add_attachment'));
       add_action('admin_print_styles-upload.php', array($this, 'action_admin_print_styles_upload'));
       add_action('delete_attachment', array($this, 'action_delete_attachment'));
@@ -66,11 +68,20 @@ class USI_Media_Solutions_Folder {
    } // action_add_attachment();
 
    function action_admin_print_styles_upload() {
-      echo '<style>
-      .fixed .column-title{width:25%;}
-      .fixed .column-fold{width:17%;}
-      .fixed .column-size{width:8%;}
-      </style>';
+
+      $columns = array(
+         'cb'          => 3, 
+         'title'       => 25, 
+         'guid'        => 17, 
+         'size'        => 10, 
+         'author'      => 15, 
+         'parent'      => 15, 
+         'comments'    => 15, 
+         'date'        => 15, 
+      );
+
+      echo USI_WordPress_Solutions_Static::column_style($columns);
+
    } // action_admin_print_styles_upload();
 
    function action_delete_attachment($post_id) {

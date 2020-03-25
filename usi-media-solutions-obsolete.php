@@ -25,7 +25,7 @@ function usi_MM_plugin_action_links($links, $file) {
 
 
 function usi_MM_reload_media_page() {
-usi_log(__METHOD__.':'.__LINE__);
+(__METHOD__.':'.__LINE__);
    $id = (int)(isset($_GET['id']) ? $_GET['id'] : 0);
    if (!current_user_can('edit_post', $id)) wp_die(__('You do not have sufficient permissions to access this page.'));
    $absolute_path = wp_normalize_path(get_attached_file($id));
@@ -106,7 +106,7 @@ usi_log(__METHOD__.':'.__LINE__);
 
 
 function usi_MM_attachment_register_taxonomy() {
-//usi_log(__METHOD__.':'.__LINE__);
+//(__METHOD__.':'.__LINE__);
    if (!empty(USI_Media_Solutions::$options['preferences']['organize-category'])) register_taxonomy_for_object_type('category', 'attachment');
    if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
       global $wpdb;
@@ -118,7 +118,7 @@ function usi_MM_attachment_register_taxonomy() {
 } // usi_MM_attachment_register_taxonomy();
 
 function usi_MM_media_page_callback() {
-//usi_log(__METHOD__.':'.__LINE__);
+//(__METHOD__.':'.__LINE__);
    $user_id = get_current_user_id();
    if (empty($_POST['item'])) wp_die('Internal error, item not given');
    switch ($_POST['item']) {
@@ -164,7 +164,7 @@ function usi_MM_media_page_callback() {
 } // usi_MM_media_page_callback();
 
 function usi_MM_post_upload_ui() {
-//usi_log(__METHOD__.':'.__LINE__);
+//(__METHOD__.':'.__LINE__);
   ?>
 <div id="poststuff">
 <?php
@@ -304,7 +304,7 @@ jQuery(document).ready(function($) {
 } // usi_MM_post_upload_ui();
 
 function usi_MM_post_upload_ui_terms($checked_terms) {
-//usi_log(__METHOD__.':'.__LINE__);
+//(__METHOD__.':'.__LINE__);
    $terms = get_terms('category', array('orderby' => 'count', 'order' => 'DESC', 'number' => 10, 'hierarchical' => false));
    $tax = get_taxonomy('category');
    foreach ((array)$terms as $term) {
@@ -322,7 +322,7 @@ function usi_MM_post_upload_ui_terms($checked_terms) {
 } // usi_MM_post_upload_ui_terms();
 
 function usi_MM_add_attachment($id) { 
-//usi_log(__METHOD__.':'.__LINE__);
+//(__METHOD__.':'.__LINE__);
    if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
       $post = get_post($id);
       add_post_meta($id, 'usi-ms-path', $post->guid, true);
@@ -343,7 +343,7 @@ if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
 }
 
 function modify_post_mime_types($post_mime_types) {
-//usi_log(__METHOD__.':'.__LINE__);
+//(__METHOD__.':'.__LINE__);
    $post_mime_types['text/csv'] = array( __( 'CSV' ), __( 'Manage CSV' ), 
    _n_noop( 'CSV <span class="count">(%s)</span>', 'CSVs <span class="count">(%s)</span>' ) );
    $post_mime_types['application/pdf'] = array( __( 'PDFs' ), __( 'Manage PDFs1' ), 
@@ -368,12 +368,12 @@ http://wpsmackdown.com/add-remove-filetypes-wordpress-media-library/
 }
 
 function usi_MM_add_ajax_javascript() {
-//usi_log(__METHOD__.':'.__LINE__);
+//(__METHOD__.':'.__LINE__);
    wp_enqueue_script('ajax_custom_script', plugin_dir_url(__FILE__) . 'usi-media-solutions.js', array('jquery'));
 } // usi_MM_add_ajax_javascript();
 
 function usi_MM_attachment_category_filter() {
-//usi_log(__METHOD__.':'.__LINE__);
+//(__METHOD__.':'.__LINE__);
    $screen = get_current_screen();
    if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
       if ('upload' == $screen->id) {
@@ -402,7 +402,7 @@ function usi_MM_attachment_category_filter() {
 } // usi_MM_attachment_category_filter();
  
 function usi_MM_get_active() {
-//usi_log(__METHOD__.':'.__LINE__);
+//(__METHOD__.':'.__LINE__);
    if ($user_id = get_current_user_id()) {
       $usi_mm_option_active = get_user_option('usi_mm_option_active', $user_id);
       if ('plus' != $usi_mm_option_active) {
@@ -415,7 +415,7 @@ function usi_MM_get_active() {
 } // usi_MM_get_active();
 
 function usi_MM_settings_defaults() {
-//usi_log(__METHOD__.':'.__LINE__);
+//(__METHOD__.':'.__LINE__);
    $defaults = array(
       'allow_root' => false,
       'capability_create_folder' => 'administrator',
