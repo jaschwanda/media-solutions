@@ -121,8 +121,6 @@ class USI_Media_Solutions {
 
    function action_init() {
 
-usi_log2('organize-folder=', USI_Media_Solutions::$options['preferences']['organize-folder'], ' options[preferences]=', USI_Media_Solutions::$options['preferences'], '\noptions=', USI_Media_Solutions::$options);
-
       $args = array(
          'capability_type'    => 'post',
          'has_archive'        => true,

@@ -17,6 +17,7 @@ Copyright (c) 2020 by Jim Schwanda.
 
 // https://makitweb.com/programmatically-file-upload-from-custom-plugin-in-wordpress/
 
+require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-log.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-settings.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-versions.php');
 
@@ -185,7 +186,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
       $this->base = substr($guid, $length + 1);
 
       if (get_current_user_id()) {
-         $info = __METHOD__ . ':' . __LINE__ . PHP_EOL;
+         $info = null;
          if (isset($this->back)) $info .= 'back=' . print_r($this->back, true) . PHP_EOL;
          if (isset($this->base)) $info .= 'base=' . $this->base . PHP_EOL;
          if (isset($this->file)) $info .= 'file=' . $this->file . PHP_EOL;
@@ -193,7 +194,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
          if (isset($this->link)) $info .= 'link=' . $this->link . PHP_EOL;
          if (isset($this->meta)) $info .= 'meta=' . print_r($this->meta, true) . PHP_EOL;
          if (isset($this->post)) $info .= 'post=' . print_r($this->post, true) . PHP_EOL;
-         usi_log($info);
+         usi::log2($info);
       }
 
    } // load();

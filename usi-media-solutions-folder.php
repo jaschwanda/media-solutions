@@ -17,6 +17,7 @@ Copyright (c) 2020 by Jim Schwanda.
 
 require_once('usi-media-solutions-folder-add.php');
 require_once('usi-media-solutions-folder-list.php');
+require_once('usi-media-solutions-manage.php');
 
 class USI_Media_Solutions_Folder {
 
@@ -30,8 +31,6 @@ class USI_Media_Solutions_Folder {
 
       self::$post_id   = 0;
       self::$post_fold = null;
-
-//      if (media library) {
 
       add_action('add_attachment', array($this, 'action_add_attachment'));
       add_action('admin_print_styles-upload.php', array($this, 'action_admin_print_styles_upload'));
@@ -50,10 +49,6 @@ class USI_Media_Solutions_Folder {
 
       $this->manage_slug = USI_Media_Solutions::PREFIX . '-manage-settings';
 
-      if (!empty($_GET['page']) && ($this->manage_slug == $_GET['page'])) {
-         require_once('usi-media-solutions-manage.php');
-      }
-
    } // __construct();
 
    function action_add_attachment($post_id) {
@@ -63,7 +58,7 @@ class USI_Media_Solutions_Folder {
          $path = '/' . trim(trim(dirname(str_replace(get_home_url(), '', $post->guid)), '\\'), '/');
          self::$post_fold = array('fold_id' => self::$fold_id, 'path' => $path);
          add_post_meta($post_id, USI_Media_Solutions::MEDIAFOLD, self::$post_fold, true);
-         $this->log_folder(__METHOD__, $post_id, 'default', $path);
+         $this->log_folder($post_id, 'default', $path);
       } // ENDIF upload folder given;
    } // action_add_attachment();
 
@@ -160,7 +155,7 @@ class USI_Media_Solutions_Folder {
          $meta = get_post_meta($post_id, '_wp_attachment_metadata', true);
          if (!empty($meta['file'])) {
             $path = get_home_url() . $folder['path'] . ($folder['path'] ? '/' : '') . basename($meta['file']);
-            $this->log_folder(__METHOD__, $post_id, $link, $path);
+            $this->log_folder($post_id, $link, $path);
             return($path);
          }
       } // ENDIF upload folder given;
@@ -247,7 +242,7 @@ class USI_Media_Solutions_Folder {
          $meta = get_post_meta($post_id, '_wp_attachment_metadata', true);
          if (!empty($meta['file'])) {
             $path = get_home_url() . $fold['path'] . ($fold['path'] ? '/' : '') . basename($meta['file']);
-            $this->log_folder(__METHOD__, $post_id, $url, $path);
+            $this->log_folder($post_id, $url, $path);
             return($path);
          }
       } // ENDIF upload folder given;
@@ -280,9 +275,9 @@ class USI_Media_Solutions_Folder {
       return(get_user_option(USI_Media_Solutions::USERFOLDER, get_current_user_id()));
    } // get_user_fold_id();
 
-   private function log_folder($method, $post_id, $from, $to, $log = false) {
+   private function log_folder($post_id, $from, $to, $log = false) {
       if ($log || ($post_id == USI_Media_Solutions::$options['preferences']['organize-folder-bug'])) {
-         usi_log($method . ':post_id=' . $post_id . ' ' . $from . ' => ' . $to);
+         usi::log2(':post_id=' . $post_id . ' ' . $from . ' => ' . $to);
       }
    } // log_folder();
 
