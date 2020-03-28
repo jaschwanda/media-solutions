@@ -41,10 +41,6 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
 
    } // __construct();
 
-   function config_section_header_preferences() {
-      echo '<p>' . __('The Media-Solutions plugin enables WordPress media to be stored and organized via user created upload folders, tags and categories.', USI_Media_Solutions::TEXTDOMAIN) . '</p>' . PHP_EOL;
-   } // config_section_header_preferences();
-
    function fields_sanitize($input) {
       // IF organize by folders not used;
       if (empty($input['preferences']['organize-folder'])) {
@@ -61,15 +57,17 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
          }
       } // ENDIF organize by folders in use;
 
-      $root = get_home_path();
+      $root   = get_home_path();
 usi::log('root=', $root);
-      $htaccess = fopen($root . '/' . '.htaccess', 'r');
-usi::log('htaccess=', $htaccess);
-/*
-echo fread($myfile,filesize("webdictionary.txt"));
-fclose($myfile);
-*/
-
+      $path   = $root . DIRECTORY_SEPARATOR . '.htaccess';
+      $handle = fopen($path, 'r');
+      if (is_resource($handle)) {
+usi::log('handle=', $handle);
+         $_htaccess = fread($handle, filesize($path));
+usi::log('length=', strlen($_htaccess));
+usi::log('_htaccess=', $_htaccess);
+         fclose($handle);
+      }
 
       return(parent::fields_sanitize($input));
    } // fields_sanitize();
@@ -93,9 +91,12 @@ fclose($myfile);
 
       $readonly = empty(USI_Media_Solutions::$options['preferences']['organize-folder']);
 
+      $this->options['uploads']['upload-max-filesize'] = intval(ini_get('upload_max_filesize'));
+      $this->options['uploads']['post-max-size']       = intval(ini_get('post_max_size'));
+
       $sections = array(
          'preferences' => array(
-            'header_callback' => array($this, 'config_section_header_preferences'),
+            'header_callback' => array($this, 'sections_header_preferences'),
             'label' => 'Preferences',
             'localize_labels' => 'yes',
             'localize_notes' => 2, // &nbsp; <i>__()</i>;
@@ -146,6 +147,27 @@ fclose($myfile);
             ),
          ), // preferences;
 
+         'uploads' => array(
+            'header_callback' => array($this, 'sections_header_uploads'),
+            'label' => 'Uploads',
+            'localize_labels' => 'yes',
+            'localize_notes' => 3, // <p class="description">__()</p>>;
+            'not_tabbed' => 'preferences',
+            'title' => 'Upload Limits',
+            'settings' => array(
+               'upload-max-filesize' => array(
+                  'type' => 'number', 
+                  'label' => 'upload_max_filesize', 
+                  'notes' => 'Maximum size in megabytes of a single file upload.',
+               ),
+               'post-max-size' => array(
+                  'type' => 'number', 
+                  'label' => 'post_max_size', 
+                  'notes' => 'Maximum size in megabytes of all files uploaded at one time.',
+               ),
+            ),
+         ), // uploads;
+
          'capabilities' => new USI_WordPress_Solutions_Capabilities($this),
 
          'updates' => new USI_WordPress_Solutions_Updates($this),
@@ -155,6 +177,14 @@ fclose($myfile);
       return($sections);
 
    } // sections();
+
+   function sections_header_preferences() {
+      echo '<p>' . __('The Media-Solutions plugin enables WordPress media to be stored and organized via user created upload folders, tags and categories.', USI_Media_Solutions::TEXTDOMAIN) . '</p>' . PHP_EOL;
+   } // sections_header_preferences();
+
+   function sections_header_uploads() {
+      echo '<p>' . __('Upload limits are modified by setting the appropriate directives in the .htaccess file.', USI_Media_Solutions::TEXTDOMAIN) . '</p>' . PHP_EOL;
+   } // sections_header_uploads();
 
 } // Class USI_Media_Solutions_Settings;
 

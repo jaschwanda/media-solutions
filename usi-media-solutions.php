@@ -95,7 +95,10 @@ class USI_Media_Solutions {
          $defaults['preferences']['library-author']      =
          $defaults['preferences']['library-show-fold']   =
          $defaults['preferences']['library-show-size']   = false;
-         $defaults['preferences']['organize-folder-bug'] = 0;
+         $defaults['preferences']['organize-folder-bug'] = 
+         $defaults['uploads']['upload-max-filesize']     =
+         $defaults['uploads']['post-max-size']           = 0;
+
          USI_Media_Solutions::$options = get_option(self::PREFIX . '-options', $defaults);
       }
 
