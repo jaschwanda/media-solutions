@@ -60,6 +60,17 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
                USI_Media_Solutions::folder_create_post(0, 'Root Folder', '/', 'Root Folder');
          }
       } // ENDIF organize by folders in use;
+
+      $root = get_home_path();
+usi::log('root=', $root);
+      $htaccess = fopen($root . '/' . '.htaccess', 'r');
+usi::log('htaccess=', $htaccess);
+/*
+echo fread($myfile,filesize("webdictionary.txt"));
+fclose($myfile);
+*/
+
+
       return(parent::fields_sanitize($input));
    } // fields_sanitize();
 
