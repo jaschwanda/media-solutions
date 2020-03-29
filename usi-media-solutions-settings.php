@@ -42,34 +42,101 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
    } // __construct();
 
    function fields_sanitize($input) {
+
       // IF organize by folders not used;
       if (empty($input['preferences']['organize-folder'])) {
+
          // Clear options that require organiza by folder option;
          $input['preferences']['organize-allow-default'] = 
          $input['preferences']['organize-allow-root']    =
          $input['preferences']['library-show-fold']      = false;
+
       } else { // ELSE organize by folders in use;
+
          global $wpdb;
+
          // Add root folder post if there are no folder posts;
          if (0 == $wpdb->get_var("SELECT COUNT(*) FROM `{$wpdb->posts}` WHERE " .
             "(`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "')")) {
                USI_Media_Solutions::folder_create_post(0, 'Root Folder', '/', 'Root Folder');
          }
+
       } // ENDIF organize by folders in use;
 
-      $root   = get_home_path();
-usi::log('root=', $root);
-      $path   = $root . DIRECTORY_SEPARATOR . '.htaccess';
-      $handle = fopen($path, 'r');
-      if (is_resource($handle)) {
-usi::log('handle=', $handle);
-         $_htaccess = fread($handle, filesize($path));
-usi::log('length=', strlen($_htaccess));
-usi::log('_htaccess=', $_htaccess);
-         fclose($handle);
-      }
+      $post_max_size       = (int)$input['uploads']['post-max-size'];
+      $upload_max_filesize = (int)$input['uploads']['upload-max-filesize'];
 
-      return(parent::fields_sanitize($input));
+      // IF upload limits have changed;
+      if ((intval(ini_get('post_max_size')) != $post_max_size) || 
+      (intval(ini_get('upload_max_filesize')) != $upload_max_filesize)) {
+
+         try {
+
+            // Build .htacces path name;
+            $root   = get_home_path();
+            $path   = $root . '.htaccess';
+
+            // Open .htacces file for reading;
+            if (!is_resource($handle = fopen($path, 'r'))) {
+               throw new Exception(
+                  sprintf(__('Cannot open %s file for reading.', USI_Media_Solutions::TEXTDOMAIN), $path)
+               );
+            }
+
+            // Read .htaccess file;
+            $_htaccess = fread($handle, filesize($path));
+            fclose($handle);
+
+            // Remove existing limit directives, if any;
+            $status = preg_match('/# BEGIN usi-wordpress-solutions[\/\.\<\>\w\s]*# END usi-wordpress-solutions\s*/', $_htaccess, $matches);
+            if ($status) $_htaccess = str_replace($matches[0], '', $_htaccess);
+
+            // Format new limit directives;
+            $php_version = intval(phpversion());
+
+            if ((5 != $php_version) && (7 != $php_version)) {
+               throw new Exception(
+                  __('Cannot change upload limits on systems not running PHP version 5 or 7.', USI_Media_Solutions::TEXTDOMAIN)
+               );
+            }
+
+            $_htaccess = 
+               '# BEGIN usi-wordpress-solutions' . PHP_EOL .
+               '<IfModule mod_php' . $php_version . '.c>' . PHP_EOL .
+               'php_value post_max_size ' . $post_max_size . 'M' . PHP_EOL .
+               'php_value upload_max_filesize ' . $upload_max_filesize . 'M' . PHP_EOL .
+               '</IfModule>' . PHP_EOL .
+               '# END usi-wordpress-solutions' . PHP_EOL . PHP_EOL . $_htaccess;
+
+            // Open .htacces file for writing;
+            if (!is_resource($handle = fopen($path, 'w'))) {
+               throw new Exception(
+                  sprintf(__('Cannot open %s file for writing.', USI_Media_Solutions::TEXTDOMAIN), $path)
+               );
+            }
+
+            // Write .htaccess file and close handle;
+            $length = strlen($_htaccess);
+            $bytes  = fwrite($handle, $_htaccess, $length);
+            fclose($handle);
+
+            if ($length != $bytes) {
+               throw new Exception(
+                  sprintf(__('Cannot write file %s completely.', USI_Media_Solutions::TEXTDOMAIN), $path)
+               );
+            }
+
+         } catch (Exception $e) {
+
+            // Display file administrator notice;
+            add_settings_error($this->page_slug, 'notice-error', $e->GetMessage(), 'notice-error');
+
+         }
+
+      } // ENDIF upload limits have changed;
+
+      return($input);
+
    } // fields_sanitize();
 
    function filter_plugin_row_meta($links, $file) {

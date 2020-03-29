@@ -26,6 +26,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
    const VERSION = '1.1.3 (2020-03-14)';
 
    protected $override_do_settings_sections = true;
+   protected $override_do_settings_fields   = true;
 
    protected $is_tabbed = true;
 
@@ -287,11 +288,8 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
       if ($this->ok_reload) {
          if (!isset($this->post) || !$this->count || ('image/' != substr($this->post->post_mime_type, 0, 6))) {
-usi::log('upload_max_filesize=', ini_get('upload_max_filesize'));
-$status = ini_set('upload_max_filesize', '10M');
-usi::log('upload_max_filesize=', ini_get('upload_max_filesize'), ' status=' , $status);
             $sections['reload']['settings']['file'] = array(
-               'jim' => '<input type="file" name="usi-media-reload" value="">', 
+               'alt_html' => '<input type="file" name="usi-media-reload" value="">', 
                'name' => 'usi-media-reload', 
                'type' => 'null', 
             );
