@@ -54,6 +54,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
       parent::__construct(
          array(
+            'debug'       => 0xFF,
             'capability'  => USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'manage-media'), 
             'name'        => $this->text['page_header'], 
             'prefix'      => USI_Media_Solutions::PREFIX . '-manage',
