@@ -25,9 +25,6 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
    const VERSION = '1.1.3 (2020-03-14)';
 
-   protected $override_do_settings_sections = true;
-   protected $override_do_settings_fields   = true;
-
    protected $is_tabbed = true;
 
    private $ok_delete   = true;
@@ -54,7 +51,6 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
       parent::__construct(
          array(
-            'debug'       => 0xFF,
             'capability'  => USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'manage-media'), 
             'name'        => $this->text['page_header'], 
             'prefix'      => USI_Media_Solutions::PREFIX . '-manage',
@@ -94,8 +90,8 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
                $notice_type = 'notice-error';
                $notice_text = 'File not reloaded - all thumbnail and associated files must be delete before this file can be reloaded.';
 
-            } else { // ELSE upload is premitted (there are associated files);
-
+            } else { // ELSE upload is premitted (there are no associated files);
+usi::log('$_FILES=', $_FILES);
                // Delete the existing file;
                wp_delete_file($upload_dir['basedir'] . DIRECTORY_SEPARATOR . $this->file);
 
@@ -120,7 +116,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
                      // (__METHOD__.':'.__LINE__.':image is OK');
                   }
                }
-            } // ENDIF upload is premitted (there are associated files);
+            } // ENDIF upload is premitted (there are no associated files);
 
          // ELSEIF user can delete files;
          } else if (USI_WordPress_Solutions_Capabilities::current_user_can(USI_Media_Solutions::PREFIX, 'delete-media')) {

@@ -103,7 +103,7 @@ class USI_Media_Solutions_Folder {
          $folder = '/' . implode('/', $tokens);
          echo '<a href="upload.php?guid=' . rawurlencode($folder) . '"&attachment-filter>' .  $folder . '</a>';
       } else if ('size' === $column) {
-         echo self::size_format(filesize(get_attached_file($id)));
+          echo @ self::size_format(filesize(get_attached_file($id)));
       }
    } // action_manage_media_custom_column();
 
@@ -276,7 +276,7 @@ class USI_Media_Solutions_Folder {
    } // get_user_fold_id();
 
    private function log_folder($post_id, $from, $to, $log = false) {
-      if ($log || ($post_id == USI_Media_Solutions::$options['preferences']['organize-folder-bug'])) {
+      if ($log || ($post_id == USI_Media_Solutions::$options['debug']['post-id'])) {
          usi::log2(':post_id=' . $post_id . ' ' . $from . ' => ' . $to);
       }
    } // log_folder();

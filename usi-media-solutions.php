@@ -34,11 +34,11 @@ Copyright (c) 2020 by Jim Schwanda.
 posts.post_type 'usi-ms-upload-folder' => 'usi-media-folder'
 */
 
-// Add user to upload folder;
-// delete empty folder;
 // Address that reloaded file is same type as original;
-// Test reload to previous month folder;
+// delete empty folder;
 // Address reload image thumbnail creation;
+// Test reload to previous month folder;
+// Add user to upload folder;
 // Delete plugin code;
 
 // Add new folder gives success message and enter valid folder message on first run;
@@ -87,6 +87,7 @@ class USI_Media_Solutions {
    function __construct() {
 
       if (empty(USI_Media_Solutions::$options)) {
+
          $defaults['preferences']['organize-allow-default'] =
          $defaults['preferences']['organize-category']   =
          $defaults['preferences']['organize-folder']     =
@@ -95,11 +96,16 @@ class USI_Media_Solutions {
          $defaults['preferences']['library-author']      =
          $defaults['preferences']['library-show-fold']   =
          $defaults['preferences']['library-show-size']   = false;
-         $defaults['preferences']['organize-folder-bug'] = 
+
          $defaults['uploads']['upload-max-filesize']     =
          $defaults['uploads']['post-max-size']           = 0;
+         $defaults['uploads']['delete-backups']          = false;
+
+         $defaults['debug']['debug-ip'] = '';
+         $defaults['debug']['post-id']  = 0;
 
          USI_Media_Solutions::$options = get_option(self::PREFIX . '-options', $defaults);
+
       }
 
       add_action('init', array($this, 'action_init'));

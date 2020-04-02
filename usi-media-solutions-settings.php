@@ -72,6 +72,14 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
 
          try {
 
+            // Format new limit directives;
+            $php_version = intval(phpversion());
+            if ((5 != $php_version) && (7 != $php_version)) {
+               throw new Exception(
+                  __('Cannot change upload limits on systems not running PHP version 5 or 7.', USI_Media_Solutions::TEXTDOMAIN)
+               );
+            }
+
             // Build .htacces path name;
             $root   = get_home_path();
             $path   = $root . '.htaccess';
@@ -87,18 +95,24 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
             $_htaccess = fread($handle, filesize($path));
             fclose($handle);
 
+            // Build backup .htacces path name;
+            $back   = $root . '.htaccess-' . date('Ymd-His');
+
+            // Open backup .htacces file for writing;
+            if (!is_resource($handle = fopen($back, 'w'))) {
+               throw new Exception(
+                  sprintf(__('Cannot open backup %s file for writing.', USI_Media_Solutions::TEXTDOMAIN), $path)
+               );
+            }
+
+            // Write backup .htaccess file and close handle;
+            $length = strlen($_htaccess);
+            $bytes  = fwrite($handle, $_htaccess, $length);
+            fclose($handle);
+
             // Remove existing limit directives, if any;
             $status = preg_match('/# BEGIN usi-wordpress-solutions[\/\.\<\>\w\s]*# END usi-wordpress-solutions\s*/', $_htaccess, $matches);
             if ($status) $_htaccess = str_replace($matches[0], '', $_htaccess);
-
-            // Format new limit directives;
-            $php_version = intval(phpversion());
-
-            if ((5 != $php_version) && (7 != $php_version)) {
-               throw new Exception(
-                  __('Cannot change upload limits on systems not running PHP version 5 or 7.', USI_Media_Solutions::TEXTDOMAIN)
-               );
-            }
 
             $_htaccess = 
                '# BEGIN usi-wordpress-solutions' . PHP_EOL .
@@ -133,7 +147,25 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
 
          }
 
-      } // ENDIF upload limits have changed;
+      // ELSEIF delete backups option is given;
+      } else if ($input['uploads']['delete-backups']) {
+
+         try {
+
+            // Delete all .htaccess backups;
+            array_map('unlink', glob(get_home_path() . '.htaccess-20*'));
+
+         } catch (Exception $e) {
+
+            // Display file administrator notice;
+            add_settings_error($this->page_slug, 'notice-error', $e->GetMessage(), 'notice-error');
+
+         }
+
+      } // ENDIF delete backups option is given;
+
+      // Clear delete backups option;
+      $input['uploads']['delete-backups'] = false;
 
       return($input);
 
@@ -207,10 +239,6 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
                   'type' => 'checkbox', 
                   'label' => 'Author Filter in Media Library',
                ),
-               'organize-folder-bug' => array(
-                  'type' => 'number', 
-                  'label' => 'Bug Organize Folders', 
-               ),
             ),
          ), // preferences;
 
@@ -232,8 +260,29 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
                   'label' => 'post_max_size', 
                   'notes' => 'Maximum size in megabytes of all files uploaded at one time.',
                ),
+               'delete-backups' => array(
+                  'type' => 'checkbox', 
+                  'label' => 'Delete .htaccess backups', 
+                  'notes' => 'For safety reasons backups are not deleted at the same time the upload limits are modified.' .
+                     'If you want to delete the .htaccess backups then you must delete them in a second step after the upload limits are modified.',
+               ),
             ),
          ), // uploads;
+
+         'debug' => array(
+            'label' => 'Debug',
+            'localize_labels' => 'yes',
+            'localize_notes' => 3, // <p class="description">__()</p>>;
+            'not_tabbed' => 'preferences',
+            'title' => 'Debug',
+            'settings' => array(
+               'debug-ip' => array(
+                  'type' => 'text', 
+                  'label' => 'Debug IP address',
+                  'notes' => 'Enter the IP address of the user you wish to track for debugging.',
+               ),
+            ),
+         ), // debug;
 
          'capabilities' => new USI_WordPress_Solutions_Capabilities($this),
 
@@ -241,16 +290,29 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
 
       );
 
+      if (!empty(USI_Media_Solutions::$options['debug']['debug-ip'])) {
+         $sections['debug']['settings']['post-id'] = array(
+            'type' => 'number', 
+            'label' => 'Post Id', 
+         );
+      } else {
+         USI_Media_Solutions::$options['debug']['post-id'] = 0;
+      }
+
       return($sections);
 
    } // sections();
 
    function sections_header_preferences() {
-      echo '<p>' . __('The Media-Solutions plugin enables WordPress media to be stored and organized via user created upload folders, tags and categories.', USI_Media_Solutions::TEXTDOMAIN) . '</p>' . PHP_EOL;
+      echo '      <p>' . __('The Media-Solutions plugin enables WordPress media to be stored and organized via user created upload ' .
+         'folders, tags and categories.', USI_Media_Solutions::TEXTDOMAIN) . '</p>' . PHP_EOL;
    } // sections_header_preferences();
 
    function sections_header_uploads() {
-      echo '<p>' . __('Upload limits are modified by setting the appropriate directives in the .htaccess file.', USI_Media_Solutions::TEXTDOMAIN) . '</p>' . PHP_EOL;
+      echo '      <p>' . __('Upload limits are modified by setting the appropriate directives in the .htaccess file. A backup of the ' .
+         '.htaccess file is made before it is modified. Although these modifications rarely causes any problems, it is recommended that '.
+         'you have the ability to access the .htaccess file with ssh or ftp to recover the original .htaccess file should ' .
+         'the need arise.', USI_Media_Solutions::TEXTDOMAIN) . '</p>' . PHP_EOL;
    } // sections_header_uploads();
 
 } // Class USI_Media_Solutions_Settings;
