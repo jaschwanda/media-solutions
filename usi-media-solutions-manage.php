@@ -114,12 +114,6 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
                   $notice_text = 'File reloaded successfully.';
                }
 
-               if ('image/' == substr($type, 0, 6)) {
-                  // (__METHOD__.':'.__LINE__.':file is image');
-                  if (in_array(substr($type, 6), USI_Media_Solutions::OK_IMAGES)) {
-                     // (__METHOD__.':'.__LINE__.':image is OK');
-                  }
-               }
             } // ENDIF upload is premitted (there are no associated files);
 
          // ELSEIF user can delete files;

@@ -291,12 +291,17 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
       );
 
       if (!empty(USI_Media_Solutions::$options['debug']['debug-ip'])) {
-         $sections['debug']['settings']['post-id'] = array(
+         $sections['debug']['settings']['debug-post-id'] = array(
             'type' => 'number', 
             'label' => 'Post Id', 
          );
+         $sections['debug']['settings']['debug-filter-folder'] = array(
+            'type' => 'checkbox', 
+            'label' => 'DEBUG_FILTER_FOLDER',
+         );
       } else {
-         USI_Media_Solutions::$options['debug']['post-id'] = 0;
+         unset(USI_Media_Solutions::$options['debug']['debug-filter-folder']);
+         unset(USI_Media_Solutions::$options['debug']['debug-post-id']);
       }
 
       return($sections);

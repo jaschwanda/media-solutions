@@ -274,9 +274,13 @@ class USI_Media_Solutions_Folder {
       return(get_user_option(USI_Media_Solutions::USERFOLDER, get_current_user_id()));
    } // get_user_fold_id();
 
-   private function log_folder($post_id, $from, $to, $log = false) {
-      if ($log || ($post_id == USI_Media_Solutions::$options['debug']['post-id'])) {
-         usi::log2(':post_id=' . $post_id . ' ' . $from . ' => ' . $to);
+   private function log_folder($post_id, $from, $to) {
+      if (USI_Media_Solutions::$debug & USI_Media_Solutions::DEBUG_FILTER_FOLDER) {
+         // Log everything unless debug-post-id given in which case only log debug-postid;
+         if (empty(USI_Media_Solutions::$options['debug']['debug-post-id']) 
+            || ($post_id == USI_Media_Solutions::$options['debug']['debug-post-id'])) {
+            usi::log2(':post_id=' . $post_id . ' ' . $from . ' => ' . $to);
+         }
       }
    } // log_folder();
 

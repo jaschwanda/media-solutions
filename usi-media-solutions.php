@@ -34,6 +34,7 @@ Copyright (c) 2020 by Jim Schwanda.
 posts.post_type 'usi-ms-upload-folder' => 'usi-media-folder'
 */
 
+// Debug code;
 // Confirm deletion and reload;
 // delete empty folder;
 // Address reload image thumbnail creation;
@@ -56,6 +57,8 @@ posts.post_type 'usi-ms-upload-folder' => 'usi-media-folder'
 // http://technet.weblineindia.com/web/wordpress-settings-api-simple-implementation-example/
 // http://www.wpbeginner.com/wp-tutorials/how-to-create-custom-post-types-in-wordpress/
 
+require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-log.php');
+
 class USI_Media_Solutions {
 
    const VERSION = '1.1.3 (2020-03-14)';
@@ -69,6 +72,8 @@ class USI_Media_Solutions {
    const POSTFOLDER = 'usi-media-folders';
    const USERFOLDER = 'usi-media-options-folder';
 
+   const DEBUG_FILTER_FOLDER = 0x01; // Filter folders;
+
    const OK_IMAGES  = array('gif', 'jpg', 'jpeg', 'png');
 
    public static $capabilities = array(
@@ -80,6 +85,8 @@ class USI_Media_Solutions {
       'delete-media' => 'Delete Media|administrator',
       'reload-media' => 'Reload Media|administrator',
    );
+
+   public static $debug   = 0;
 
    public static $options = array();
 
@@ -101,7 +108,8 @@ class USI_Media_Solutions {
          $defaults['uploads']['delete-backups']          = false;
 
          $defaults['debug']['debug-ip'] = '';
-         $defaults['debug']['post-id']  = 0;
+         $defaults['debug']['debug-filter-folder'] = false;
+         $defaults['debug']['debug-post-id']  = 0;
 
          USI_Media_Solutions::$options = get_option(self::PREFIX . '-options', $defaults);
 
@@ -109,8 +117,13 @@ class USI_Media_Solutions {
 
       add_action('init', array($this, 'action_init'));
 
-      if (!empty(USI_Media_Solutions::$options['preferences']['library-author'])) {
+      if (!empty(self::$options['preferences']['library-author'])) {
          add_action('restrict_manage_posts', array($this, 'action_restrict_manage_posts'));
+      }
+
+      if (!empty(self::$options['debug']['debug-ip']) && (self::$options['debug']['debug-ip'] == $_SERVER['REMOTE_ADDR'])) {
+         self::$debug = 0;
+         if (!empty(self::$options['debug']['debug-filter-folder'])) self::$debug |= self::DEBUG_FILTER_FOLDER;
       }
 
    } // __construct();
