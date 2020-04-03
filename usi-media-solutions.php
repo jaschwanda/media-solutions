@@ -34,10 +34,9 @@ Copyright (c) 2020 by Jim Schwanda.
 posts.post_type 'usi-ms-upload-folder' => 'usi-media-folder'
 */
 
-// Address that reloaded file is same type as original;
+// Confirm deletion and reload;
 // delete empty folder;
 // Address reload image thumbnail creation;
-// Test reload to previous month folder;
 // Add user to upload folder;
 // Delete plugin code;
 

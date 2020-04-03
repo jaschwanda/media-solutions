@@ -33,13 +33,14 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
    private $count = 0;
    private $id    = 0;
 
-   private $base  = null;
-   private $back  = null;
-   private $file  = null;
-   private $link  = null;
-   private $meta  = null;
-   private $path  = null;
-   private $post  = null;
+   private $base  = null;  // File name with no folder components;
+   private $back  = null;  // Backup file information, if any;
+   private $file  = null;  // File with upload folder components, if any;
+   private $fold  = null;  // Custom upload folder, if any;
+   private $link  = null;  // URL link to file location minus base file name;
+   private $meta  = null;  // Post meta data;
+   private $path  = null;  // Disk path to file location minus base file name;
+   private $post  = null;  // Post information;
 
    private $text  = array();
 
@@ -79,8 +80,6 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
          // Clear notice variables;
          $notice_list = $notice_text = $notice_type = null;
 
-         $upload_dir  = wp_get_upload_dir();
-
          // IF file upload;
          if (!empty($_FILES) && USI_WordPress_Solutions_Capabilities::current_user_can(USI_Media_Solutions::PREFIX, 'reload-media')) {
 
@@ -90,10 +89,15 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
                $notice_type = 'notice-error';
                $notice_text = 'File not reloaded - all thumbnail and associated files must be delete before this file can be reloaded.';
 
+            } else if (pathinfo ($_FILES['usi-media-reload']['name'], PATHINFO_EXTENSION) != pathinfo ($this->file, PATHINFO_EXTENSION)) {
+
+               $notice_type = 'notice-error';
+               $notice_text = 'File not reloaded - new file must have same file type/extension as original file.';
+
             } else { // ELSE upload is premitted (there are no associated files);
-usi::log('$_FILES=', $_FILES);
+
                // Delete the existing file;
-               wp_delete_file($upload_dir['basedir'] . DIRECTORY_SEPARATOR . $this->file);
+               wp_delete_file($this->path . DIRECTORY_SEPARATOR . $this->base);
 
                // Load the name the reloaded file should take on in case it is different;
                $_FILES['usi-media-reload']['name'] = $this->base;
@@ -137,7 +141,7 @@ usi::log('$_FILES=', $_FILES);
                   $notice_list .= ($notice_list ? ', ' : '') . $delete_file;
                   unset($this->meta['sizes'][$name]);
                }
-               if ($delete_file) wp_delete_file($upload_dir['path'] . DIRECTORY_SEPARATOR . $delete_file);
+               if ($delete_file) wp_delete_file($this->path . DIRECTORY_SEPARATOR . $delete_file);
             }
 
             if ($update_back) update_post_meta($this->id, '_wp_attachment_backup_sizes', $this->back);
@@ -182,19 +186,33 @@ usi::log('$_FILES=', $_FILES);
       $guid       = $this->post->guid;
       $length     = strlen($guid);
       while ($length && ('/' != $guid[--$length]));
-      $this->link = substr($guid, 0, $length + 1);
       $this->base = substr($guid, $length + 1);
+      $this->link = substr($guid, 0, $length);
+
+      $length     = strlen($this->file);
+      while ($length && ('/' != $this->file[--$length]));
+      $subdir     = substr($this->file, 0, $length);
+
+      if (!empty($this->fold)) {
+         $this->path = $_SERVER['DOCUMENT_ROOT']  . ($subdir ? DIRECTORY_SEPARATOR . $subdir : ''); 
+      } else {
+         $upload_dir = wp_get_upload_dir();
+         $this->path = $upload_dir['basedir']  . ($subdir ? DIRECTORY_SEPARATOR . $subdir : ''); 
+      }
+
+      if (DIRECTORY_SEPARATOR === '\\') $this->path = str_replace('/', DIRECTORY_SEPARATOR, $this->path);
 
       if (get_current_user_id()) {
-         $info = null;
-         if (isset($this->back)) $info .= 'back=' . print_r($this->back, true) . PHP_EOL;
-         if (isset($this->base)) $info .= 'base=' . $this->base . PHP_EOL;
-         if (isset($this->file)) $info .= 'file=' . $this->file . PHP_EOL;
-         if (isset($this->fold)) $info .= 'fold=' . print_r($this->fold, true) . PHP_EOL;
-         if (isset($this->link)) $info .= 'link=' . $this->link . PHP_EOL;
-         if (isset($this->meta)) $info .= 'meta=' . print_r($this->meta, true) . PHP_EOL;
-         if (isset($this->post)) $info .= 'post=' . print_r($this->post, true) . PHP_EOL;
-         usi::log2($info);
+         usi::log2(
+            '\2nfile=', $this->file, 
+            '\2nbase=', $this->base, 
+            '\2nlink=', $this->link,
+            '\2npath=', $this->path,
+            '\2nfold=', $this->fold, 
+            '\2nback='. $this->back, 
+            '\2nmeta=', $this->meta,
+            '\2npost=', $this->post
+         );
       }
 
    } // load();
@@ -252,7 +270,7 @@ usi::log('$_FILES=', $_FILES);
          $base = basename($this->meta['file']);
          $files[$base] = true;
       }
-      $this->text['page_header'] .= ' - <a href="' . $this->link . $base . '" target="_blank">' . $base . '</a>';
+      $this->text['page_header'] .= ' - <a href="' . $this->link . '/' . $base . '" target="_blank">' . $this->file . '</a>';
 
       if (!empty($this->meta['sizes'])) foreach ($this->meta['sizes'] as $name => $value) {
          $base = $value['file'];
@@ -263,7 +281,7 @@ usi::log('$_FILES=', $_FILES);
                'label' => $name, 
                'readonly' => !$this->ok_delete,
                'type' => 'checkbox', 
-               'notes' => '&nbsp; <a href="' . $this->link . $base . '" target="_blank">' . $base . '</a>',
+               'notes' => '&nbsp; <a href="' . $this->link . '/' . $base . '" target="_blank">' . $base . '</a>',
             );
             unset($this->options['files'][$name]); // Clear option in case select was left over;
          }
@@ -277,7 +295,7 @@ usi::log('$_FILES=', $_FILES);
             $sections['files']['settings'][$name] = array(
                'label' => $name, 
                'type' => 'checkbox', 
-               'notes' => '&nbsp; <a href="' . $this->link . $base . '" target="_blank">' . $base . '</a>',
+               'notes' => '&nbsp; <a href="' . $this->link . '/' . $base . '" target="_blank">' . $base . '</a>',
             );
             unset($this->options['files'][$name]); // Clear option in case select was left over;
          }

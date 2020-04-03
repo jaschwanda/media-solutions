@@ -201,10 +201,10 @@ class USI_Media_Solutions_Folder {
    } // filter_posts_where();
 
    function filter_upload_dir($path) {
-      $original = $path;
       // IF no upload error;
       if (empty($path['error'])) {
          global $post;
+         // IF for a post;
          if (!empty($post->ID)) {
             if ($fold = self::get_fold($post->ID)) {
                $path['subdir']  = '';
@@ -213,25 +213,24 @@ class USI_Media_Solutions_Folder {
                $path['baseurl'] = get_home_url();
                $path['url']     = $path['baseurl'] . $fold['path'];
             }
-         } else {
-            if (0 < self::$fold_id) {
-               global $wpdb;
-               $folder = $wpdb->get_row(
-                  $wpdb->prepare(
-                     "SELECT `post_title` FROM `{$wpdb->posts}` WHERE (`ID` = %d) LIMIT 1", 
-                     self::$fold_id
-                  ), 
-                  OBJECT
-               );
-               if ($folder) {
-                  $path['subdir']  = '';
-                  $path['basedir'] = $_SERVER['DOCUMENT_ROOT'];
-                  $path['path']    = $path['basedir'] . $folder->post_title;
-                  $path['baseurl'] = get_home_url();
-                  $path['url']     = $path['baseurl'] . $folder->post_title;
-               }
-            } // ENDIF upload folder given;
-         }
+         // ELSEIF upload folder given;
+         } else if (0 < self::$fold_id) {
+            global $wpdb;
+            $folder = $wpdb->get_row(
+               $wpdb->prepare(
+                  "SELECT `post_title` FROM `{$wpdb->posts}` WHERE (`ID` = %d) LIMIT 1", 
+                  self::$fold_id
+               ), 
+               OBJECT
+            );
+            if ($folder) {
+               $path['subdir']  = '';
+               $path['basedir'] = $_SERVER['DOCUMENT_ROOT'];
+               $path['path']    = $path['basedir'] . $folder->post_title;
+               $path['baseurl'] = get_home_url();
+               $path['url']     = $path['baseurl'] . $folder->post_title;
+            }
+         } // ENDIF upload folder given;
       } // ENDIF no upload error;
       return($path);
    } // filter_upload_dir();
