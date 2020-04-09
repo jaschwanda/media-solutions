@@ -295,11 +295,16 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
             'type' => 'number', 
             'label' => 'Post Id', 
          );
+         $sections['debug']['settings']['debug-file-info'] = array(
+            'type' => 'checkbox', 
+            'label' => 'DEBUG_FILE_INFO',
+         );
          $sections['debug']['settings']['debug-filter-folder'] = array(
             'type' => 'checkbox', 
             'label' => 'DEBUG_FILTER_FOLDER',
          );
       } else {
+         unset(USI_Media_Solutions::$options['debug']['debug-file-info']);
          unset(USI_Media_Solutions::$options['debug']['debug-filter-folder']);
          unset(USI_Media_Solutions::$options['debug']['debug-post-id']);
       }

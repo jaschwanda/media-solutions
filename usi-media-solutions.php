@@ -34,8 +34,7 @@ Copyright (c) 2020 by Jim Schwanda.
 posts.post_type 'usi-ms-upload-folder' => 'usi-media-folder'
 */
 
-// Debug code;
-// Confirm deletion and reload;
+// delete file confirmation;
 // delete empty folder;
 // Address reload image thumbnail creation;
 // Add user to upload folder;
@@ -72,7 +71,8 @@ class USI_Media_Solutions {
    const POSTFOLDER = 'usi-media-folders';
    const USERFOLDER = 'usi-media-options-folder';
 
-   const DEBUG_FILTER_FOLDER = 0x01; // Filter folders;
+   const DEBUG_FILE_INFO     = 0x01; // File info;
+   const DEBUG_FILTER_FOLDER = 0x02; // Filter folders;
 
    const OK_IMAGES  = array('gif', 'jpg', 'jpeg', 'png');
 
@@ -108,6 +108,7 @@ class USI_Media_Solutions {
          $defaults['uploads']['delete-backups']          = false;
 
          $defaults['debug']['debug-ip'] = '';
+         $defaults['debug']['debug-file-info']     =
          $defaults['debug']['debug-filter-folder'] = false;
          $defaults['debug']['debug-post-id']  = 0;
 
@@ -123,6 +124,7 @@ class USI_Media_Solutions {
 
       if (!empty(self::$options['debug']['debug-ip']) && (self::$options['debug']['debug-ip'] == $_SERVER['REMOTE_ADDR'])) {
          self::$debug = 0;
+         if (!empty(self::$options['debug']['debug-file-info']))     self::$debug |= self::DEBUG_FILE_INFO;
          if (!empty(self::$options['debug']['debug-filter-folder'])) self::$debug |= self::DEBUG_FILTER_FOLDER;
       }
 
@@ -202,7 +204,6 @@ class USI_Media_Solutions {
 new USI_Media_Solutions();
 
 if (is_admin() && !defined('WP_UNINSTALL_PLUGIN')) {
-   add_action('init', 'add_thickbox');
    if (is_dir(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions')) {
       require_once('usi-media-solutions-settings.php');
       if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {

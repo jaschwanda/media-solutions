@@ -196,7 +196,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
       if (DIRECTORY_SEPARATOR === '\\') $this->path = str_replace('/', DIRECTORY_SEPARATOR, $this->path);
 
-      if (get_current_user_id()) {
+      if (get_current_user_id() && (USI_Media_Solutions::$debug & USI_Media_Solutions::DEBUG_FILE_INFO)) {
          usi::log2(
             '\2nfile=', $this->file, 
             '\2nbase=', $this->base, 
@@ -272,6 +272,8 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
             $this->count++;
             $files[$base] = true;
             $sections['files']['settings'][$name] = array(
+               'attr'  => 'data-name="' . esc_attr($base) . '"',
+               'f-class' => $this->prefix,
                'label' => $name, 
                'readonly' => !$this->ok_delete,
                'type' => 'checkbox', 
@@ -287,6 +289,8 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
             $this->count++;
             $files[$base] = true;
             $sections['files']['settings'][$name] = array(
+               'attr'  => 'data-name="' . esc_attr($base) . '"',
+               'f-class' => $this->prefix,
                'label' => $name, 
                'type' => 'checkbox', 
                'notes' => '&nbsp; <a href="' . $this->link . '/' . $base . '" target="_blank">' . $base . '</a>',
@@ -310,6 +314,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
    } // sections();
 
    function section_footer() {
+
       if ('files' == $this->active_tab) {
          $button   = 'Delete Media';
          $disabled = ($this->ok_delete && $this->count ? '' : ' disabled');
@@ -317,12 +322,101 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
          $button   = 'Reload Media';
          $disabled = ($this->count ? ' disabled' : '');
       }
-      echo '<p class="submit">' . PHP_EOL;
-      submit_button(__($button, USI_Media_Solutions::TEXTDOMAIN), 'primary' . $disabled, 'submit', false); 
+
+      $options = array(
+         'id'      => $this->prefix . '-popup',
+         'indent'  => 4,
+         'invoke'  => 'alt',
+         'inline'  => true,
+         'text'    => __('Delete', USI_Media_Solutions::TEXTDOMAIN),
+         'title'   => __('Delete variable', USI_Media_Solutions::TEXTDOMAIN),
+      );
+
+      $options['list']  = $this->prefix;
+      $options['query'] = 'id=' . $this->id;;
+      $options['page']  = $this->prefix .'-settings&tab=files&id=' . $this->id;
+      $options['table']  = array(
+         'submit' => __('Delete', USI_Media_Solutions::TEXTDOMAIN),
+         'cancel' => __('Cancel', USI_Media_Solutions::TEXTDOMAIN),
+         'accept' => __('Ok', USI_Media_Solutions::TEXTDOMAIN),
+         'prefix' => __('Please confirm that you want to delete the following media:', USI_Media_Solutions::TEXTDOMAIN),
+         'suffix' => __('This deletion is permanent and cannot be reversed.', USI_Media_Solutions::TEXTDOMAIN),
+         'choice' => __('Please select one or more media before you click the Delete Media button.', USI_Media_Solutions::TEXTDOMAIN),
+         'select' => '#submit',
+         'method' => 'post',
+      );
+      $popup = USI_WordPress_Solutions_Static::popup($options);
+
+
+//      echo $popup['inline'];
+/*
+cancel  = string|'Cancel'               // second button text if mode is 'confirm';
+close   = string|'Close'                // first button text if mode is 'information';
+confirm = string|'Confirm'              // first button text if mode is 'confirm';
+height  = int|300                       // popup height in pixels;
+id      = string|'usi-wordpress-popup'  // popup outer dom element id;
+invoke  = string                        // jquery selector string that invokes the popup;
+mode    = 'confirm'|'information'       // popup executes action when confirm button clicked if mode is 'confirm', 
+                                        // popup shows infromation until close button clicked if mode is 'information';
+title   = string|'WordPress-Solutions'  // popup title;
+width   = int|300                       // popup width in pixels;
+*/
+
+$script = <<<EOD
+
+<div id="usi-media-manage-popup" style="display:none"></div><!--usi-media-manage-popup-->
+<script>
+jQuery(document).ready(
+   function($) {
+
+      var submit_in_progress = false;
+
+      $('#submit').click(
+         () => {
+
+            if (submit_in_progress) return(true);
+
+            let html = '<p>Jim<hr style="margin-left:-15px; margin-right:-15px;"><p>';
+
+            html += '<span id="popup-submit" class="button-primary button">Delete</span>';
+
+            html += ' &nbsp; ';
+
+            html += '<span class="button" onclick="tb_remove();">Cancel</span>';
+
+            html += '</p>';
+
+            $('#usi-media-manage-popup').html(html);
+
+            tb_show('Test PopUp', 'TB_inline?inlineId=usi-media-manage-popup&height=300&width=400', null);
+
+            $('#popup-submit').click(
+               () => {
+                  submit_in_progress = true;
+                  $('#submit').click();
+               }
+            );
+
+            return(false);
+
+         }
+      );
+
+   }
+);
+
+</script>
+
+
+EOD;
+      echo $script;
+      echo '    <p class="submit">' . PHP_EOL;
+      submit_button(__($button, USI_Media_Solutions::TEXTDOMAIN), 'primary' . $disabled, 'submit', false/*, $popup['anchor']*/);
       echo ' &nbsp; <a class="button button-secondary" href="upload.php">' .
          __('Back To Library', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . 
          ' &nbsp; <a class="button button-secondary" href="upload.php?page=' . USI_Media_Solutions::MENUFOLDER . '">' .
-         __('Back To Folders', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . '</p>';
+         __('Back To Folders', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . '    </p>' . PHP_EOL;// . $popup['script'] . PHP_EOL;
+
    } // section_footer();
 
    function section_header() {
@@ -341,7 +435,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
             return;
          }
       }
-      echo '<p>' . __($head, USI_Media_Solutions::TEXTDOMAIN) . '</p>' . PHP_EOL;
+      echo '    <p>' . __($head, USI_Media_Solutions::TEXTDOMAIN) . '</p>' . PHP_EOL;
    } // section_header();
 
 } // Class USI_Media_Solutions_Manage;
