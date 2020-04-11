@@ -349,18 +349,6 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
 
 //      echo $popup['inline'];
-/*
-cancel  = string|'Cancel'               // second button text if mode is 'confirm';
-close   = string|'Close'                // first button text if mode is 'information';
-confirm = string|'Confirm'              // first button text if mode is 'confirm';
-height  = int|300                       // popup height in pixels;
-id      = string|'usi-wordpress-popup'  // popup outer dom element id;
-invoke  = string                        // jquery selector string that invokes the popup;
-mode    = 'confirm'|'information'       // popup executes action when confirm button clicked if mode is 'confirm', 
-                                        // popup shows infromation until close button clicked if mode is 'information';
-title   = string|'WordPress-Solutions'  // popup title;
-width   = int|300                       // popup width in pixels;
-*/
 
 $script = <<<EOD
 
