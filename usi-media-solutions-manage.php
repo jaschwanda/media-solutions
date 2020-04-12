@@ -25,6 +25,8 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
    const VERSION = '1.1.3 (2020-03-14)';
 
+   private static $pass = 0;
+
    protected $is_tabbed = true;
 
    private $ok_delete   = true;
@@ -323,6 +325,44 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
          $disabled = ($this->count ? ' disabled' : '');
       }
 
+         $popup = USI_WordPress_Solutions_Static::popup(
+            array(
+               'accept' => __('Delete', USI_Media_Solutions::TEXTDOMAIN),
+               'cancel' => __('Cancel', USI_Media_Solutions::TEXTDOMAIN),
+               'choice' => __('Please select one or more media before you click the Delete Media button.', USI_Media_Solutions::TEXTDOMAIN),
+               'class'  => $this->prefix,
+               'height' => 500,
+               'id'     => 'usi-variable-popup',
+//               'info'   => ' &nbsp; ' . $item['variable'] . ' = ' . $item['value'],
+//               'key'    => $item['variable_id'],
+               'link'   => __('Delete', USI_Media_Solutions::TEXTDOMAIN),
+               'ok'     => __('Ok', USI_Media_Solutions::TEXTDOMAIN),
+               'pass'   => ++self::$pass,
+               'prefix' => __('Please confirm that you want to delete the following media:', USI_Media_Solutions::TEXTDOMAIN),
+               'suffix' => __('This deletion is permanent and cannot be reversed.', USI_Media_Solutions::TEXTDOMAIN),
+               'table'  => array(
+                  'action' => array('delete'),
+                  'key_id' => 'variable_id',
+                  'page'   => USI_Media_Solutions::PREFIX . '-manage',
+               ),
+               'tip'    => __('Delete variable', USI_Media_Solutions::TEXTDOMAIN),
+               'title'  => __('Delete Variables', USI_Media_Solutions::TEXTDOMAIN),
+               'type'   => 'inline',
+               'usage'  => 'table',
+               'width'  => 500,
+            )
+         );
+
+      echo  $popup['inline'];
+      echo  $popup['script'];
+      echo '    <p class="submit">' . PHP_EOL;
+      submit_button(__($button, USI_Media_Solutions::TEXTDOMAIN), 'primary' . $disabled, 'submit', false/*, $popup['anchor']*/);
+      echo ' &nbsp; <a class="button button-secondary" href="upload.php">' .
+         __('Back To Library', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . 
+         ' &nbsp; <a class="button button-secondary" href="upload.php?page=' . USI_Media_Solutions::MENUFOLDER . '">' .
+         __('Back To Folders', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . '    </p>' . PHP_EOL;// . $popup['script'] . PHP_EOL;
+
+/*
       $options = array(
          'id'      => $this->prefix . '-popup',
          'indent'  => 4,
@@ -339,9 +379,6 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
          'submit' => __('Delete', USI_Media_Solutions::TEXTDOMAIN),
          'cancel' => __('Cancel', USI_Media_Solutions::TEXTDOMAIN),
          'accept' => __('Ok', USI_Media_Solutions::TEXTDOMAIN),
-         'prefix' => __('Please confirm that you want to delete the following media:', USI_Media_Solutions::TEXTDOMAIN),
-         'suffix' => __('This deletion is permanent and cannot be reversed.', USI_Media_Solutions::TEXTDOMAIN),
-         'choice' => __('Please select one or more media before you click the Delete Media button.', USI_Media_Solutions::TEXTDOMAIN),
          'select' => '#submit',
          'method' => 'post',
       );
@@ -398,12 +435,7 @@ jQuery(document).ready(
 
 EOD;
       echo $script;
-      echo '    <p class="submit">' . PHP_EOL;
-      submit_button(__($button, USI_Media_Solutions::TEXTDOMAIN), 'primary' . $disabled, 'submit', false/*, $popup['anchor']*/);
-      echo ' &nbsp; <a class="button button-secondary" href="upload.php">' .
-         __('Back To Library', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . 
-         ' &nbsp; <a class="button button-secondary" href="upload.php?page=' . USI_Media_Solutions::MENUFOLDER . '">' .
-         __('Back To Folders', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . '    </p>' . PHP_EOL;// . $popup['script'] . PHP_EOL;
+*/
 
    } // section_footer();
 
