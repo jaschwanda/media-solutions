@@ -274,7 +274,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
             $this->count++;
             $files[$base] = true;
             $sections['files']['settings'][$name] = array(
-               'attr'  => 'data-name="' . esc_attr($base) . '"',
+               'attr'  => 'data-info="' . esc_attr($base) . '"',
                'f-class' => $this->prefix,
                'label' => $name, 
                'readonly' => !$this->ok_delete,
@@ -291,7 +291,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
             $this->count++;
             $files[$base] = true;
             $sections['files']['settings'][$name] = array(
-               'attr'  => 'data-name="' . esc_attr($base) . '"',
+               'attr'  => 'data-info="' . esc_attr($base) . '"',
                'f-class' => $this->prefix,
                'label' => $name, 
                'type' => 'checkbox', 
@@ -325,33 +325,24 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
          $disabled = ($this->count ? ' disabled' : '');
       }
 
-         $popup = USI_WordPress_Solutions_Static::popup(
-            array(
-               'accept' => __('Delete', USI_Media_Solutions::TEXTDOMAIN),
-               'cancel' => __('Cancel', USI_Media_Solutions::TEXTDOMAIN),
-               'choice' => __('Please select one or more media before you click the Delete Media button.', USI_Media_Solutions::TEXTDOMAIN),
-               'class'  => $this->prefix,
-               'height' => 500,
-               'id'     => 'usi-variable-popup',
-//               'info'   => ' &nbsp; ' . $item['variable'] . ' = ' . $item['value'],
-//               'key'    => $item['variable_id'],
-               'link'   => __('Delete', USI_Media_Solutions::TEXTDOMAIN),
-               'ok'     => __('Ok', USI_Media_Solutions::TEXTDOMAIN),
-               'pass'   => ++self::$pass,
-               'prefix' => __('Please confirm that you want to delete the following media:', USI_Media_Solutions::TEXTDOMAIN),
-               'suffix' => __('This deletion is permanent and cannot be reversed.', USI_Media_Solutions::TEXTDOMAIN),
-               'table'  => array(
-                  'action' => array('delete'),
-                  'key_id' => 'variable_id',
-                  'page'   => USI_Media_Solutions::PREFIX . '-manage',
-               ),
-               'tip'    => __('Delete variable', USI_Media_Solutions::TEXTDOMAIN),
-               'title'  => __('Delete Variables', USI_Media_Solutions::TEXTDOMAIN),
-               'type'   => 'inline',
-               'usage'  => 'table',
-               'width'  => 500,
-            )
-         );
+      $popup = USI_WordPress_Solutions_Static::popup(
+         array(
+            'accept' => __('Delete', USI_Media_Solutions::TEXTDOMAIN),
+            'cancel' => __('Cancel', USI_Media_Solutions::TEXTDOMAIN),
+            'choice' => __('Please select one or more media files before you click the Delete Media button.', USI_Media_Solutions::TEXTDOMAIN),
+            'height' => 300,
+            'id'     => 'usi-media-popup',
+            'list'   => '.' . $this->prefix,
+            'ok'     => __('Ok', USI_Media_Solutions::TEXTDOMAIN),
+            'pass'   => ++self::$pass,
+            'prefix' => __('Please confirm that you want to delete the following media:', USI_Media_Solutions::TEXTDOMAIN),
+            'scan'   => '#submit',
+            'suffix' => __('This deletion is permanent and cannot be reversed.', USI_Media_Solutions::TEXTDOMAIN),
+            'title'  => __('Delete Media', USI_Media_Solutions::TEXTDOMAIN),
+            'type'   => 'inline',
+            'width'  => 500,
+         )
+      );
 
       echo  $popup['inline'];
       echo  $popup['script'];
@@ -361,81 +352,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
          __('Back To Library', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . 
          ' &nbsp; <a class="button button-secondary" href="upload.php?page=' . USI_Media_Solutions::MENUFOLDER . '">' .
          __('Back To Folders', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . '    </p>' . PHP_EOL;// . $popup['script'] . PHP_EOL;
-
-/*
-      $options = array(
-         'id'      => $this->prefix . '-popup',
-         'indent'  => 4,
-         'invoke'  => 'alt',
-         'inline'  => true,
-         'text'    => __('Delete', USI_Media_Solutions::TEXTDOMAIN),
-         'title'   => __('Delete variable', USI_Media_Solutions::TEXTDOMAIN),
-      );
-
-      $options['list']  = $this->prefix;
-      $options['query'] = 'id=' . $this->id;;
-      $options['page']  = $this->prefix .'-settings&tab=files&id=' . $this->id;
-      $options['table']  = array(
-         'submit' => __('Delete', USI_Media_Solutions::TEXTDOMAIN),
-         'cancel' => __('Cancel', USI_Media_Solutions::TEXTDOMAIN),
-         'accept' => __('Ok', USI_Media_Solutions::TEXTDOMAIN),
-         'select' => '#submit',
-         'method' => 'post',
-      );
-      $popup = USI_WordPress_Solutions_Static::popup($options);
-
-
-//      echo $popup['inline'];
-
-$script = <<<EOD
-
-<div id="usi-media-manage-popup" style="display:none"></div><!--usi-media-manage-popup-->
-<script>
-jQuery(document).ready(
-   function($) {
-
-      var submit_in_progress = false;
-
-      $('#submit').click(
-         () => {
-
-            if (submit_in_progress) return(true);
-
-            let html = '<p>Jim<hr style="margin-left:-15px; margin-right:-15px;"><p>';
-
-            html += '<span id="popup-submit" class="button-primary button">Delete</span>';
-
-            html += ' &nbsp; ';
-
-            html += '<span class="button" onclick="tb_remove();">Cancel</span>';
-
-            html += '</p>';
-
-            $('#usi-media-manage-popup').html(html);
-
-            tb_show('Test PopUp', 'TB_inline?inlineId=usi-media-manage-popup&height=300&width=400', null);
-
-            $('#popup-submit').click(
-               () => {
-                  submit_in_progress = true;
-                  $('#submit').click();
-               }
-            );
-
-            return(false);
-
-         }
-      );
-
-   }
-);
-
-</script>
-
-
-EOD;
-      echo $script;
-*/
+//      echo ' &nbsp; <input type="submit" id="jim" class="button button-secondary" value="jim"/>';
 
    } // section_footer();
 
