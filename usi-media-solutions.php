@@ -34,7 +34,6 @@ Copyright (c) 2020 by Jim Schwanda.
 posts.post_type 'usi-ms-upload-folder' => 'usi-media-folder'
 */
 
-// delete file confirmation;
 // delete empty folder;
 // Address reload image thumbnail creation;
 // Add user to upload folder;

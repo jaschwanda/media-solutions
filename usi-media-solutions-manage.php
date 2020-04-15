@@ -25,8 +25,6 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
    const VERSION = '1.1.3 (2020-03-14)';
 
-   private static $pass = 0;
-
    protected $is_tabbed = true;
 
    private $ok_delete   = true;
@@ -43,6 +41,8 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
    private $meta  = null;  // Post meta data;
    private $path  = null;  // Disk path to file location minus base file name;
    private $post  = null;  // Post information;
+
+   private $head  = null;  // File name and link in header;
 
    private $text  = array();
 
@@ -266,7 +266,8 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
          $base = basename($this->meta['file']);
          $files[$base] = true;
       }
-      $this->text['page_header'] .= ' - <a href="' . $this->link . '/' . $base . '" target="_blank">' . $this->file . '</a>';
+      $this->head = '<a href="' . $this->link . '/' . $base . '" target="_blank">' . $this->file . '</a>';
+      $this->text['page_header'] .= ' - ' . $this->head;
 
       if (!empty($this->meta['sizes'])) foreach ($this->meta['sizes'] as $name => $value) {
          $base = $value['file'];
@@ -304,7 +305,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
       if ($this->ok_reload) {
          if (!isset($this->post) || !$this->count || ('image/' != substr($this->post->post_mime_type, 0, 6))) {
             $sections['reload']['settings']['file'] = array(
-               'alt_html' => '<input type="file" name="usi-media-reload" value="">', 
+               'alt_html' => '<input class="' . $this->prefix . '" data-info="jim.jpg" data-key="jim" type="file" name="usi-media-reload" value="">', 
                'name' => 'usi-media-reload', 
                'type' => 'null', 
             );
@@ -318,31 +319,54 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
    function section_footer() {
 
       if ('files' == $this->active_tab) {
+
          $button   = 'Delete Media';
          $disabled = ($this->ok_delete && $this->count ? '' : ' disabled');
+
+         $popup = USI_WordPress_Solutions_Static::popup(
+            array(
+               'accept' => __('Delete', USI_Media_Solutions::TEXTDOMAIN),
+               'cancel' => __('Cancel', USI_Media_Solutions::TEXTDOMAIN),
+               'choice' => __('Please select one or more media files before you click the Delete Media button.', USI_Media_Solutions::TEXTDOMAIN),
+               'height' => 300,
+               'id'     => 'usi-media-popup',
+               'list'   => '.' . $this->prefix,
+               'ok'     => __('Ok', USI_Media_Solutions::TEXTDOMAIN),
+               'pass'   => 1,
+               'prefix' => __('Please confirm that you want to delete the following media:', USI_Media_Solutions::TEXTDOMAIN),
+               'submit' => '#submit',
+               'suffix' => __('This deletion is permanent and cannot be reversed.', USI_Media_Solutions::TEXTDOMAIN),
+               'title'  => __('Delete Media', USI_Media_Solutions::TEXTDOMAIN),
+               'type'   => 'inline',
+               'width'  => 500,
+            )
+         );
+
       } else {
+
          $button   = 'Reload Media';
          $disabled = ($this->count ? ' disabled' : '');
-      }
 
-      $popup = USI_WordPress_Solutions_Static::popup(
-         array(
-            'accept' => __('Delete', USI_Media_Solutions::TEXTDOMAIN),
-            'cancel' => __('Cancel', USI_Media_Solutions::TEXTDOMAIN),
-            'choice' => __('Please select one or more media files before you click the Delete Media button.', USI_Media_Solutions::TEXTDOMAIN),
-            'height' => 300,
-            'id'     => 'usi-media-popup',
-            'list'   => '.' . $this->prefix,
-            'ok'     => __('Ok', USI_Media_Solutions::TEXTDOMAIN),
-            'pass'   => ++self::$pass,
-            'prefix' => __('Please confirm that you want to delete the following media:', USI_Media_Solutions::TEXTDOMAIN),
-            'scan'   => '#submit',
-            'suffix' => __('This deletion is permanent and cannot be reversed.', USI_Media_Solutions::TEXTDOMAIN),
-            'title'  => __('Delete Media', USI_Media_Solutions::TEXTDOMAIN),
-            'type'   => 'inline',
-            'width'  => 500,
-         )
-      );
+         $popup = USI_WordPress_Solutions_Static::popup(
+            array(
+               'accept' => __('Reload', USI_Media_Solutions::TEXTDOMAIN),
+               'cancel' => __('Cancel', USI_Media_Solutions::TEXTDOMAIN),
+               'choice' => __('Please choose a media file before you click the Reload Media button.', USI_Media_Solutions::TEXTDOMAIN),
+               'height' => 300,
+               'id'     => 'usi-media-popup',
+               'list'   => '.' . $this->prefix,
+               'ok'     => __('Ok', USI_Media_Solutions::TEXTDOMAIN),
+               'prefix' =>  __('Please confirm that you want to reload the file:', USI_Media_Solutions::TEXTDOMAIN) .
+                   '</p><p> &nbsp ' . $this->head . '</p><p>' . __('with the file:', USI_Media_Solutions::TEXTDOMAIN),
+               'submit' => '#submit',
+               'suffix' => __('This reload is permanent and cannot be reversed.', USI_Media_Solutions::TEXTDOMAIN),
+               'title'  => __('Reload Media', USI_Media_Solutions::TEXTDOMAIN),
+               'type'   => 'inline',
+               'width'  => 500,
+            )
+         );
+
+      }
 
       echo  $popup['inline'];
       echo  $popup['script'];
@@ -352,7 +376,6 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
          __('Back To Library', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . 
          ' &nbsp; <a class="button button-secondary" href="upload.php?page=' . USI_Media_Solutions::MENUFOLDER . '">' .
          __('Back To Folders', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . '    </p>' . PHP_EOL;// . $popup['script'] . PHP_EOL;
-//      echo ' &nbsp; <input type="submit" id="jim" class="button button-secondary" value="jim"/>';
 
    } // section_footer();
 
