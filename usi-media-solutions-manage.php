@@ -18,6 +18,7 @@ Copyright (c) 2020 by Jim Schwanda.
 // https://makitweb.com/programmatically-file-upload-from-custom-plugin-in-wordpress/
 
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-log.php');
+require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-popup.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-settings.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-versions.php');
 
@@ -323,7 +324,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
          $button   = 'Delete Media';
          $disabled = ($this->ok_delete && $this->count ? '' : ' disabled');
 
-         $popup = USI_WordPress_Solutions_Static::popup(
+         $popup = USI_WordPress_Solutions_Popup::build(
             array(
                'accept' => __('Delete', USI_Media_Solutions::TEXTDOMAIN),
                'cancel' => __('Cancel', USI_Media_Solutions::TEXTDOMAIN),
@@ -347,7 +348,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
          $button   = 'Reload Media';
          $disabled = ($this->count ? ' disabled' : '');
 
-         $popup = USI_WordPress_Solutions_Static::popup(
+         $popup = USI_WordPress_Solutions_Popup::build(
             array(
                'accept' => __('Reload', USI_Media_Solutions::TEXTDOMAIN),
                'cancel' => __('Cancel', USI_Media_Solutions::TEXTDOMAIN),
