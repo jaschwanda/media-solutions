@@ -24,7 +24,7 @@ require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-s
 
 class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.1.3 (2020-03-14)';
+   const VERSION = '1.2.3 (2020-09-28)';
 
    protected $is_tabbed = true;
 
@@ -49,25 +49,40 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
    function __construct() {
 
-      if (!empty($_REQUEST['id'])) $this->load($_REQUEST['id']);
+      if (is_admin()) {
 
-      $this->text['page_header'] = __('Manage Media', USI_Media_Solutions::TEXTDOMAIN);
+         global $pagenow;
 
-      parent::__construct(
-         array(
-            'capability'  => USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'manage-media'), 
-            'name'        => $this->text['page_header'], 
-            'prefix'      => USI_Media_Solutions::PREFIX . '-manage',
-            'text_domain' => USI_Media_Solutions::TEXTDOMAIN,
-            'options'     => & $this->options,
-            'hide'        => true,
-            'page'        => 'menu',
-            'query'       => '&id=' . $this->id,
-            'no_settings_link' => true
-         )
-      );
+         switch ($pagenow) {
 
-      $this->options = get_option($this->option_name);
+         case 'admin.php':
+         case 'options-general.php':
+
+            if (!empty($_REQUEST['id'])) $this->load($_REQUEST['id']);
+
+            $this->text['page_header'] = __('Manage Media', USI_Media_Solutions::TEXTDOMAIN);
+
+            parent::__construct(
+               array(
+                  'capability'  => USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'manage-media'), 
+                  'name'        => $this->text['page_header'], 
+                  'prefix'      => USI_Media_Solutions::PREFIX . '-manage',
+                  'text_domain' => USI_Media_Solutions::TEXTDOMAIN,
+                  'options'     => & $this->options,
+                  'hide'        => true,
+                  'page'        => 'menu',
+                  'query'       => '&id=' . $this->id,
+                  'no_settings_link' => true
+               )
+            );
+
+            $this->options = get_option($this->option_name);
+
+            break;
+
+         }
+
+      } // is_admin();
 
    } // __construct();
 

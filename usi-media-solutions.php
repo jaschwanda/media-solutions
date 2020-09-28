@@ -15,7 +15,7 @@ Requires at least: 5.0
 Requires PHP:      5.6.25
 Tested up to:      5.3.2
 Text Domain:       usi-media-solutions
-Version:           1.1.3
+Version:           1.2.3
 */
 
 /*
@@ -59,7 +59,7 @@ require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-s
 
 class USI_Media_Solutions {
 
-   const VERSION = '1.1.3 (2020-03-14)';
+   const VERSION = '1.2.3 (2020-09-28)';
 
    const NAME       = 'Media-Solutions';
    const PREFIX     = 'usi-media';

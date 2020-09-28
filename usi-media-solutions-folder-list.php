@@ -25,7 +25,7 @@ require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-s
 
 final class USI_Media_Solutions_Folder_List extends WP_List_Table {
 
-   const VERSION = '2.1.0 (2020-02-21)';
+   const VERSION = '1.2.3 (2020-09-28)';
 
    private $all_categories = null;
    private $page_hook = null;
@@ -214,17 +214,21 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
    function get_folder_info($folder) {
       $file_count  = 0;
       $total_size  = 0;
-      $folder_list = scandir($folder);
+      @ $folder_list = scandir($folder);
 
-      foreach ($folder_list as $key => $file_name) {
-         if ($file_name != ".." && $file_name != ".") {
-            if (is_dir($folder . "/" . $file_name)) {
-               $folder_info = $this->get_folder_info($folder . "/" . $file_name);
-               $file_count += $folder_info[0];
-               $total_size += $folder_info[1];
-            } else if (is_file($folder . "/". $file_name)) {
-               $file_count++;
-               $total_size += filesize($folder. "/". $file_name);
+      if (!empty($folder_list)) {
+         foreach ($folder_list as $key => $file_name) {
+            if ($file_name != ".." && $file_name != ".") {
+               if (is_dir($folder . DIRECTORY_SEPARATOR . $file_name)) {
+                  $folder_info = $this->get_folder_info($folder . DIRECTORY_SEPARATOR . $file_name);
+                  if (!empty($folder_info[1])) {
+                     $file_count += $folder_info[0];
+                     $total_size += $folder_info[1];
+                  }
+               } else if (is_file($folder . DIRECTORY_SEPARATOR. $file_name)) {
+                  $file_count++;
+                  $total_size += filesize($folder. DIRECTORY_SEPARATOR. $file_name);
+               }
             }
          }
       }
