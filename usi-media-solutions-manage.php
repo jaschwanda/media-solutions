@@ -24,7 +24,7 @@ require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-s
 
 class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.2.3 (2020-09-28)';
+   const VERSION = 'rutgerscores';
 
    protected $is_tabbed = true;
 

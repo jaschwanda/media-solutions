@@ -23,7 +23,7 @@ require_once('usi-media-solutions.php');
 
 final class USI_Media_Solutions_Uninstall {
 
-   const VERSION = '1.2.3 (2020-09-28)';
+   const VERSION = 'rutgerscores';
 
    private function __construct() {
    } // __construct();

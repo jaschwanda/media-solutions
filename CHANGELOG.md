@@ -2,6 +2,9 @@
 
 Media-Solutions plugin changes are logged here using <a href="http://semver.org/">Semantic Versioning</a>.
 
+##  1.2.5 (2020-12-04) ##
+* Fixed issue with upload folder selection, added delete upload folder functionality.
+
 ##  1.2.3 (2020-09-28) ##
 * Protected against method calls when not on plugin page(s).
 * Added upload folder to media list.

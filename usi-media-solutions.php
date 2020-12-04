@@ -15,7 +15,7 @@ Requires at least: 5.0
 Requires PHP:      5.6.25
 Tested up to:      5.3.2
 Text Domain:       usi-media-solutions
-Version:           1.2.3
+Version:           1.2.5
 */
 
 /*
@@ -54,12 +54,13 @@ posts.post_type 'usi-ms-upload-folder' => 'usi-media-folder'
 // http://technet.weblineindia.com/web/technical-guide-to-wordpress-settings-api/
 // http://technet.weblineindia.com/web/wordpress-settings-api-simple-implementation-example/
 // http://www.wpbeginner.com/wp-tutorials/how-to-create-custom-post-types-in-wordpress/
+// https://www.ibenic.com/programmatically-download-a-file-from-wordpress/
 
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-log.php');
 
 class USI_Media_Solutions {
 
-   const VERSION = '1.2.3 (2020-09-28)';
+   const VERSION = '1.2.5 (2020-12-04)';
 
    const NAME       = 'Media-Solutions';
    const PREFIX     = 'usi-media';

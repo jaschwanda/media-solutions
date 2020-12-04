@@ -15,12 +15,15 @@ https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
 Copyright (c) 2020 by Jim Schwanda.
 */
 
+require_once(plugin_dir_path(__DIR__) . 'usi-media-solutions/usi-media-solutions.php');
+require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-custom-post.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-settings.php');
+require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-static.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-versions.php');
 
 class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.2.3 (2020-09-28)';
+   const VERSION = '1.2.5 (2020-12-04)';
 
    private $text = array();
 
@@ -45,7 +48,27 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
 
    } // __construct();
 
+   public static function delete_folder($folder) {
+
+      $folder = '/' . $folder;
+
+      $path   = trim($_SERVER['DOCUMENT_ROOT'], '/') . $folder;
+
+      $post   = USI_WordPress_Solutions_Custom_Post::get_post_by(USI_Media_Solutions::POSTFOLDER, 'post_title', $folder);
+
+      if (!empty($post->ID)) wp_delete_post($post->ID, true);
+
+      USI_WordPress_Solutions_Static::remove_directory($path);
+
+   } // delete_folder();
+
    function fields_sanitize($input) {
+
+      return(self::make_folder($input, true));
+
+   } // fields_sanitize();
+
+   public static function make_folder($input, $show_notice = false) {
 
       $notice_arg  = null;
 
@@ -104,18 +127,24 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
          }
       }
 
-      if ($notice_text) {
-         add_settings_error(
-            $this->page_slug, 
-            $notice_type,
-            sprintf(__($notice_text, USI_Media_Solutions::TEXTDOMAIN), $notice_arg),
-            $notice_type
-         );
+      if ($show_notice) {
+
+         if ($notice_text) {
+            add_settings_error(
+               $this->page_slug, 
+               $notice_type,
+               sprintf(__($notice_text, USI_Media_Solutions::TEXTDOMAIN), $notice_arg),
+               $notice_type
+            );
+         }
+
+         update_user_option($user_id, USI_Media_Solutions::USERFOLDER, $parent_id);
+
       }
 
-      update_user_option($user_id, USI_Media_Solutions::USERFOLDER, $parent_id);
+      return($input);
 
-   } // fields_sanitize();
+   } // make_folder();
 
    function page_render($options = null) {
       parent::page_render($this->text);

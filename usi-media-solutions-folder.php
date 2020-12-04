@@ -21,7 +21,7 @@ require_once('usi-media-solutions-manage.php');
 
 class USI_Media_Solutions_Folder {
 
-   const VERSION = '1.2.3 (2020-09-28)';
+   const VERSION = '1.2.5 (2020-12-04)';
 
    private static $fold_id   = 0;
    private static $post_id   = 0;
@@ -117,8 +117,9 @@ class USI_Media_Solutions_Folder {
 
       $folder_html_id = USI_Media_Solutions::POSTFOLDER . '-id';
 
-      $folder_html    = USI_WordPress_Solutions_Settings::fields_render_select(' id="' . $folder_html_id . '"', $folders, self::$fold_id);
+      $user_fold_id   = isset($_REQUEST['fold_id']) ? $_REQUEST['fold_id'] : self::get_user_fold_id();
 
+      $folder_html    = USI_WordPress_Solutions_Settings::fields_render_select(' id="' . $folder_html_id . '"', $folders, $user_fold_id);
 
       echo '<div id="poststuff">' . PHP_EOL;
       $this->action_post_upload_ui_postbox(1, $folder_title, $folder_html);
@@ -131,7 +132,7 @@ class USI_Media_Solutions_Folder {
       '  });' . PHP_EOL .
       '  </script>' . PHP_EOL;
 
-      update_user_option(get_current_user_id(), USI_Media_Solutions::USERFOLDER, self::$fold_id);
+      update_user_option(get_current_user_id(), USI_Media_Solutions::USERFOLDER, $user_fold_id);
 
    } // action_post_upload_ui();
 
@@ -151,10 +152,10 @@ class USI_Media_Solutions_Folder {
 
    function filter_attachment_link($link, $post_id) {
       // IF upload folder given;
-      if ($folder = self::get_fold($post_id)) {
+      if ($fold = self::get_fold($post_id)) {
          $meta = get_post_meta($post_id, '_wp_attachment_metadata', true);
          if (!empty($meta['file'])) {
-            $path = get_home_url() . $folder['path'] . ($folder['path'] ? '/' : '') . basename($meta['file']);
+            $path = get_home_url() . $fold['path'] . ($fold['path'] ? '/' : '') . basename($meta['file']);
             $this->log_folder($post_id, $link, $path);
             return($path);
          }
