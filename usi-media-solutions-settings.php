@@ -22,7 +22,7 @@ require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-s
 
 class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.2.5 (2020-12-04)';
+   const VERSION = '1.2.5 (2020-12-14)';
 
    protected $is_tabbed = true;
 
@@ -111,16 +111,16 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
             fclose($handle);
 
             // Remove existing limit directives, if any;
-            $status = preg_match('/# BEGIN usi-wordpress-solutions[\/\.\<\>\w\s]*# END usi-wordpress-solutions\s*/', $_htaccess, $matches);
+            $status = preg_match('/# BEGIN usi-media-solutions[\/\.\<\>\w\s]*# END usi-media-solutions\s*/', $_htaccess, $matches);
             if ($status) $_htaccess = str_replace($matches[0], '', $_htaccess);
 
             $_htaccess = 
-               '# BEGIN usi-wordpress-solutions' . PHP_EOL .
+               '# BEGIN usi-media-solutions' . PHP_EOL .
                '<IfModule mod_php' . $php_version . '.c>' . PHP_EOL .
                'php_value post_max_size ' . $post_max_size . 'M' . PHP_EOL .
                'php_value upload_max_filesize ' . $upload_max_filesize . 'M' . PHP_EOL .
                '</IfModule>' . PHP_EOL .
-               '# END usi-wordpress-solutions' . PHP_EOL . PHP_EOL . $_htaccess;
+               '# END usi-media-solutions' . PHP_EOL . PHP_EOL . $_htaccess;
 
             // Open .htacces file for writing;
             if (!is_resource($handle = fopen($path, 'w'))) {

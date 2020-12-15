@@ -60,7 +60,7 @@ require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-s
 
 class USI_Media_Solutions {
 
-   const VERSION = '1.2.5 (2020-12-04)';
+   const VERSION = '1.2.5 (2020-12-14)';
 
    const NAME       = 'Media-Solutions';
    const PREFIX     = 'usi-media';
@@ -166,7 +166,7 @@ class USI_Media_Solutions {
    function action_restrict_manage_posts() {
       global $pagenow;
       if ('upload.php' == $pagenow) {
-         $author = filter_input(INPUT_GET, 'author', FILTER_SANITIZE_STRING );
+         $author = filter_input(INPUT_GET, 'author', FILTER_SANITIZE_STRING);
          $args   = array(
             'name'               => 'author',
             'option_none_value'  => 0,

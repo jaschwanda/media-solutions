@@ -21,7 +21,7 @@ require_once('usi-media-solutions-manage.php');
 
 class USI_Media_Solutions_Folder {
 
-   const VERSION = '1.2.5 (2020-12-04)';
+   const VERSION = '1.2.5 (2020-12-14)';
 
    private static $fold_id   = 0;
    private static $post_id   = 0;
@@ -284,6 +284,10 @@ class USI_Media_Solutions_Folder {
          }
       }
    } // log_folder();
+
+   public static function set_fold_id($fold_id) {
+      self::$fold_id = $fold_id;
+   } // set_fold_id();
 
    public static function size_format($bytes) {
       return(str_replace(array('.0 B', ' B'), ' bytes', size_format($bytes, 1)));

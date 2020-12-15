@@ -16,6 +16,7 @@ Copyright (c) 2020 by Jim Schwanda.
 */
 
 require_once(plugin_dir_path(__DIR__) . 'usi-media-solutions/usi-media-solutions.php');
+
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-custom-post.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-settings.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-static.php');
@@ -23,28 +24,43 @@ require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-s
 
 class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.2.5 (2020-12-04)';
+   const VERSION = '1.2.5 (2020-12-14)';
 
    private $text = array();
 
    function __construct() {
 
-      $this->options = get_option(USI_Media_Solutions::PREFIX . '-options-folder');
+      if (is_admin()) {
 
-      $this->text['page_header'] = __('Add Upload Folder', USI_Media_Solutions::TEXTDOMAIN);
+         global $pagenow;
 
-      parent::__construct(
-         array(
-            'capability'  => USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'create-folders'), 
-            'name'        => $this->text['page_header'], 
-            'prefix'      => USI_Media_Solutions::PREFIX . '-folders-add',
-            'text_domain' => USI_Media_Solutions::TEXTDOMAIN,
-            'options'     => & $this->options,
-            'hide'        => true,
-            'page'        => 'menu',
-            'no_settings_link' => true
-         )
-      );
+         switch ($pagenow) {
+
+         case 'admin.php':
+         case 'options.php':
+
+            $this->options = get_option(USI_Media_Solutions::PREFIX . '-options-folder');
+
+            $this->text['page_header'] = __('Add Upload Folder', USI_Media_Solutions::TEXTDOMAIN);
+
+            parent::__construct(
+               array(
+                  'capability'  => USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'create-folders'), 
+                  'name'        => $this->text['page_header'], 
+                  'prefix'      => USI_Media_Solutions::PREFIX . '-folders-add',
+                  'text_domain' => USI_Media_Solutions::TEXTDOMAIN,
+                  'options'     => & $this->options,
+                  'hide'        => true,
+                  'page'        => 'menu',
+                  'no_settings_link' => true
+               )
+            );
+
+            break;
+
+         }
+
+      } // is_admin();
 
    } // __construct();
 
@@ -64,11 +80,11 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
 
    function fields_sanitize($input) {
 
-      return(self::make_folder($input, true));
+      return(self::make_folder($input, $this->page_slug));
 
    } // fields_sanitize();
 
-   public static function make_folder($input, $show_notice = false) {
+   public static function make_folder($input, $page_slug = null) {
 
       $notice_arg  = null;
 
@@ -76,11 +92,11 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
 
       $notice_type = 'notice-error';
 
-      $parent_id   = (int)(!empty($input['settings']['parent']) ? $input['settings']['parent'] : 0);
+      $parent_id   = (int)(!empty($input['folder']['parent']) ? $input['folder']['parent'] : 0);
 
-      $folder      = sanitize_file_name($input['settings']['folder']);
+      $folder      = sanitize_file_name($input['folder']['folder']);
 
-      $description = sanitize_text_field($input['settings']['description']);
+      $description = sanitize_text_field($input['folder']['description']);
 
       $user_id     = get_current_user_id();
 
@@ -102,7 +118,8 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
             $notice_arg  = '[sql=' . $wpdb->last_query . ']';
             $notice_text = 'Could not find path for parent folder. %s';
          } else {
-            $root   = trim($_SERVER['DOCUMENT_ROOT'], '/');
+            // Only right trim the root as the leading '/' is needed on linux systems;
+            $root   = rtrim($_SERVER['DOCUMENT_ROOT'], '/');
             $path   = trim($post->path, '/');
             $folder = trim($folder, '/');
             $path_folder = '/' . $path . (!empty($path) ? '/' : '') . $folder;
@@ -127,11 +144,11 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
          }
       }
 
-      if ($show_notice) {
+      if ($page_slug) {
 
          if ($notice_text) {
             add_settings_error(
-               $this->page_slug, 
+               $page_slug, 
                $notice_type,
                sprintf(__($notice_text, USI_Media_Solutions::TEXTDOMAIN), $notice_arg),
                $notice_type
@@ -161,14 +178,14 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
 
       global $wpdb;
 
-      $this->options['settings']['parent'] = USI_Media_Solutions_Folder::get_user_fold_id();
+      $this->options['folder']['parent'] = USI_Media_Solutions_Folder::get_user_fold_id();
 
       $folders = $wpdb->get_results("SELECT `ID`, `post_title` FROM `{$wpdb->posts}` " .
          " WHERE (`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "')" .
          " ORDER BY `post_title`", ARRAY_N);
 
       $sections = array(
-         'settings' => array(
+         'folder' => array(
             'footer_callback' => array($this, 'section_footer'),
             'localize_labels' => 'yes',
             'settings' => array(

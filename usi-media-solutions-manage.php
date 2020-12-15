@@ -24,7 +24,7 @@ require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-s
 
 class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = 'rutgerscores';
+   const VERSION = '1.2.5 (2020-12-14)';
 
    protected $is_tabbed = true;
 
@@ -56,7 +56,9 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
          switch ($pagenow) {
 
          case 'admin.php':
-         case 'options-general.php':
+         case 'options.php':
+
+            $this->options = get_option(USI_Media_Solutions::PREFIX . '-options-manage');
 
             if (!empty($_REQUEST['id'])) $this->load($_REQUEST['id']);
 
@@ -75,8 +77,6 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
                   'no_settings_link' => true
                )
             );
-
-            $this->options = get_option($this->option_name);
 
             break;
 
@@ -107,7 +107,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
                $notice_type = 'notice-error';
                $notice_text = 'File not reloaded - all thumbnail and associated files must be delete before this file can be reloaded.';
 
-            } else if (pathinfo ($_FILES['usi-media-reload']['name'], PATHINFO_EXTENSION) != pathinfo ($this->file, PATHINFO_EXTENSION)) {
+            } else if (pathinfo($_FILES['usi-media-reload']['name'], PATHINFO_EXTENSION) != pathinfo($this->file, PATHINFO_EXTENSION)) {
 
                $notice_type = 'notice-error';
                $notice_text = 'File not reloaded - new file must have same file type/extension as original file.';
@@ -153,6 +153,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
                   $notice_list .= ($notice_list ? ', ' : '') . $delete_file;
                   unset($this->meta['sizes'][$name]);
                }
+               if ($delete_file) usi::log($this->path . DIRECTORY_SEPARATOR . $delete_file);
                if ($delete_file) wp_delete_file($this->path . DIRECTORY_SEPARATOR . $delete_file);
             }
 
