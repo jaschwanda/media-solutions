@@ -103,7 +103,7 @@ class USI_Media_Solutions_Folder {
          $folder = '/' . implode('/', $tokens);
          echo '<a href="upload.php?guid=' . rawurlencode($folder) . '"&attachment-filter>' .  $folder . '</a>';
       } else if ('size' === $column) {
-          echo @ self::size_format(filesize(get_attached_file($id)));
+         echo @ self::size_format(filesize(get_attached_file($id)));
       }
    } // action_manage_media_custom_column();
 
