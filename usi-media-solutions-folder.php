@@ -177,6 +177,12 @@ class USI_Media_Solutions_Folder {
          }
          $output[$key] = $value;
       }
+      if (!empty(USI_Media_Solutions::$options['preferences']['library-hide-parent'])) {
+         unset($output['parent']);
+      }
+      if (!empty(USI_Media_Solutions::$options['preferences']['library-hide-notes'])) {
+         unset($output['comments']);
+      }
       return($output);
    } // filter_manage_media_columns();
 

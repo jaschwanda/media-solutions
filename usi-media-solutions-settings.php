@@ -233,7 +233,15 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
                ),
                'library-show-size' => array(
                   'type' => 'checkbox', 
-                  'label' => 'Show Size In Media Library', 
+                  'label' => 'Show <i>Size</i> In Media Library', 
+               ),
+               'library-hide-parent' => array(
+                  'type' => 'checkbox', 
+                  'label' => 'Hide <i>Upload To</i> In Media Library', 
+               ),
+               'library-hide-notes' => array(
+                  'type' => 'checkbox', 
+                  'label' => 'Hide <i>Comments</i> In Media Library', 
                ),
                'library-author' => array(
                   'type' => 'checkbox', 
