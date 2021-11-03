@@ -2,6 +2,9 @@
 
 Media-Solutions plugin changes are logged here using <a href="http://semver.org/">Semantic Versioning</a>.
 
+## 1.2.7 (2021-11-03) ##
+* Set all versions numbers to same version.
+
 ##  1.2.6 (2021-05-10) ##
 * Add option to filter out parent and comment columns in media list.
 
