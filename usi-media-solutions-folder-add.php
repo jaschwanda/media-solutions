@@ -44,7 +44,7 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
             $this->text['page_header'] = __('Add Upload Folder', USI_Media_Solutions::TEXTDOMAIN);
 
             parent::__construct(
-               array(
+               [
                   'capability'  => USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'create-folders'), 
                   'name'        => $this->text['page_header'], 
                   'prefix'      => USI_Media_Solutions::PREFIX . '-folders-add',
@@ -52,8 +52,8 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
                   'options'     => & $this->options,
                   'hide'        => true,
                   'page'        => 'menu',
-                  'no_settings_link' => true
-               )
+                  'no_settings_link' => true, // Supress plugin page settings link for this page;
+               ]
             );
 
             break;

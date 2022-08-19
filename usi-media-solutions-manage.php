@@ -65,7 +65,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
             $this->text['page_header'] = __('Manage Media', USI_Media_Solutions::TEXTDOMAIN);
 
             parent::__construct(
-               array(
+               [
                   'capability'  => USI_WordPress_Solutions_Capabilities::capability_slug(USI_Media_Solutions::PREFIX, 'manage-media'), 
                   'name'        => $this->text['page_header'], 
                   'prefix'      => USI_Media_Solutions::PREFIX . '-manage',
@@ -74,8 +74,8 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
                   'hide'        => true,
                   'page'        => 'menu',
                   'query'       => '&id=' . $this->id,
-                  'no_settings_link' => true
-               )
+                  'no_settings_link' => true, // Supress plugin page settings link for this page;
+               ]
             );
 
             break;
