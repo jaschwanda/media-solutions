@@ -24,7 +24,7 @@ require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-s
 
 class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.2.7 (2021-11-03)';
+   const VERSION = '1.2.8 (2022-10-05)';
 
    protected $is_tabbed = true;
 
@@ -386,13 +386,12 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
       }
 
       echo  $popup['inline'];
-      echo  $popup['script'];
       echo '    <p class="submit">' . PHP_EOL;
       submit_button(__($button, USI_Media_Solutions::TEXTDOMAIN), 'primary' . $disabled, 'submit', false/*, $popup['anchor']*/);
       echo ' &nbsp; <a class="button button-secondary" href="upload.php">' .
          __('Back To Library', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . 
          ' &nbsp; <a class="button button-secondary" href="upload.php?page=' . USI_Media_Solutions::MENUFOLDER . '">' .
-         __('Back To Folders', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . '    </p>' . PHP_EOL;// . $popup['script'] . PHP_EOL;
+         __('Back To Folders', USI_Media_Solutions::TEXTDOMAIN) . '</a>' . PHP_EOL . '    </p>' . PHP_EOL;
 
    } // section_footer();
 
