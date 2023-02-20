@@ -2,6 +2,9 @@
 
 Media-Solutions plugin changes are logged here using <a href="http://semver.org/">Semantic Versioning</a>.
 
+## 1.2.9 (2023-02-20) ##
+* Protected against empty option string.
+
 ## 1.2.8 (2022-10-05) ##
 * Consolidated jQuery script handling.
 

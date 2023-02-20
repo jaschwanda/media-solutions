@@ -351,7 +351,7 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
       echo ' <a class="add-new-h2" href="admin.php?page=usi-media-folders-add-settings">' . 
          __('Add Upload Folder', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
   ?></h2>
-  <?php if ($message) echo $message . PHP_EOL;?>
+  <?php if (!empty($message)) echo $message . PHP_EOL;?>
   <form action="" method="post" name="usi-media-folders-list">
     <input type="hidden" name="page" value="<?php echo $_REQUEST['page'];?>">
 <?php
