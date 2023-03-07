@@ -2,6 +2,9 @@
 
 Media-Solutions plugin changes are logged here using <a href="http://semver.org/">Semantic Versioning</a>.
 
+## 1.2.10 (2023-03-07) ##
+* Addressed PHP 8 versioning issues.
+
 ## 1.2.9 (2023-02-20) ##
 * Protected against empty option string.
 
