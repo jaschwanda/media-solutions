@@ -117,11 +117,11 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
             $php_version = intval(phpversion());
 
             $_htaccess   = ''
-            . '# BEGIN usi-media-solutions' . PHP_EOL .
-            . ((7 >= $php_version) ? '<IfModule mod_php' . $php_version . '.c>' : '<IfModule php_module>') . PHP_EOL .
-            . 'php_value post_max_size ' . $post_max_size . 'M' . PHP_EOL .
-            . 'php_value upload_max_filesize ' . $upload_max_filesize . 'M' . PHP_EOL .
-            . '</IfModule>' . PHP_EOL .
+            . '# BEGIN usi-media-solutions' . PHP_EOL
+            . ((7 >= $php_version) ? '<IfModule mod_php' . $php_version . '.c>' : '<IfModule php_module>') . PHP_EOL
+            . 'php_value post_max_size ' . $post_max_size . 'M' . PHP_EOL
+            . 'php_value upload_max_filesize ' . $upload_max_filesize . 'M' . PHP_EOL
+            . '</IfModule>' . PHP_EOL
             .   '# END usi-media-solutions' . PHP_EOL . PHP_EOL 
             . $_htaccess
             ;
