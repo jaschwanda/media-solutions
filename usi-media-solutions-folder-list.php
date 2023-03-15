@@ -25,7 +25,7 @@ require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-s
 
 final class USI_Media_Solutions_Folder_List extends WP_List_Table {
 
-   const VERSION = '1.2.7 (2021-11-03)';
+   const VERSION = '1.2.11 (2023-03-15)';
 
    private $all_categories = null;
    private $page_hook = null;
@@ -124,29 +124,7 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
    } // column_default();
 
    function column_folder($item) {
-/*
       $actions = array();
-
-      if (USI_Variable_Solutions_Admin::$variables_change || USI_Variable_Solutions_Admin::$variables_edit) {
-         $actions['edit'] = '<a href="options-general.php?page=usi-vs-variable&variable_id=' .
-            $item['variable_id'] . '">' . __('Edit', USI_Variable_Solutions::TEXTDOMAIN) . '</a>';
-      }
-
-      if (USI_Variable_Solutions_Admin::$variables_delete) {
-         $actions['delete'] = '<a' .
-            ' class="thickbox usi-vs-variable-delete-link"' .
-            ' data-id="' . esc_attr($item['variable_id']) . '"' .
-            ' data-name="' . esc_attr($item['variable']) . '"' .
-            ' data-value="' . esc_attr($item['value']) . '"' .
-            ' href=""' .
-            '">' . __('Delete', USI_Variable_Solutions::TEXTDOMAIN) . '</a>';
-      }
-
-      return($item['variable'] . ' ' . $this->row_actions($actions));
-*/
-      $actions = array();
-//         $actions['edit'] = '<a href="options-general.php?page=usi-vs-variable&variable_id=' .
-  //          $item['folder_id'] . '">' . __('Edit', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
       return('<a href="upload.php?guid=' . rawurlencode($item['folder']) . '">' .  $item['folder'] . '</a>' . ' ' . $this->row_actions($actions));
 
    } // column_variable();
@@ -318,26 +296,6 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
       $action = $this->current_action();
 
       if ('delete' == $action) {
-/*
-         if (USI_Media_Solutions_Admin::$variables_delete) {
-            $SAFE_variable_table = $wpdb->prefix . 'USI_variables';
-            $ids = isset($_REQUEST['variable_id']) ? explode(',', $_REQUEST['variable_id']) : array();
-            $variables_deleted = count($ids);
-            if (is_array($ids)) $ids = implode(',', $ids);
-            if (!empty($ids)) {
-               $wpdb->query("DELETE FROM `$SAFE_variable_table` WHERE (`variable_id` IN($ids))");
-            } else {
-               $variables_deleted = 0;
-            }
-            $delete_text = ((1 == $variables_deleted) ? __('One variable has been deleted', USI_Media_Solutions::TEXTDOMAIN) : 
-               sprintf(__('%d variables have been deleted', USI_Media_Solutions::TEXTDOMAIN), $variables_deleted));
-         } else {
-            $delete_text =  __('You do not have permission to delete variables', USI_Media_Solutions::TEXTDOMAIN);
-         }
-         $message = '<div class="updated below-h2 notice is-dismissible" id="message"><p>' . $delete_text . '.</p>' .
-            '<button type="button" class="notice-dismiss"><span class="screen-reader-text">' .
-            __('Dismiss this notice', USI_Media_Solutions::TEXTDOMAIN) . '.</span></button></div>';
-*/
       } else {
          $message = null;
       }
