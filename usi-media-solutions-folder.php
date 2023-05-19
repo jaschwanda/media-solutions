@@ -26,26 +26,28 @@ class USI_Media_Solutions_Folder {
    private static $fold_id   = 0;
    private static $post_id   = 0;
    private static $post_fold = null;
+   private static $uploads   = null;
 
    function __construct() {
 
       self::$post_id   = 0;
       self::$post_fold = null;
+      self::$uploads   = self::get_default_upload_folder();
 
-      add_action('add_attachment', array($this, 'action_add_attachment'));
-      add_action('admin_print_styles-upload.php', array($this, 'action_admin_print_styles_upload'));
-      add_action('delete_attachment', array($this, 'action_delete_attachment'));
-      add_action('init', array($this, 'action_init'));
-      add_action('manage_media_custom_column', array($this, 'action_manage_media_custom_column'), 10, 2);
-      add_action('post-upload-ui', array($this, 'action_post_upload_ui'));
+      add_action('add_attachment', [$this, 'action_add_attachment']);
+      add_action('admin_print_styles-upload.php', [$this, 'action_admin_print_styles_upload']);
+      add_action('delete_attachment', [$this, 'action_delete_attachment']);
+      add_action('init', [$this, 'action_init']);
+      add_action('manage_media_custom_column', [$this, 'action_manage_media_custom_column'], 10, 2);
+      add_action('post-upload-ui', [$this, 'action_post_upload_ui']);
 
-      add_filter('attachment_link', array($this, 'filter_attachment_link'), 20, 2 );
-      add_filter('manage_media_columns', array($this, 'filter_manage_media_columns'));
-      add_filter('manage_upload_sortable_columns', array($this, 'filter_manage_upload_sortable_columns'));
-      add_filter('media_row_actions', array($this, 'filter_media_row_actions'), 10, 2);
-      add_filter('posts_where' , array($this, 'filter_posts_where'));
-      add_filter('upload_dir', array($this, 'filter_upload_dir'));
-      add_filter('wp_get_attachment_url', array($this, 'filter_wp_get_attachment_url'), 10, 2);
+      add_filter('attachment_link', [$this, 'filter_attachment_link'], 20, 2 );
+      add_filter('manage_media_columns', [$this, 'filter_manage_media_columns']);
+      add_filter('manage_upload_sortable_columns', [$this, 'filter_manage_upload_sortable_columns']);
+      add_filter('media_row_actions', [$this, 'filter_media_row_actions'], 10, 2);
+      add_filter('posts_where' , [$this, 'filter_posts_where']);
+      add_filter('upload_dir', [$this, 'filter_upload_dir']);
+      add_filter('wp_get_attachment_url', [$this, 'filter_wp_get_attachment_url'], 10, 2);
 
       $this->manage_slug = USI_Media_Solutions::PREFIX . '-manage-settings';
 
@@ -56,7 +58,7 @@ class USI_Media_Solutions_Folder {
       if (!empty(self::$fold_id)) {
          $post = get_post(self::$post_id = $post_id);
          $path = '/' . trim(trim(dirname(str_replace(get_home_url(), '', $post->guid)), '\\'), '/');
-         self::$post_fold = array('fold_id' => self::$fold_id, 'path' => $path);
+         self::$post_fold = ['fold_id' => self::$fold_id, 'path' => $path];
          add_post_meta($post_id, USI_Media_Solutions::MEDIAFOLD, self::$post_fold, true);
          $this->log_folder($post_id, 'default', $path);
       } // ENDIF upload folder given;
@@ -64,7 +66,7 @@ class USI_Media_Solutions_Folder {
 
    function action_admin_print_styles_upload() {
 
-      $columns = array(
+      $columns = [
          'cb'          => 3, 
          'title'       => 25, 
          'guid'        => 17, 
@@ -73,7 +75,7 @@ class USI_Media_Solutions_Folder {
          'parent'      => 15, 
          'comments'    => 15, 
          'date'        => 15, 
-      );
+      ];
 
       echo USI_WordPress_Solutions_Static::column_style($columns);
 
@@ -165,7 +167,7 @@ class USI_Media_Solutions_Folder {
 
    function filter_manage_media_columns($input) {
       $ith    = 0;
-      $output = array();
+      $output = [];
       foreach ($input as $key => $value) {
          if (2 == $ith++) {
             if (!empty(USI_Media_Solutions::$options['preferences']['library-show-fold'])) {
@@ -177,10 +179,10 @@ class USI_Media_Solutions_Folder {
          }
          $output[$key] = $value;
       }
-      if (!empty(USI_Media_Solutions::$options['preferences']['library-hide-parent'])) {
+      if (empty(USI_Media_Solutions::$options['preferences']['library-show-parent'])) {
          unset($output['parent']);
       }
-      if (!empty(USI_Media_Solutions::$options['preferences']['library-hide-notes'])) {
+      if (empty(USI_Media_Solutions::$options['preferences']['library-show-notes'])) {
          unset($output['comments']);
       }
       return($output);
@@ -255,6 +257,12 @@ class USI_Media_Solutions_Folder {
       return($url);
    } // filter_wp_get_attachment_url();
 
+   public static function get_default_upload_folder() {
+      $length = strlen(get_site_url());
+      $url    = wp_get_upload_dir()['url'] ?? null;
+      return($length < strlen($url) ? substr($url, $length) : 'Default Upload Folder');
+   } // get_default_upload_folder();
+
    public static function get_fold($post_id) {
       if (self::$post_id == $post_id) return(self::$post_fold);
       self::$post_id   = $post_id;
@@ -272,7 +280,7 @@ class USI_Media_Solutions_Folder {
          unset($folders[0]);
       }
       if (!empty(USI_Media_Solutions::$options['preferences']['organize-allow-default'])) {
-         array_unshift($folders, array(0 => 0, 1 => __('Default Upload Folder', USI_Media_Solutions::TEXTDOMAIN)));
+         array_unshift($folders, [0 => 0, 1 => self::$uploads]);
       }
       return($folders);
    } // get_folders();
@@ -296,7 +304,7 @@ class USI_Media_Solutions_Folder {
    } // set_fold_id();
 
    public static function size_format($bytes) {
-      return(str_replace(array('.0 B', ' B'), ' bytes', size_format($bytes, 1)));
+      return(str_replace(['.0 B', ' B'], ' bytes', size_format($bytes, 1)));
    } // size_format();
 
 } // Class USI_Media_Solutions_Folder;

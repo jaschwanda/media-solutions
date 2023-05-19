@@ -46,7 +46,7 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
       // IF organize by folders not used;
       if (empty($input['preferences']['organize-folder'])) {
 
-         // Clear options that require organiza by folder option;
+         // Clear options that require organize by folder option;
          $input['preferences']['organize-allow-default'] = 
          $input['preferences']['organize-allow-root']    =
          $input['preferences']['library-show-fold']      = false;
@@ -208,6 +208,10 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
                   'type' => 'checkbox', 
                   'label' => 'Organize With Categories', 
                ),
+               'organize-tag' => array(
+                  'type' => 'checkbox', 
+                  'label' => 'Organize With Tags', 
+               ),
                'organize-folder' => array(
                   'type' => 'checkbox', 
                   'label' => 'Organize With Folders', 
@@ -216,6 +220,7 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
                   'type' => 'checkbox', 
                   'label' => 'Allow Default Folder Uploads', 
                   'prefix' => '<span style="display:inline-block; width:16px;"></span>',
+                  'notes' => 'Currently ' . USI_Media_Solutions_Folder::get_default_upload_folder(),
                   'readonly' => $readonly,
                ),
                'organize-allow-root' => array(
@@ -231,25 +236,21 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
                   'prefix' => '<span style="display:inline-block; width:16px;"></span>',
                   'readonly' => $readonly,
                ),
-               'organize-tag' => array(
-                  'type' => 'checkbox', 
-                  'label' => 'Organize With Tags', 
-               ),
                'library-show-size' => array(
                   'type' => 'checkbox', 
                   'label' => 'Show <i>Size</i> In Media Library', 
                ),
-               'library-hide-parent' => array(
+               'library-show-parent' => array(
                   'type' => 'checkbox', 
-                  'label' => 'Hide <i>Upload To</i> In Media Library', 
+                  'label' => 'Show <i>Upload To</i> In Media Library', 
                ),
-               'library-hide-notes' => array(
+               'library-show-notes' => array(
                   'type' => 'checkbox', 
-                  'label' => 'Hide <i>Comments</i> In Media Library', 
+                  'label' => 'Show <i>Comments</i> In Media Library', 
                ),
                'library-author' => array(
                   'type' => 'checkbox', 
-                  'label' => 'Author Filter in Media Library',
+                  'label' => 'Show <i>Author</i> in Media Library',
                ),
             ),
          ), // preferences;

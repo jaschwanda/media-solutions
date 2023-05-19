@@ -100,8 +100,8 @@ class USI_Media_Solutions {
          $defaults['preferences']['organize-allow-root'] =
          $defaults['preferences']['organize-tag']        = 
          $defaults['preferences']['library-author']      =
-         $defaults['preferences']['library-hide-notes']  = 
-         $defaults['preferences']['library-hide-upload'] =
+         $defaults['preferences']['library-show-notes']  = 
+         $defaults['preferences']['library-show-upload'] =
          $defaults['preferences']['library-show-fold']   =
          $defaults['preferences']['library-show-size']   = false;
 
