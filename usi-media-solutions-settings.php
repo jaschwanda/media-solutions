@@ -16,8 +16,8 @@ Copyright (c) 2020 by Jim Schwanda.
 */
 
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-capabilities.php');
+require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-diagnostics.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-settings.php');
-require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-updates.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-versions.php');
 
 class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
@@ -42,6 +42,8 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
    } // __construct();
 
    function fields_sanitize($input) {
+
+      $input = parent::fields_sanitize($input);
 
       // IF organize by folders not used;
       if (empty($input['preferences']['organize-folder'])) {
@@ -282,45 +284,22 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
             ),
          ), // uploads;
 
-         'debug' => array(
-            'label' => 'Debug',
-            'localize_labels' => 'yes',
-            'localize_notes' => 3, // <p class="description">__()</p>>;
-            'not_tabbed' => 'preferences',
-            'title' => 'Debug',
-            'settings' => array(
-               'debug-ip' => array(
-                  'type' => 'text', 
-                  'label' => 'Debug IP address',
-                  'notes' => 'Enter the IP address of the user you wish to track for debugging.',
-               ),
-            ),
-         ), // debug;
-
          'capabilities' => new USI_WordPress_Solutions_Capabilities($this),
 
-         'updates' => new USI_WordPress_Solutions_Updates($this),
+         'diagnostics' => new USI_WordPress_Solutions_Diagnostics($this, 
+            [
+               'DEBUG_FOLDER' => [
+                  'value' => USI_Media_Solutions::DEBUG_FOLDER,
+                  'notes' => 'Log media folder operations.',
+               ],
+               'DEBUG_MANAGE' => [
+                  'value' => USI_Media_Solutions::DEBUG_MANAGE,
+                  'notes' => 'Log media manage operations.',
+               ],
+            ],
+         ), // diagnostics;
 
       );
-
-      if (!empty(USI_Media_Solutions::$options['debug']['debug-ip'])) {
-         $sections['debug']['settings']['debug-post-id'] = array(
-            'type' => 'number', 
-            'label' => 'Post Id', 
-         );
-         $sections['debug']['settings']['debug-file-info'] = array(
-            'type' => 'checkbox', 
-            'label' => 'DEBUG_FILE_INFO',
-         );
-         $sections['debug']['settings']['debug-filter-folder'] = array(
-            'type' => 'checkbox', 
-            'label' => 'DEBUG_FILTER_FOLDER',
-         );
-      } else {
-         unset(USI_Media_Solutions::$options['debug']['debug-file-info']);
-         unset(USI_Media_Solutions::$options['debug']['debug-filter-folder']);
-         unset(USI_Media_Solutions::$options['debug']['debug-post-id']);
-      }
 
       return($sections);
 

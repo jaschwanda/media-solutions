@@ -71,10 +71,11 @@ class USI_Media_Solutions {
    const POSTFOLDER = 'usi-media-folders';
    const USERFOLDER = 'usi-media-options-folder';
 
-   const DEBUG_FILE_INFO     = 0x01; // File info;
-   const DEBUG_FILTER_FOLDER = 0x02; // Filter folders;
+   const DEBUG_OFF     = 0x12000000;
+   const DEBUG_FOLDER  = 0x12000001;
+   const DEBUG_MANAGE  = 0x12000002;
 
-   const OK_IMAGES  = array('gif', 'jpg', 'jpeg', 'png');
+   const OK_IMAGES     = array('gif', 'jpg', 'jpeg', 'png');
 
    public static $capabilities = array(
       'create-categories' => 'Create Categories|administrator',
@@ -84,6 +85,7 @@ class USI_Media_Solutions {
       'manage-media' => 'Manage Media|administrator',
       'delete-media' => 'Delete Media|administrator',
       'reload-media' => 'Reload Media|administrator',
+      'rename-media' => 'Rename Media|administrator',
    );
 
    public static $debug   = 0;
@@ -112,7 +114,6 @@ class USI_Media_Solutions {
          $defaults['debug']['debug-ip'] = '';
          $defaults['debug']['debug-file-info']     =
          $defaults['debug']['debug-filter-folder'] = false;
-         $defaults['debug']['debug-post-id']  = 0;
 
          USI_Media_Solutions::$options = get_option(self::PREFIX . '-options', $defaults);
 
@@ -122,12 +123,6 @@ class USI_Media_Solutions {
 
       if (!empty(self::$options['preferences']['library-author'])) {
          add_action('restrict_manage_posts', array($this, 'action_restrict_manage_posts'));
-      }
-
-      if (!empty(self::$options['debug']['debug-ip']) && (self::$options['debug']['debug-ip'] == $_SERVER['REMOTE_ADDR'])) {
-         self::$debug = 0;
-         if (!empty(self::$options['debug']['debug-file-info']))     self::$debug |= self::DEBUG_FILE_INFO;
-         if (!empty(self::$options['debug']['debug-filter-folder'])) self::$debug |= self::DEBUG_FILTER_FOLDER;
       }
 
    } // __construct();
@@ -210,10 +205,6 @@ if (is_admin() && !defined('WP_UNINSTALL_PLUGIN')) {
       require_once('usi-media-solutions-settings.php');
       if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
          require_once('usi-media-solutions-folder.php');
-      }
-      if (!empty(USI_Media_Solutions::$options['updates']['git-update'])) {
-         require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-update.php');
-         new USI_WordPress_Solutions_Update_GitHub(__FILE__, 'jaschwanda', 'media-solutions', '1b7f7291f7acc24a34a9121a992cc9ed25a536b4');
       }
    } else {
       add_action('admin_notices', array('USI_Media_Solutions', 'action_admin_notices'));

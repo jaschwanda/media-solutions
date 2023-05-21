@@ -23,7 +23,10 @@ class USI_Media_Solutions_Folder {
 
    const VERSION = '1.2.7 (2021-11-03)';
 
+   private static $default_upload_folder = null;
+
    private static $fold_id   = 0;
+   private static $log       = 0;
    private static $post_id   = 0;
    private static $post_fold = null;
    private static $uploads   = null;
@@ -33,6 +36,8 @@ class USI_Media_Solutions_Folder {
       self::$post_id   = 0;
       self::$post_fold = null;
       self::$uploads   = self::get_default_upload_folder();
+
+      self::$log       = USI_WordPress_Solutions_Diagnostics::get_log(USI_Media_Solutions::$options);
 
       add_action('add_attachment', [$this, 'action_add_attachment']);
       add_action('admin_print_styles-upload.php', [$this, 'action_admin_print_styles_upload']);
@@ -258,9 +263,12 @@ class USI_Media_Solutions_Folder {
    } // filter_wp_get_attachment_url();
 
    public static function get_default_upload_folder() {
-      $length = strlen(get_site_url());
-      $url    = wp_get_upload_dir()['url'] ?? null;
-      return($length < strlen($url) ? substr($url, $length) : 'Default Upload Folder');
+      if (!self::$default_upload_folder) {
+         $length = strlen(get_site_url());
+         $url    = wp_get_upload_dir()['url'] ?? null;
+         self::$default_upload_folder = $length < strlen($url) ? substr($url, $length) : 'Default Upload Folder';
+      }
+      return(self::$default_upload_folder);
    } // get_default_upload_folder();
 
    public static function get_fold($post_id) {
@@ -290,12 +298,8 @@ class USI_Media_Solutions_Folder {
    } // get_user_fold_id();
 
    private function log_folder($post_id, $from, $to) {
-      if (USI_Media_Solutions::$debug & USI_Media_Solutions::DEBUG_FILTER_FOLDER) {
-         // Log everything unless debug-post-id given in which case only log debug-postid;
-         if (empty(USI_Media_Solutions::$options['debug']['debug-post-id']) 
-            || ($post_id == USI_Media_Solutions::$options['debug']['debug-post-id'])) {
-            usi::log2(':post_id=' . $post_id . ' ' . $from . ' => ' . $to);
-         }
+      if (USI_Media_Solutions::DEBUG_FOLDER == (USI_Media_Solutions::DEBUG_FOLDER & $log)) {
+         usi::log2(__METHOD__.'()~'.__LINE__.':post_id=' . $post_id . ' ' . $from . ' => ' . $to);
       }
    } // log_folder();
 
