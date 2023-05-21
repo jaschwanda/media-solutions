@@ -298,7 +298,7 @@ class USI_Media_Solutions_Folder {
    } // get_user_fold_id();
 
    private function log_folder($post_id, $from, $to) {
-      if (USI_Media_Solutions::DEBUG_FOLDER == (USI_Media_Solutions::DEBUG_FOLDER & $log)) {
+      if (USI_Media_Solutions::DEBUG_FOLDER == (USI_Media_Solutions::DEBUG_FOLDER & self::$log)) {
          usi::log2(__METHOD__.'()~'.__LINE__.':post_id=' . $post_id . ' ' . $from . ' => ' . $to);
       }
    } // log_folder();
