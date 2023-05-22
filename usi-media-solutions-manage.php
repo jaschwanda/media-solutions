@@ -18,14 +18,13 @@ Copyright (c) 2020 by Jim Schwanda.
 // https://makitweb.com/programmatically-file-upload-from-custom-plugin-in-wordpress/
 
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-log.php');
-require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-popup.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-popup-action.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-settings.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-versions.php');
 
 class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.2.8 (2022-10-05)';
+   const VERSION = '1.2.12 (2023-03-22)';
 
    protected $is_tabbed = true;
 
@@ -297,7 +296,7 @@ usi::log('$_REQUEST=', $_REQUEST);
             $this->count++;
             $files[$base] = true;
             $sections['files']['settings'][$name] = [
-               'attr'  => 'data-info="' . esc_attr($base) . '"',
+               'attr'  => 'data-info="' . esc_attr($base) . '" usi-popup-info=" &nbsp; &nbsp; ' . esc_attr($base) . '"',
                'f-class' => $this->prefix . ' usi-popup-checkbox',
                'label' => $name, 
                'readonly' => !$this->ok_delete,
@@ -314,7 +313,7 @@ usi::log('$_REQUEST=', $_REQUEST);
             $this->count++;
             $files[$base] = true;
             $sections['files']['settings'][$name] = [
-               'attr'  => 'data-info="' . esc_attr($base) . '" " usi-popup-info=" &nbsp; &nbsp; ' . esc_attr($base) . '"',
+               'attr'  => 'data-info="' . esc_attr($base) . '" usi-popup-info=" &nbsp; &nbsp; ' . esc_attr($base) . '"',
                'f-class' => $this->prefix . ' usi-popup-checkbox',
                'label' => $name, 
                'type' => 'checkbox', 
@@ -385,28 +384,10 @@ usi::log('$_REQUEST=', $_REQUEST);
       if ('files' == $this->active_tab) {
 
          $button   = 'Delete Media';
+
          $disabled = ($this->ok_delete && $this->count ? '' : ' disabled');
-/*
-         $popup = USI_WordPress_Solutions_Popup::build(
-            [
-               'accept' => __('Delete', USI_Media_Solutions::TEXTDOMAIN),
-               'cancel' => __('Cancel', USI_Media_Solutions::TEXTDOMAIN),
-               'choice' => __('Please select one or more media files before you click the Delete Media button.', USI_Media_Solutions::TEXTDOMAIN),
-               'height' => 300,
-               'id'     => 'usi-media-popup',
-               'list'   => '.' . $this->prefix,
-               'ok'     => __('Ok', USI_Media_Solutions::TEXTDOMAIN),
-               'pass'   => 1,
-               'prefix' => __('Please confirm that you want to delete the following media:', USI_Media_Solutions::TEXTDOMAIN),
-               'submit' => '#submit',
-               'suffix' => __('This deletion is permanent and cannot be reversed.', USI_Media_Solutions::TEXTDOMAIN),
-               'title'  => __('Delete Media', USI_Media_Solutions::TEXTDOMAIN),
-               'type'   => 'inline',
-               'width'  => 500,
-            ]
-         );
-*/
-         $args = [
+
+         $args     = [
             'actions' => [
                'delete' => [
                   'head' => __('Please confirm that you want to delete the following media:', USI_Media_Solutions::TEXTDOMAIN),
@@ -420,66 +401,25 @@ usi::log('$_REQUEST=', $_REQUEST);
             ],
             'height' => '300px',
             'id'     => 'usi-media-popup',
-            'invoke' => '#submit',
-            'method' => 'custom',
+            'invoke' => ['#submit' => 'delete'],
             'title'  => __('Delete Media', USI_Media_Solutions::TEXTDOMAIN),
             'width'  => '500px',
          ];
 
          USI_WordPress_Solutions_Popup_Action::build($args);
 
-
       } else if ('reload' == $this->active_tab) {
 
          $button   = 'Reload Media';
          $disabled = ($this->count ? ' disabled' : '');
-/*
-         $popup = USI_WordPress_Solutions_Popup::build(
-            [
-               'accept' => __('Reload', USI_Media_Solutions::TEXTDOMAIN),
-               'cancel' => __('Cancel', USI_Media_Solutions::TEXTDOMAIN),
-               'choice' => __('Please choose a media file before you click the Reload Media button.', USI_Media_Solutions::TEXTDOMAIN),
-               'height' => 300,
-               'id'     => 'usi-media-popup',
-               'list'   => '.' . $this->prefix,
-               'ok'     => __('Ok', USI_Media_Solutions::TEXTDOMAIN),
-               'prefix' =>  __('Please confirm that you want to reload the file:', USI_Media_Solutions::TEXTDOMAIN) .
-                   '</p><p> &nbsp ' . $this->head . '</p><p>' . __('with the file:', USI_Media_Solutions::TEXTDOMAIN),
-               'submit' => '#submit',
-               'suffix' => __('This reload is permanent and cannot be reversed.', USI_Media_Solutions::TEXTDOMAIN),
-               'title'  => __('Reload Media', USI_Media_Solutions::TEXTDOMAIN),
-               'type'   => 'inline',
-               'width'  => 500,
-            ]
-         );
-*/
+
       } else if ('rename' == $this->active_tab) {
 
          $button   = 'Rename Media';
          $disabled = ($this->count ? ' disabled' : '');
-/*
-         $popup = USI_WordPress_Solutions_Popup::build(
-            [
-               'accept' => __('Rename', USI_Media_Solutions::TEXTDOMAIN),
-               'cancel' => __('Cancel', USI_Media_Solutions::TEXTDOMAIN),
-               'choice' => __('Please enter a new name before you click the Rename Media button.', USI_Media_Solutions::TEXTDOMAIN),
-               'height' => 300,
-               'id'     => 'usi-media-popup',
-               'list'   => '.' . $this->prefix,
-               'ok'     => __('Ok', USI_Media_Solutions::TEXTDOMAIN),
-               'prefix' =>  __('Please confirm that you want to rename the file:', USI_Media_Solutions::TEXTDOMAIN) .
-                   '</p><p> &nbsp ' . $this->head . '</p><p>' . __('with the file:', USI_Media_Solutions::TEXTDOMAIN),
-               'submit' => '#submit',
-               'suffix' => __('This rename is permanent and cannot be reversed.', USI_Media_Solutions::TEXTDOMAIN),
-               'title'  => __('Rename Media', USI_Media_Solutions::TEXTDOMAIN),
-               'type'   => 'inline',
-               'width'  => 500,
-            ]
-         );
-*/
+
       }
 
-//      echo  $popup['inline'];
       echo '    <p class="submit">' . PHP_EOL;
       submit_button(__($button, USI_Media_Solutions::TEXTDOMAIN), 'primary' . $disabled, 'submit', false/*, $popup['anchor']*/);
       echo ' &nbsp; <a class="button button-secondary" href="upload.php">' .
