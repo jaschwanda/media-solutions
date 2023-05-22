@@ -19,6 +19,7 @@ Copyright (c) 2020 by Jim Schwanda.
 
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-log.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-popup.php');
+require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-popup-action.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-settings.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-versions.php');
 
@@ -279,6 +280,60 @@ usi::log('$_REQUEST=', $_REQUEST);
 
       }
 
+      $base  = $this->base;
+      $files = []; // List of files added to list to prevent duplicates;
+
+      // Load default base file;
+      if (!empty($this->meta['file'])) {
+         $base = basename($this->meta['file']);
+         $files[$base] = true;
+      }
+      $this->head = '<a href="' . $this->link . '/' . $base . '" target="_blank">' . $this->file . '</a>';
+      $this->text['page_header'] .= ' - ' . $this->head;
+
+      if (!empty($this->meta['sizes'])) foreach ($this->meta['sizes'] as $name => $value) {
+         $base = $value['file'];
+         if (empty($files[$base])) {
+            $this->count++;
+            $files[$base] = true;
+            $sections['files']['settings'][$name] = [
+               'attr'  => 'data-info="' . esc_attr($base) . '"',
+               'f-class' => $this->prefix . ' usi-popup-checkbox',
+               'label' => $name, 
+               'readonly' => !$this->ok_delete,
+               'type' => 'checkbox', 
+               'notes' => '&nbsp; <a href="' . $this->link . '/' . $base . '" target="_blank">' . $base . '</a>',
+            ];
+            unset($this->options['files'][$name]); // Clear option in case select was left over;
+         }
+      }
+
+      if (!empty($this->back)) foreach ($this->back as $name => $value) {
+         $base = $value['file'];
+         if (empty($files[$base])) {
+            $this->count++;
+            $files[$base] = true;
+            $sections['files']['settings'][$name] = [
+               'attr'  => 'data-info="' . esc_attr($base) . '" " usi-popup-info=" &nbsp; &nbsp; ' . esc_attr($base) . '"',
+               'f-class' => $this->prefix . ' usi-popup-checkbox',
+               'label' => $name, 
+               'type' => 'checkbox', 
+               'notes' => '&nbsp; <a href="' . $this->link . '/' . $base . '" target="_blank">' . $base . '</a>',
+            ];
+            unset($this->options['files'][$name]); // Clear option in case select was left over;
+         }
+      }
+
+      if ($this->ok_reload) {
+         if (!isset($this->post) || !$this->count || ('image/' != substr($this->post->post_mime_type, 0, 6))) {
+            $sections['reload']['settings']['file'] = [
+               'alt_html' => '<input class="' . $this->prefix . '" data-info="jim.jpg" data-key="jim" type="file" name="usi-media-reload" value="">', 
+               'name' => 'usi-media-reload', 
+               'type' => 'null', 
+            ];
+         }
+      }
+
       if ($this->ok_rename) {
 
          $sections['rename'] = [
@@ -310,63 +365,20 @@ usi::log('$_REQUEST=', $_REQUEST);
          }
       }
 
-      $base  = $this->base;
-      $files = []; // List of files added to list to prevent duplicates;
-
-      // Load default base file;
-      if (!empty($this->meta['file'])) {
-         $base = basename($this->meta['file']);
-         $files[$base] = true;
-      }
-      $this->head = '<a href="' . $this->link . '/' . $base . '" target="_blank">' . $this->file . '</a>';
-      $this->text['page_header'] .= ' - ' . $this->head;
-
-      if (!empty($this->meta['sizes'])) foreach ($this->meta['sizes'] as $name => $value) {
-         $base = $value['file'];
-         if (empty($files[$base])) {
-            $this->count++;
-            $files[$base] = true;
-            $sections['files']['settings'][$name] = [
-               'attr'  => 'data-info="' . esc_attr($base) . '"',
-               'f-class' => $this->prefix,
-               'label' => $name, 
-               'readonly' => !$this->ok_delete,
-               'type' => 'checkbox', 
-               'notes' => '&nbsp; <a href="' . $this->link . '/' . $base . '" target="_blank">' . $base . '</a>',
-            ];
-            unset($this->options['files'][$name]); // Clear option in case select was left over;
-         }
-      }
-
-      if (!empty($this->back)) foreach ($this->back as $name => $value) {
-         $base = $value['file'];
-         if (empty($files[$base])) {
-            $this->count++;
-            $files[$base] = true;
-            $sections['files']['settings'][$name] = [
-               'attr'  => 'data-info="' . esc_attr($base) . '"',
-               'f-class' => $this->prefix,
-               'label' => $name, 
-               'type' => 'checkbox', 
-               'notes' => '&nbsp; <a href="' . $this->link . '/' . $base . '" target="_blank">' . $base . '</a>',
-            ];
-            unset($this->options['files'][$name]); // Clear option in case select was left over;
-         }
-      }
-
-      if ($this->ok_reload) {
-         if (!isset($this->post) || !$this->count || ('image/' != substr($this->post->post_mime_type, 0, 6))) {
-            $sections['reload']['settings']['file'] = [
-               'alt_html' => '<input class="' . $this->prefix . '" data-info="jim.jpg" data-key="jim" type="file" name="usi-media-reload" value="">', 
-               'name' => 'usi-media-reload', 
-               'type' => 'null', 
-            ];
-         }
-      }
-
       return($sections);
 
    } // sections();
+
+   public static function column_cb($args) {
+      $id_field = $args['id_field'] ?? null;
+      $info     = $args['info']     ?? null;
+      $post     = $args['post']     ?? null;
+      $id       = $args['id']       ?? null;
+      return(
+         '<input class="usi-popup-checkbox" name="' . $id_field . '[' . $id . ']" type="checkbox" ' .
+         'usi-popup-id="' . $id . '" usi-popup-info="' . $info . '" value="' . $id .'" />'
+      );
+   } // column_cb();
 
    function section_footer() {
 
@@ -374,7 +386,7 @@ usi::log('$_REQUEST=', $_REQUEST);
 
          $button   = 'Delete Media';
          $disabled = ($this->ok_delete && $this->count ? '' : ' disabled');
-
+/*
          $popup = USI_WordPress_Solutions_Popup::build(
             [
                'accept' => __('Delete', USI_Media_Solutions::TEXTDOMAIN),
@@ -393,12 +405,35 @@ usi::log('$_REQUEST=', $_REQUEST);
                'width'  => 500,
             ]
          );
+*/
+         $args = [
+            'actions' => [
+               'delete' => [
+                  'head' => __('Please confirm that you want to delete the following media:', USI_Media_Solutions::TEXTDOMAIN),
+                  'foot' => __('This deletion is permanent and cannot be reversed.', USI_Media_Solutions::TEXTDOMAIN),
+                  'work' => __('Delete', USI_Media_Solutions::TEXTDOMAIN),
+               ],
+            ],
+            'cancel' => __('Cancel', USI_Media_Solutions::TEXTDOMAIN),
+            'errors' => [
+               'select_item' => __('Please select at least one file before you click the Delete button.', USI_Media_Solutions::TEXTDOMAIN),
+            ],
+            'height' => '300px',
+            'id'     => 'usi-media-popup',
+            'invoke' => '#submit',
+            'method' => 'custom',
+            'title'  => __('Delete Media', USI_Media_Solutions::TEXTDOMAIN),
+            'width'  => '500px',
+         ];
+
+         USI_WordPress_Solutions_Popup_Action::build($args);
+
 
       } else if ('reload' == $this->active_tab) {
 
          $button   = 'Reload Media';
          $disabled = ($this->count ? ' disabled' : '');
-
+/*
          $popup = USI_WordPress_Solutions_Popup::build(
             [
                'accept' => __('Reload', USI_Media_Solutions::TEXTDOMAIN),
@@ -417,12 +452,12 @@ usi::log('$_REQUEST=', $_REQUEST);
                'width'  => 500,
             ]
          );
-
+*/
       } else if ('rename' == $this->active_tab) {
 
          $button   = 'Rename Media';
          $disabled = ($this->count ? ' disabled' : '');
-
+/*
          $popup = USI_WordPress_Solutions_Popup::build(
             [
                'accept' => __('Rename', USI_Media_Solutions::TEXTDOMAIN),
@@ -441,10 +476,10 @@ usi::log('$_REQUEST=', $_REQUEST);
                'width'  => 500,
             ]
          );
-
+*/
       }
 
-      echo  $popup['inline'];
+//      echo  $popup['inline'];
       echo '    <p class="submit">' . PHP_EOL;
       submit_button(__($button, USI_Media_Solutions::TEXTDOMAIN), 'primary' . $disabled, 'submit', false/*, $popup['anchor']*/);
       echo ' &nbsp; <a class="button button-secondary" href="upload.php">' .
