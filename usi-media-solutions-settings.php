@@ -20,6 +20,8 @@ require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-s
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-settings.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-versions.php');
 
+require_once(plugin_dir_path(__DIR__) . 'usi-media-solutions/usi-media-solutions-folder.php');
+
 class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
 
    const VERSION = '1.2.10 (2023-03-07)';
