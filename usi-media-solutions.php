@@ -74,6 +74,7 @@ class USI_Media_Solutions {
    const DEBUG_OFF     = 0x12000000;
    const DEBUG_FOLDER  = 0x12000001;
    const DEBUG_MANAGE  = 0x12000002;
+   const DEBUG_SANITZ  = 0x12000004;
 
    const OK_IMAGES     = array('gif', 'jpg', 'jpeg', 'png');
 

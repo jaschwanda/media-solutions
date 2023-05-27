@@ -298,6 +298,10 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
                   'value' => USI_Media_Solutions::DEBUG_MANAGE,
                   'notes' => 'Log media manage operations.',
                ],
+               'DEBUG_SANITZ' => [
+                  'value' => USI_Media_Solutions::DEBUG_SANITZ,
+                  'notes' => 'Log USI_Media_Solutions::fields_sanitize() method.',
+               ],
             ],
          ), // diagnostics;
 

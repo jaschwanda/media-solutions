@@ -26,6 +26,9 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
    const VERSION = '1.2.12 (2023-03-22)';
 
+   const ERROR   = 'notice-error';
+   const SUCCESS = 'notice-success';
+
    protected $is_tabbed = true;
 
    private $ok_delete   = true;
@@ -93,6 +96,8 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
       // this function is called twice, first time before the user is known);
       if (get_current_user_id()) {
 
+         $log = (USI_Media_Solutions::DEBUG_SANITZ == (USI_Media_Solutions::DEBUG_SANITZ & USI_WordPress_Solutions_Diagnostics::get_log(USI_Media_Solutions::$options)));
+
          // Load post meta data if not already loaded;
          if (!$this->id) $this->load($input['files']['id']);
  
@@ -105,7 +110,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
             // IF user does not have permission to delete files;
             if (!USI_WordPress_Solutions_Capabilities::current_user_can(USI_Media_Solutions::PREFIX, 'delete-media')) {
 
-               $notice_type = 'notice-error';
+               $notice_type = self::ERROR;
                $notice_text = 'You do not have permission to delete files.';
 
             } else { // ELSE user does have permission to delete files;
@@ -134,10 +139,10 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
                if ($update_meta) update_post_meta($this->id, '_wp_attachment_metadata', $this->meta);
 
                if ($notice_list) {
-                  $notice_type = 'notice-success';
+                  $notice_type = self::SUCCESS;
                   $notice_text = ' deleted.';
                } else {
-                  $notice_type = 'notice-error';
+                  $notice_type = self::ERROR;
                   $notice_text = 'No files have been deleted.';
                }
 
@@ -149,23 +154,23 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
             // IF user does not have permission to reload files;
             if (!USI_WordPress_Solutions_Capabilities::current_user_can(USI_Media_Solutions::PREFIX, 'reload-media')) {
 
-               $notice_type = 'notice-error';
+               $notice_type = self::ERROR;
                $notice_text = 'You do not have permission to reload files.';
 
             } else if (empty($_FILES['usi-media-reload']['name'])) {
 
-               $notice_type = 'notice-error';
+               $notice_type = self::ERROR;
                $notice_text = 'Nothing was given to upload, please select a file before you click the Reload Media button.';
 
             // IF there are associated files (should not get here if associated files exist);
             } else if (!empty($this->back) || !empty($this->meta['sizes'])) {
 
-               $notice_type = 'notice-error';
+               $notice_type = self::ERROR;
                $notice_text = 'File not reloaded - all thumbnail and associated files must be delete before this file can be reloaded.';
 
             } else if (pathinfo($_FILES['usi-media-reload']['name'], PATHINFO_EXTENSION) != pathinfo($this->file, PATHINFO_EXTENSION)) {
 
-               $notice_type = 'notice-error';
+               $notice_type = self::ERROR;
                $notice_text = 'File not reloaded - new file must have same file type/extension as original file.';
 
             } else { // ELSE upload is premitted (there are no associated files);
@@ -181,10 +186,10 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
                $status    = wp_handle_upload($_FILES['usi-media-reload'], $overrides, $time);
 
                if (!empty($status['error'])) {
-                  $notice_type = 'notice-error';
+                  $notice_type = self::ERROR;
                   $notice_text = $status['error'];
                } else {
-                  $notice_type = 'notice-success';
+                  $notice_type = self::SUCCESS;
                   $notice_text = 'File reloaded successfully.';
                }
 
@@ -196,31 +201,103 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
             // IF user does not have permission to reload files;
             if (!USI_WordPress_Solutions_Capabilities::current_user_can(USI_Media_Solutions::PREFIX, 'rename-media')) {
 
-               $notice_type = 'notice-error';
+               $notice_type = self::ERROR;
                $notice_text = 'You do not have permission to rename files.';
 
             // ELSEIF new file name is missing;
-            } else if (empty($nput['rename']['new-name'])) {
+            } else if (empty($input['rename']['new-name'])) {
 
-               $notice_type = 'notice-error';
+               $notice_type = self::ERROR;
                $notice_text = 'New file name missing, please enter a valid file name.';
 
-            } else { // ELSE new file name given;
+            // ELSEIF new file name same as current;
+            } else if (($old_name = pathinfo($this->file, PATHINFO_FILENAME)) == $input['rename']['new-name']) {
 
-               $new_name = $nput['rename']['new-name'];
+               $notice_type = self::ERROR;
+               $notice_text = 'New file name must be different than existing file name.';
 
-               $notice_type = 'notice-error';
-               $notice_text = 'Sorry, feature not yet implemented.';
+            } else { // ELSE preliminary error checking successful;
+
+               $extension  = pathinfo($this->file, PATHINFO_EXTENSION );
+
+               $new_name   = $input['rename']['new-name'];
+
+               $from       = $this->path . DIRECTORY_SEPARATOR . $old_name . '.' . $extension;
+               $to         = $this->path . DIRECTORY_SEPARATOR . $new_name . '.' . $extension;
+
+               $updated_id = null;
+
+               if ($status = rename($from, $to)) {
+
+                  $this->meta[file] = pathinfo($this->meta[file], PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR . $new_name . '.' . $extension;
+
+                  update_post_meta($this->id, '_wp_attached_file', $this->meta[file]);
+
+                  update_post_meta($this->id, '_wp_attachment_metadata', $this->meta);
+
+                  $this->post->post_title = $this->post->post_name = $input['rename']['post-name'];
+
+                  $updated_id      = wp_update_post(
+                     $updated_args = [
+                        'ID'         => $this->id,
+                        'post_name ' => $input['rename']['post-name'],
+                        'post_title' => $input['rename']['post-name'],
+                     ]
+                  );
+
+                  if (!$updated_id || is_wp_error($updated_id)) {
+
+                     $notice_type = self::ERROR;
+                     $notice_text = 'Could not update information in the database.';
+
+                  } else {
+
+                     $notice_type = self::SUCCESS;
+                     $notice_text = 'File renamed from "' . $old_name . '" to "' . $new_name . '".';
+
+                  }
+
+               } else {
+
+                  $notice_type = self::ERROR;
+                  $notice_text = 'Could not rename file on the web server.';
+
+               }
 
                unset($nput['rename']['new-name']);
 
-            } // ENDIF new file name given;
+            } // ENDIF preliminary error checking successful;
+
+            if ($log) {
+               usi::log(
+                  '\2n$input=', $input,
+                  '\2npath=', $this->path, 
+                  '\2nlink=', $this->link, 
+                  '\2nbase=', $this->base, 
+                  '\2nfile=', $this->file, 
+                  '\2n$old_name=', $old_name, 
+                  '\2n$new_name=', $new_name, 
+                  '\2nextension=', $extension, 
+                  '\2n$this->meta[file]=', $this->meta[file], 
+                  '\2n$this->post->guid=', $this->post->guid, 
+                  '\2nfrom=', $from, 
+                  '\2nto=', $to, 
+                  '\2nstatus=', ($status ? 'success' : 'failure'),
+                  '\2n$updated_args=', $updated_args,
+                  '\2n$updated_id=', $updated_id,
+                  '\2nmeta=', $this->meta, 
+                  '\2npost=', $this->post,
+                  '\2n$notice_type=', $notice_type,
+                  '\2n$notice_text=', $notice_text
+               );
+            }
 
          } // ENDIF rename files tab;
 
          // Display file administrator notice if any;
          if ($notice_type) {
-            add_settings_error($this->page_slug, $notice_type, $notice_list . __($notice_text, USI_Media_Solutions::TEXTDOMAIN), $notice_type);
+            $prefix = (self::SUCCESS == $notice_type) ? 'Success: ' : ' Error: ';
+            add_settings_error($this->page_slug, $notice_type, $prefix . $notice_list . __($notice_text, USI_Media_Solutions::TEXTDOMAIN), $notice_type);
          }
 
       } // ENDIF submit generated by user;
@@ -391,13 +468,23 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
          ]; // rename;
 
          if (0 == $this->count) {
-            $this->options['rename']['old-name'] = pathinfo($this->file)['basename'];
+            $this->options['rename']['post-name']  = $this->post->post_name;
+            $this->options['rename']['old-name']   = pathinfo($this->file, PATHINFO_FILENAME);
+            if ($this->options['rename']['post-name'] != $this->options['rename']['old-name']) {
+               $this->options['rename']['new-name'] = $this->options['rename']['post-name'];
+            }
             $sections['rename']['settings'] = [
                'old-name' => [
                   'attr' => 'style="font-family:courier new;"',
                   'f-class' => 'large-text', 
                   'label' => 'Current file name', 
                   'readonly' => true,
+                  'type' => 'text', 
+               ],
+               'post-name' => [
+                  'attr' => 'style="font-family:courier new;"',
+                  'f-class' => 'large-text', 
+                  'label' => 'New post name', 
                   'type' => 'text', 
                ],
                'new-name' => [
