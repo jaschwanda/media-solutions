@@ -17,7 +17,6 @@ Copyright (c) 2020 by Jim Schwanda.
 
 // https://makitweb.com/programmatically-file-upload-from-custom-plugin-in-wordpress/
 
-require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-log.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-popup-action.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-settings.php');
 require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-versions.php');

@@ -56,8 +56,6 @@ posts.post_type 'usi-ms-upload-folder' => 'usi-media-folder'
 // http://www.wpbeginner.com/wp-tutorials/how-to-create-custom-post-types-in-wordpress/
 // https://www.ibenic.com/programmatically-download-a-file-from-wordpress/
 
-require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-log.php');
-
 class USI_Media_Solutions {
 
    const VERSION = '1.2.12 (2023-03-22)';
