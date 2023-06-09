@@ -202,12 +202,13 @@ new USI_Media_Solutions();
 if (is_admin() && !defined('WP_UNINSTALL_PLUGIN')) {
    if (is_dir(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions')) {
       require_once('usi-media-solutions-settings.php');
-      if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
-         require_once('usi-media-solutions-folder.php');
-      }
    } else {
       add_action('admin_notices', array('USI_Media_Solutions', 'action_admin_notices'));
    }
+}
+
+if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
+   require_once('usi-media-solutions-folder.php');
 }
 
 // --------------------------------------------------------------------------------------------------------------------------- // ?>
