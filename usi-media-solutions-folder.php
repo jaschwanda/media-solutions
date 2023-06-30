@@ -21,7 +21,7 @@ require_once('usi-media-solutions-manage.php');
 
 class USI_Media_Solutions_Folder {
 
-   const VERSION = '1.2.7 (2021-11-03)';
+   const VERSION = '1.3.0 (2023-06-30)';
 
    private static $default_upload_folder = null;
 

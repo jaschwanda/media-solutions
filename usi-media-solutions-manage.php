@@ -23,7 +23,7 @@ require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-s
 
 class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.2.12 (2023-03-22)';
+   const VERSION = '1.3.0 (2023-06-30)';
 
    const ERROR   = 'notice-error';
    const SUCCESS = 'notice-success';

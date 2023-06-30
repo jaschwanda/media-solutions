@@ -25,7 +25,7 @@ require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-s
 
 final class USI_Media_Solutions_Folder_List extends WP_List_Table {
 
-   const VERSION = '1.2.11 (2023-03-15)';
+   const VERSION = '1.3.0 (2023-06-30)';
 
    private $all_categories = null;
    private $page_hook = null;

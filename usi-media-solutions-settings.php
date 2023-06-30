@@ -24,7 +24,7 @@ require_once(plugin_dir_path(__DIR__) . 'usi-media-solutions/usi-media-solutions
 
 class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.2.10 (2023-03-07)';
+   const VERSION = '1.3.0 (2023-06-30)';
 
    protected $is_tabbed = true;
 
