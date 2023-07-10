@@ -20,7 +20,7 @@ function usi_MM_plugin_action_links($links, $file) {
    static $this_plugin;
    if (!$this_plugin) $this_plugin = plugin_basename(__FILE__);
    if ($file == $this_plugin) $links[] = '<a href="' . get_bloginfo('wpurl') . '/wp-admin/options-media.php">Settings</a>';
-   return($links);
+   return $links;
 } // usi_MM_plugin_action_links();
 
 
@@ -91,7 +91,7 @@ function usi_MM_reload_media_page() {
           <strong>Permalink:</strong>
           <span id="sample-permalink" tabindex="-1"><?php echo $server; ?>/?attachment_id=<?php echo $id; ?></span>
           <span id="view-post-btn"><a href="<?php echo $server; ?>/?attachment_id=<?php echo $id; ?>" class="button button-small">View Attachment Page</a></span>
-          <input id="shortlink" type="hidden" value="<?php echo $server; ?>/?p=<?php echo $id; ?>"><a href="#" class="button button-small" onclick="prompt('URL:', jQuery('#shortlink').val()); return(false);">Get Shortlink</a>
+          <input id="shortlink" type="hidden" value="<?php echo $server; ?>/?p=<?php echo $id; ?>"><a href="#" class="button button-small" onclick="prompt('URL:', jQuery('#shortlink').val()); return false;">Get Shortlink</a>
         </div>
         <br />
         <label class="screen-reader-text" for="async-upload">Upload</label>
@@ -339,7 +339,7 @@ function usi_MM_add_attachment($id) {
 
 
 if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
-   require_once('usi-media-solutions-folder-list.php');
+   require_once 'usi-media-solutions-folder-list.php';
 }
 
 function modify_post_mime_types($post_mime_types) {
@@ -411,7 +411,7 @@ function usi_MM_get_active() {
    } else {
       $usi_mm_option_active = 'standard';
    }
-   return($usi_mm_option_active);
+   return $usi_mm_option_active;
 } // usi_MM_get_active();
 
 function usi_MM_settings_defaults() {
@@ -424,7 +424,7 @@ function usi_MM_settings_defaults() {
       'tag' => false,
       'version' => USI_Media_Solutions::VERSION
    );
-   return(apply_filters('usi_MM_settings_defaults', $defaults));
+   return apply_filters('usi_MM_settings_defaults', $defaults);
 } // end usi_MM_settings_defaults
 
 */

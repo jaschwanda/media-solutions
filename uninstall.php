@@ -17,13 +17,13 @@ Copyright (c) 2023 by Jim Schwanda.
 
 if (!defined('WP_UNINSTALL_PLUGIN')) exit;
 
-require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-uninstall.php');
+require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-uninstall.php';
 
-require_once('usi-media-solutions.php');
+require_once 'usi-media-solutions.php';
 
 final class USI_Media_Solutions_Uninstall {
 
-   const VERSION = '1.3.0 (2023-06-30)';
+   const VERSION = '1.3.1 (2023-07-10)';
 
    private function __construct() {
    } // __construct();

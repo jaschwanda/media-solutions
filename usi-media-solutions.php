@@ -15,7 +15,7 @@ Requires at least: 5.0
 Requires PHP:      5.6.25
 Tested up to:      5.3.2
 Text Domain:       usi-media-solutions
-Version:           1.3.0
+Version:           1.3.1
 */
 
 /*
@@ -58,7 +58,7 @@ posts.post_type 'usi-ms-upload-folder' => 'usi-media-folder'
 
 class USI_Media_Solutions {
 
-   const VERSION = '1.3.0 (2023-06-30)';
+   const VERSION = '1.3.1 (2023-07-10)';
 
    const NAME       = 'Media-Solutions';
    const PREFIX     = 'usi-media';
@@ -191,7 +191,7 @@ class USI_Media_Solutions {
 
       $post_id = wp_insert_post($post, true);
 
-      return($post_id);
+      return $post_id;
 
    } // folder_create_post()
 
@@ -200,15 +200,15 @@ class USI_Media_Solutions {
 new USI_Media_Solutions();
 
 if (is_admin() && !defined('WP_UNINSTALL_PLUGIN')) {
-   if (is_dir(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions')) {
-      require_once('usi-media-solutions-settings.php');
+   if (is_dir(WP_PLUGIN_DIR . '/usi-wordpress-solutions')) {
+      require_once 'usi-media-solutions-settings.php';
    } else {
-      add_action('admin_notices', array('USI_Media_Solutions', 'action_admin_notices'));
+      add_action('admin_notices', ['USI_Media_Solutions', 'action_admin_notices']);
    }
 }
 
 if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
-   require_once('usi-media-solutions-folder.php');
+   require_once 'usi-media-solutions-folder.php';
 }
 
 // --------------------------------------------------------------------------------------------------------------------------- // ?>

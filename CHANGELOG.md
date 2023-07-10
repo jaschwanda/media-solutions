@@ -2,6 +2,9 @@
 
 Media-Solutions plugin changes are logged here using <a href="http://semver.org/">Semantic Versioning</a>.
 
+## 1.3.1 (2023-07-10) ##
+* Updated include file handling.
+
 ## 1.3.0 (2023-06-30) ##
 * Set all versions numbers to same version.
 

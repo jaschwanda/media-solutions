@@ -19,13 +19,13 @@ Copyright (c) 2023 by Jim Schwanda.
 // http://wordpress.stackexchange.com/questions/109955/custom-table-column-sortable-by-taxonomy-query
 // https://fullstackgeek.blogspot.com/2019/08/calculate-directory-size-in-php.html
 
-if (!class_exists('WP_List_Table')) { require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php'); }
+if (!class_exists('WP_List_Table')) { require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php'; }
 
-require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-static.php');
+require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-static.php';
 
 final class USI_Media_Solutions_Folder_List extends WP_List_Table {
 
-   const VERSION = '1.3.0 (2023-06-30)';
+   const VERSION = '1.3.1 (2023-07-10)';
 
    private $all_categories = null;
    private $page_hook = null;
@@ -98,11 +98,11 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
 
    function column_cb($item) {
 
-      return('<input class="usi-media-folders-list"' .
+      return '<input class="usi-media-folders-list"' .
          ' data-id="' . esc_attr($item['folder_id']) . '"' .
          ' data-name="' . esc_attr($item['folder']) . '"' .
          ' name="folder_id[]" type="checkbox" value="' . $item['folder_id'] .'" />'
-      );
+         ;
 
     } // column_cb();
 
@@ -114,48 +114,48 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
       case 'description':
       case 'owner':
       case 'size':
-         return($item[$column_name]);
+         return $item[$column_name];
       case 'folder':
-         return('<a href="upload.php?guid=' . rawurlencode($item[$column_name]) . '">' .  $item[$column_name] . '</a>');
+         return '<a href="upload.php?guid=' . rawurlencode($item[$column_name]) . '">' .  $item[$column_name] . '</a>';
       default:
-         return(print_r($item, true)); //Show the whole array for troubleshooting purposes
+         return print_r($item, true); //Show the whole array for troubleshooting purposes
       }
 
    } // column_default();
 
    function column_folder($item) {
       $actions = [];
-      return('<a href="upload.php?guid=' . rawurlencode($item['folder']) . '">' .  $item['folder'] . '</a>' . ' ' . $this->row_actions($actions));
+      return '<a href="upload.php?guid=' . rawurlencode($item['folder']) . '">' .  $item['folder'] . '</a>' . ' ' . $this->row_actions($actions);
 
    } // column_variable();
 
    function filter_media_row_actions($actions, $object) {
       $new_actions = [];
       $new_actions = $actions;
-      return($new_actions);
+      return $new_actions;
    } // filter_media_row_actions()
 
    function filter_set_screen_options($status, $option, $value) {
 
-      if ('per_page' == $option) return($value);
+      if ('per_page' == $option) return $value;
 
-      return($status);
+      return $status;
 
    } // filter_set_screen_options();
 
    function get_bulk_actions() {
 
-      return(
+      return
          [
             'delete' => __('Delete', USI_Media_Solutions::TEXTDOMAIN),
          ]
-      );
+         ;
 
    } // get_bulk_actions();
 
    function get_columns() {
 
-      return(
+      return
          [
             'cb' => '<input type="checkbox" />',
             'folder_id' => __('ID', USI_Media_Solutions::TEXTDOMAIN),
@@ -165,26 +165,26 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
             'size' => __('Size', USI_Media_Solutions::TEXTDOMAIN),
             'owner' => __('Owner', USI_Media_Solutions::TEXTDOMAIN),
          ]
-      );
+         ;
 
     } // get_columns();
 
    public function get_columns_hidden() {
 
-      return((array)get_user_option('manage' . $this->page_hook . 'columnshidden'));
+      return (array)get_user_option('manage' . $this->page_hook . 'columnshidden');
 
    } // get_columns_hidden();
 
    function get_columns_sortable() {
 
-      return(
+      return
          [
             'folder_id'   => ['folder_id', true],
             'folder'      => ['folder', true],
             'description' => ['description', true],
             'owner'       => ['owner', true],
          ]
-      );
+         ;
 
    } // get_columns_sortable();
 
@@ -210,7 +210,7 @@ final class USI_Media_Solutions_Folder_List extends WP_List_Table {
             }
          }
       }
-      return([$file_count, $total_size]);
+      return [$file_count, $total_size];
    } // get_folder_info();
 
    function get_list() {
@@ -353,7 +353,7 @@ jQuery(document).ready(
             }
          }
 
-         return(show_confirmation(delete_count, id_list, text));
+         return show_confirmation(delete_count, id_list, text);
 
       } // do_action();
 
@@ -380,7 +380,7 @@ jQuery(document).ready(
 
          tb_show('Media-Solutions', '#TB_inline?width=500&height=300&inlineId=usi-media-folders-list-confirm', null);
 
-         return(false);
+         return false;
 
       } // show_confirmation();
 
@@ -393,7 +393,7 @@ jQuery(document).ready(
             var obj = event.target;
             var id = obj.getAttribute('data-id');
             var text = obj.getAttribute('data-name');
-            return(show_confirmation(1, id, text));
+            return show_confirmation(1, id, text);
          }
       );
 

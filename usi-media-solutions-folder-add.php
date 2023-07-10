@@ -15,16 +15,16 @@ https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
 Copyright (c) 2023 by Jim Schwanda.
 */
 
-require_once(plugin_dir_path(__DIR__) . 'usi-media-solutions/usi-media-solutions.php');
+require_once WP_PLUGIN_DIR . '/usi-media-solutions/usi-media-solutions.php';
 
-require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-custom-post.php');
-require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-settings.php');
-require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-static.php');
-require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-versions.php');
+require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-custom-post.php';
+require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-settings.php';
+require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-static.php';
+require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-versions.php';
 
 class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.3.0 (2023-06-30)';
+   const VERSION = '1.3.1 (2023-07-10)';
 
    private $text = array();
 
@@ -80,7 +80,7 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
 
    function fields_sanitize($input) {
 
-      return(self::make_folder($input, $this->page_slug));
+      return self::make_folder($input, $this->page_slug);
 
    } // fields_sanitize();
 
@@ -159,7 +159,7 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
 
       }
 
-      return($input);
+      return $input;
 
    } // make_folder();
 
@@ -210,7 +210,7 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
 
       );
 
-      return($sections);
+      return $sections;
 
    } // sections();
 

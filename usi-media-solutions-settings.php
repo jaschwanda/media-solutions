@@ -15,16 +15,16 @@ https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
 Copyright (c) 2023 by Jim Schwanda.
 */
 
-require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-capabilities.php');
-require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-diagnostics.php');
-require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-settings.php');
-require_once(plugin_dir_path(__DIR__) . 'usi-wordpress-solutions/usi-wordpress-solutions-versions.php');
+require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-capabilities.php';
+require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-diagnostics.php';
+require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-settings.php';
+require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-versions.php';
 
-require_once(plugin_dir_path(__DIR__) . 'usi-media-solutions/usi-media-solutions-folder.php');
+require_once WP_PLUGIN_DIR . '/usi-media-solutions/usi-media-solutions-folder.php';
 
 class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.3.0 (2023-06-30)';
+   const VERSION = '1.3.1 (2023-07-10)';
 
    protected $is_tabbed = true;
 
@@ -175,7 +175,7 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
       // Clear delete backups option;
       $input['uploads']['delete-backups'] = false;
 
-      return($input);
+      return $input;
 
    } // fields_sanitize();
 
@@ -191,7 +191,7 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
          $links[] = '<a href="https://www.usi2solve.com/donate/media-solutions" target="_blank">' . 
             __('Donate', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
       }
-      return($links);
+      return $links;
    } // filter_plugin_row_meta();
 
    function sections() {
@@ -307,7 +307,7 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
 
       );
 
-      return($sections);
+      return $sections;
 
    } // sections();
 
