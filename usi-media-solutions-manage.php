@@ -226,11 +226,13 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
                $updated_id = null;
 
+               if ($log) usi::log('$from=', $from, ' $to=', $to);
+
                if ($status = rename($from, $to)) {
 
-                  $this->meta[file] = pathinfo($this->meta[file], PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR . $new_name . '.' . $extension;
+                  $this->meta['file'] = pathinfo($this->meta['file'], PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR . $new_name . '.' . $extension;
 
-                  update_post_meta($this->id, '_wp_attached_file', $this->meta[file]);
+                  update_post_meta($this->id, '_wp_attached_file', $this->meta['file']);
 
                   update_post_meta($this->id, '_wp_attachment_metadata', $this->meta);
 
@@ -263,7 +265,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
                }
 
-               unset($nput['rename']['new-name']);
+               unset($input['rename']['new-name']);
 
             } // ENDIF preliminary error checking successful;
 
@@ -277,7 +279,7 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
                   '\2n$old_name=', $old_name, 
                   '\2n$new_name=', $new_name, 
                   '\2nextension=', $extension, 
-                  '\2n$this->meta[file]=', $this->meta[file], 
+                  '\2n$this->meta[file]=', $this->meta['file'], 
                   '\2n$this->post->guid=', $this->post->guid, 
                   '\2nfrom=', $from, 
                   '\2nto=', $to, 
