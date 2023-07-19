@@ -24,7 +24,7 @@ require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-v
 
 class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.3.1 (2023-07-10)';
+   const VERSION = '1.3.3 (2023-07-19)';
 
    private $text = array();
 
@@ -84,6 +84,21 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
 
    } // fields_sanitize();
 
+   public static function get_folder_id($folder) {
+
+      global $wpdb;
+
+      $result = $wpdb->get_row(
+         $wpdb->prepare(
+            "SELECT `ID` FROM `{$wpdb->posts}` WHERE (`post_title` = %s) AND (`post_type` = 'usi-media-folders') LIMIT 1", 
+            $folder
+         )
+      );
+
+      return $result->ID ?? 0;
+
+   } // get_folder_id();
+
    public static function make_folder($input, $page_slug = null) {
 
       $notice_arg  = null;
@@ -92,7 +107,7 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
 
       $notice_type = 'notice-error';
 
-      $parent_id   = (int)(!empty($input['folder']['parent']) ? $input['folder']['parent'] : 0);
+      $parent_id   = (int)($input['folder']['parent'] ?? 0);
 
       $folder      = sanitize_file_name($input['folder']['folder']);
 

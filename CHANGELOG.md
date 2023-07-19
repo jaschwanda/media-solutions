@@ -2,6 +2,9 @@
 
 Media-Solutions plugin changes are logged here using <a href="http://semver.org/">Semantic Versioning</a>.
 
+## 1.3.3 (2023-07-19) ##
+* Added USI_Media_Solutions_Folder_Add::make_folder() method.
+
 ## 1.3.2 (2023-07-11) ##
 * Fixed renaming file issue.
 

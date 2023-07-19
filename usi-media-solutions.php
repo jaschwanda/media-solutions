@@ -15,7 +15,7 @@ Requires at least: 5.0
 Requires PHP:      5.6.25
 Tested up to:      5.3.2
 Text Domain:       usi-media-solutions
-Version:           1.3.2
+Version:           1.3.3
 */
 
 /*
@@ -58,7 +58,7 @@ posts.post_type 'usi-ms-upload-folder' => 'usi-media-folder'
 
 class USI_Media_Solutions {
 
-   const VERSION = '1.3.2 (2023-07-11)';
+   const VERSION = '1.3.3 (2023-07-19)';
 
    const NAME       = 'Media-Solutions';
    const PREFIX     = 'usi-media';
