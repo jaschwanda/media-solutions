@@ -2,43 +2,23 @@
 
 defined('ABSPATH') or die('Accesss not allowed.');
 
-/*
-Media-Solutions is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
-License as published by the Free Software Foundation, either version 3 of the License, or any later version.
- 
-Media-Solutions is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
-warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- 
-You should have received a copy of the GNU General Public License along with Media-Solutions. If not, see 
-https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
-
-Copyright (c) 2023 by Jim Schwanda.
-*/
-
-require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-capabilities.php';
-require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-diagnostics.php';
-require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-settings.php';
-require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-versions.php';
-
-require_once WP_PLUGIN_DIR . '/usi-media-solutions/usi-media-solutions-folder.php';
-
 class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.3.1 (2023-07-10)';
+   const VERSION = '2.0.0 (2024-06-16)';
 
    protected $is_tabbed = true;
 
    function __construct() {
 
       parent::__construct(
-         array(
+         [
             'name' => USI_Media_Solutions::NAME, 
             'prefix' => USI_Media_Solutions::PREFIX, 
             'text_domain' => USI_Media_Solutions::TEXTDOMAIN,
             'options' => USI_Media_Solutions::$options,
             'capabilities' => USI_Media_Solutions::$capabilities,
             'file' => str_replace('-settings', '', __FILE__), // Plugin main file, this initializes capabilities on plugin activation;
-         )
+         ]
       );
 
    } // __construct();
@@ -201,90 +181,97 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
       $this->options['uploads']['upload-max-filesize'] = intval(ini_get('upload_max_filesize'));
       $this->options['uploads']['post-max-size']       = intval(ini_get('post_max_size'));
 
-      $sections = array(
-         'preferences' => array(
-            'header_callback' => array($this, 'sections_header_preferences'),
+      $sections = [
+         'preferences' => [
+            'header_callback' => [$this, 'sections_header', '      <p>' . __('The Media-Solutions plugin enables WordPress media to '
+            . 'be stored and organized via user created upload folders, tags and categories.', USI_Media_Solutions::TEXTDOMAIN) 
+            . '</p>' . PHP_EOL],
             'label' => 'Preferences',
             'localize_labels' => 'yes',
             'localize_notes' => 2, // &nbsp; <i>__()</i>;
-            'settings' => array(
-               'organize-category' => array(
+            'settings' => [
+               'organize-category' => [
                   'type' => 'checkbox', 
                   'label' => 'Organize With Categories', 
-               ),
-               'organize-tag' => array(
+               ],
+               'organize-tag' => [
                   'type' => 'checkbox', 
                   'label' => 'Organize With Tags', 
-               ),
-               'organize-folder' => array(
+               ],
+               'organize-folder' => [
                   'type' => 'checkbox', 
                   'label' => 'Organize With Folders', 
-               ),
-               'organize-allow-default' => array(
+               ],
+               'organize-allow-default' => [
                   'type' => 'checkbox', 
                   'label' => 'Allow Default Folder Uploads', 
                   'prefix' => '<span style="display:inline-block; width:16px;"></span>',
                   'notes' => 'Currently ' . USI_Media_Solutions_Folder::get_default_upload_folder(),
                   'readonly' => $readonly,
-               ),
-               'organize-allow-root' => array(
+               ],
+               'organize-allow-root' => [
                   'type' => 'checkbox', 
                   'label' => 'Allow Root Folder Uploads', 
                   'prefix' => '<span style="display:inline-block; width:16px;"></span>',
                   'notes' => 'Not recommended',
                   'readonly' => $readonly,
-               ),
-               'library-show-fold' => array(
+               ],
+               'library-show-fold' => [
                   'type' => 'checkbox', 
                   'label' => 'Show Folder In Media Library', 
                   'prefix' => '<span style="display:inline-block; width:16px;"></span>',
                   'readonly' => $readonly,
-               ),
-               'library-show-size' => array(
+               ],
+               'library-show-size' => [
                   'type' => 'checkbox', 
                   'label' => 'Show <i>Size</i> In Media Library', 
-               ),
-               'library-show-parent' => array(
+               ],
+               'library-show-parent' => [
                   'type' => 'checkbox', 
                   'label' => 'Show <i>Upload To</i> In Media Library', 
-               ),
-               'library-show-notes' => array(
+               ],
+               'library-show-notes' => [
                   'type' => 'checkbox', 
                   'label' => 'Show <i>Comments</i> In Media Library', 
-               ),
-               'library-author' => array(
+               ],
+               'library-author' => [
                   'type' => 'checkbox', 
                   'label' => 'Show <i>Author</i> in Media Library',
-               ),
-            ),
-         ), // preferences;
+               ],
+            ],
+         ], // preferences;
 
-         'uploads' => array(
-            'header_callback' => array($this, 'sections_header_uploads'),
+         'uploads' => [
+            'header_callback' => [$this, 'sections_header_uploads'],
+            'header_callback' => [$this, 'sections_header', '      <p>' . __('Upload limits are modified by setting the appropriate '
+            . 'directives in the .htaccess file. A backup of the .htaccess file is made before it is modified. Although these '
+            . 'modifications rarely causes any problems, it is recommended that you have the ability to access the .htaccess file '
+            . 'with ssh or ftp to recover the original .htaccess file should the need arise.', USI_Media_Solutions::TEXTDOMAIN) 
+            . '</p>' . PHP_EOL],
             'label' => 'Uploads',
             'localize_labels' => 'yes',
             'localize_notes' => 3, // <p class="description">__()</p>>;
             'not_tabbed' => 'preferences',
             'title' => 'Upload Limits',
-            'settings' => array(
-               'upload-max-filesize' => array(
+            'settings' => [
+               'upload-max-filesize' => [
                   'type' => 'number', 
                   'label' => 'upload_max_filesize', 
                   'notes' => 'Maximum size in megabytes of a single file upload.',
-               ),
-               'post-max-size' => array(
+               ],
+               'post-max-size' => [
                   'type' => 'number', 
                   'label' => 'post_max_size', 
                   'notes' => 'Maximum size in megabytes of all files uploaded at one time.',
-               ),
-               'delete-backups' => array(
+               ],
+               'delete-backups' => [
                   'type' => 'checkbox', 
                   'label' => 'Delete .htaccess backups', 
                   'notes' => 'For safety reasons backups are not deleted at the same time the upload limits are modified.' .
                      'If you want to delete the .htaccess backups then you must delete them in a second step after the upload limits are modified.',
-               ),
-            ),
-         ), // uploads;
+               ],
+            ],
+         ], // uploads;
 
          'capabilities' => new USI_WordPress_Solutions_Capabilities($this),
 
@@ -305,16 +292,11 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
             ],
          ), // diagnostics;
 
-      );
+      ];
 
       return $sections;
 
    } // sections();
-
-   function sections_header_preferences() {
-      echo '      <p>' . __('The Media-Solutions plugin enables WordPress media to be stored and organized via user created upload ' .
-         'folders, tags and categories.', USI_Media_Solutions::TEXTDOMAIN) . '</p>' . PHP_EOL;
-   } // sections_header_preferences();
 
    function sections_header_uploads() {
       echo '      <p>' . __('Upload limits are modified by setting the appropriate directives in the .htaccess file. A backup of the ' .
@@ -324,7 +306,5 @@ class USI_Media_Solutions_Settings extends USI_WordPress_Solutions_Settings {
    } // sections_header_uploads();
 
 } // Class USI_Media_Solutions_Settings;
-
-new USI_Media_Solutions_Settings();
 
 // --------------------------------------------------------------------------------------------------------------------------- // ?>

@@ -2,31 +2,11 @@
 
 defined('ABSPATH') or die('Accesss not allowed.');
 
-/*
-Media-Solutions is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
-License as published by the Free Software Foundation, either version 3 of the License, or any later version.
- 
-Media-Solutions is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
-warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- 
-You should have received a copy of the GNU General Public License along with Media-Solutions. If not, see 
-https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
-
-Copyright (c) 2023 by Jim Schwanda.
-*/
-
-require_once WP_PLUGIN_DIR . '/usi-media-solutions/usi-media-solutions.php';
-
-require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-custom-post.php';
-require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-settings.php';
-require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-static.php';
-require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-versions.php';
-
 class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.3.3 (2023-07-19)';
+   const VERSION = '2.0.0 (2024-06-16)';
 
-   private $text = array();
+   private $text = [];
 
    function __construct() {
 
@@ -199,38 +179,36 @@ class USI_Media_Solutions_Folder_Add extends USI_WordPress_Solutions_Settings {
          " WHERE (`post_type` = '" . USI_Media_Solutions::POSTFOLDER . "')" .
          " ORDER BY `post_title`", ARRAY_N);
 
-      $sections = array(
-         'folder' => array(
-            'footer_callback' => array($this, 'section_footer'),
+      $sections = [
+         'folder' => [
+            'footer_callback' => [$this, 'section_footer'],
             'localize_labels' => 'yes',
-            'settings' => array(
-               'parent' => array(
+            'settings' => [
+               'parent' => [
                   'f-class' => 'regular-text', 
                   'label' => 'Parent', 
                   'options' => $folders,
                   'type' => 'select', 
-               ),
-               'folder' => array(
+               ],
+               'folder' => [
                   'f-class' => 'regular-text', 
                   'label' => 'Folder', 
                   'type' => 'text', 
-               ),
-               'description' => array(
+               ],
+               'description' => [
                   'f-class' => 'regular-text', 
                   'label' => 'Description', 
                   'type' => 'text', 
-               ),
-            ),
-         ), // preferences;
+               ],
+            ],
+         ], // preferences;
 
-      );
+      ];
 
       return $sections;
 
    } // sections();
 
 } // Class USI_Media_Solutions_Folder_Add;
-
-new USI_Media_Solutions_Folder_Add();
 
 // --------------------------------------------------------------------------------------------------------------------------- // ?>

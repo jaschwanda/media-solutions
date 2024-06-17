@@ -17,4 +17,4 @@ of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Pub
 <http://www.gnu.org/licenses/>.
 
 ## Donations ##
-Donations are accepted at <a href="https://www.usi2solve.com/donate/wordpress-solutions">www.usi2solve.com/donate</a>. Thank you for your support!
+Donations are accepted at <a href="https://www.usi2solve.com/donate/media-solutions">www.usi2solve.com/donate</a>. Thank you for your support!

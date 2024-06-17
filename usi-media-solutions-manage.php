@@ -2,28 +2,9 @@
 
 defined('ABSPATH') or die('Accesss not allowed.');
 
-/*
-Media-Solutions is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
-License as published by the Free Software Foundation, either version 3 of the License, or any later version.
- 
-Media-Solutions is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
-warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- 
-You should have received a copy of the GNU General Public License along with Media-Solutions. If not, see 
-https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
-
-Copyright (c) 2023 by Jim Schwanda.
-*/
-
-// https://makitweb.com/programmatically-file-upload-from-custom-plugin-in-wordpress/
-
-require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-popup-action.php';
-require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-settings.php';
-require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-versions.php';
-
 class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
 
-   const VERSION = '1.3.1 (2023-07-10)';
+   const VERSION = '2.0.0 (2024-06-16)';
 
    const ERROR   = 'notice-error';
    const SUCCESS = 'notice-success';
@@ -589,7 +570,5 @@ class USI_Media_Solutions_Manage extends USI_WordPress_Solutions_Settings {
    } // section_header();
 
 } // Class USI_Media_Solutions_Manage;
-
-new USI_Media_Solutions_Manage();
 
 // --------------------------------------------------------------------------------------------------------------------------- // ?>

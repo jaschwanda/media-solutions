@@ -2,26 +2,9 @@
 
 defined('ABSPATH') or die('Accesss not allowed.');
 
-/*
-Media-Solutions is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
-License as published by the Free Software Foundation, either version 3 of the License, or any later version.
- 
-Media-Solutions is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
-warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- 
-You should have received a copy of the GNU General Public License along with Media-Solutions. If not, see 
-https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
-
-Copyright (c) 2023 by Jim Schwanda.
-*/
-
-require_once 'usi-media-solutions-folder-add.php';
-require_once 'usi-media-solutions-folder-list.php';
-require_once 'usi-media-solutions-manage.php';
-
 class USI_Media_Solutions_Folder {
 
-   const VERSION = '1.3.1 (2023-07-10)';
+   const VERSION = '2.0.0 (2024-06-16)';
 
    private static $default_upload_folder = null;
 
@@ -55,6 +38,10 @@ class USI_Media_Solutions_Folder {
       add_filter('wp_get_attachment_url', [$this, 'filter_wp_get_attachment_url'], 10, 2);
 
       $this->manage_slug = USI_Media_Solutions::PREFIX . '-manage-settings';
+
+      new USI_Media_Solutions_Folder_Add();
+      new USI_Media_Solutions_Folder_List();
+      new USI_Media_Solutions_Manage();
 
    } // __construct();
 
@@ -312,7 +299,5 @@ class USI_Media_Solutions_Folder {
    } // size_format();
 
 } // Class USI_Media_Solutions_Folder;
-
-new USI_Media_Solutions_Folder();
 
 // --------------------------------------------------------------------------------------------------------------------------- // ?>

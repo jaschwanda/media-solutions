@@ -11,54 +11,15 @@ License:           GPL-3.0
 License URI:       https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
 Plugin Name:       Media-Solutions
 Plugin URI:        https://github.com/jaschwanda/media-solutions
-Requires at least: 5.0
-Requires PHP:      5.6.25
-Tested up to:      5.3.2
 Text Domain:       usi-media-solutions
-Version:           1.3.3
+Version:           2.0.0
 */
 
-/*
-Media-Solutions is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
-License as published by the Free Software Foundation, either version 3 of the License, or any later version.
- 
-Media-Solutions is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
-warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- 
-You should have received a copy of the GNU General Public License along with Media-Solutions. If not, see 
-https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
-
-Copyright (c) 2023 by Jim Schwanda.
-*/
-/*
-posts.post_type 'usi-ms-upload-folder' => 'usi-media-folder'
-*/
-
-// delete empty folder;
-// Address reload image thumbnail creation;
-// Add user to upload folder;
-// Delete plugin code;
-
-// Add new folder gives success message and enter valid folder message on first run;
-// Remove notes and label fix up on settings;
-// Orgnize by folder must create folder root post to seed add folder;
-
-// filter by tax: https://developer.wordpress.org/reference/hooks/restrict_manage_posts/
-// Select tags on Add New page.
-// Usage report
-// PHPMailer - PHP email creation and transport class.
-
-// https://codex.wordpress.org/Plugin_API/Filter_Reference
-
-// http://shibashake.com/wordpress-theme/add-admin-columns-in-wordpress
-// http://technet.weblineindia.com/web/technical-guide-to-wordpress-settings-api/
-// http://technet.weblineindia.com/web/wordpress-settings-api-simple-implementation-example/
-// http://www.wpbeginner.com/wp-tutorials/how-to-create-custom-post-types-in-wordpress/
-// https://www.ibenic.com/programmatically-download-a-file-from-wordpress/
+if (!class_exists('USI')) goto END_OF_FILE;
 
 class USI_Media_Solutions {
 
-   const VERSION = '1.3.3 (2023-07-19)';
+   const VERSION = '2.0.0 (2024-06-16)';
 
    const NAME       = 'Media-Solutions';
    const PREFIX     = 'usi-media';
@@ -74,9 +35,9 @@ class USI_Media_Solutions {
    const DEBUG_MANAGE  = 0x12000002;
    const DEBUG_SANITZ  = 0x12000004;
 
-   const OK_IMAGES     = array('gif', 'jpg', 'jpeg', 'png');
+   const OK_IMAGES     = ['gif', 'jpg', 'jpeg', 'png'];
 
-   public static $capabilities = array(
+   public static $capabilities = [
       'create-categories' => 'Create Categories|administrator',
       'view-folders' => 'View Upload Folders|administrator|editor',
       'create-folders' => 'Create Upload Folders|administrator',
@@ -85,11 +46,11 @@ class USI_Media_Solutions {
       'delete-media' => 'Delete Media|administrator',
       'reload-media' => 'Reload Media|administrator',
       'rename-media' => 'Rename Media|administrator',
-   );
+   ];
 
    public static $debug   = 0;
 
-   public static $options = array();
+   public static $options = [];
 
    function __construct() {
 
@@ -118,10 +79,10 @@ class USI_Media_Solutions {
 
       }
 
-      add_action('init', array($this, 'action_init'));
+      add_action('init', [$this, 'action_init']);
 
       if (!empty(self::$options['preferences']['library-author'])) {
-         add_action('restrict_manage_posts', array($this, 'action_restrict_manage_posts'));
+         add_action('restrict_manage_posts', [$this, 'action_restrict_manage_posts']);
       }
 
    } // __construct();
@@ -140,7 +101,7 @@ class USI_Media_Solutions {
 
    function action_init() {
 
-      $args = array(
+      $args = [
          'capability_type'    => 'post',
          'has_archive'        => true,
          'hierarchical'       => true,
@@ -152,8 +113,8 @@ class USI_Media_Solutions {
          'show_in_menu'       => false,
          'show_in_admin_bar'  => false,
          'show_ui'            => false,
-         'supports'           => array('author', 'title')
-      );
+         'supports'           => ['author', 'title']
+      ];
    
       register_post_type(self::POSTFOLDER, $args);
 
@@ -163,12 +124,12 @@ class USI_Media_Solutions {
       global $pagenow;
       if ('upload.php' == $pagenow) {
          $author = filter_input(INPUT_GET, 'author', FILTER_SANITIZE_STRING);
-         $args   = array(
+         $args   = [
             'name'               => 'author',
             'option_none_value'  => 0,
             'selected'           => (int)$author > 0 ? $author : 0,
             'show_option_none'   => __('All Authors', self::TEXTDOMAIN),
-         );
+         ];
          wp_dropdown_users($args);
          echo ' &nbsp; ';
       }
@@ -176,7 +137,7 @@ class USI_Media_Solutions {
 
    public static function folder_create_post($parent_id, $folder, $path_folder, $description) {
 
-      $post = array(
+      $post = [
          'comment_status'=> 'closed',
          'guid'          => $_SERVER['SERVER_NAME'] . $path_folder,
          'ping_status'   => 'closed',
@@ -187,7 +148,7 @@ class USI_Media_Solutions {
          'post_status'   => 'publish',
          'post_title'    => $path_folder,
          'post_type'     => self::POSTFOLDER,
-      );
+      ];
 
       $post_id = wp_insert_post($post, true);
 
@@ -200,15 +161,11 @@ class USI_Media_Solutions {
 new USI_Media_Solutions();
 
 if (is_admin() && !defined('WP_UNINSTALL_PLUGIN')) {
-   if (is_dir(WP_PLUGIN_DIR . '/usi-wordpress-solutions')) {
-      require_once 'usi-media-solutions-settings.php';
-   } else {
-      add_action('admin_notices', ['USI_Media_Solutions', 'action_admin_notices']);
-   }
+   new USI_Media_Solutions_Settings();
 }
 
 if (!empty(USI_Media_Solutions::$options['preferences']['organize-folder'])) {
-   require_once 'usi-media-solutions-folder.php';
+   new USI_Media_Solutions_Folder();
 }
 
-// --------------------------------------------------------------------------------------------------------------------------- // ?>
+END_OF_FILE: // -------------------------------------------------------------------------------------------------------------- // ?>

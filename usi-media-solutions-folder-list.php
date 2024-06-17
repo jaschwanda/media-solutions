@@ -2,30 +2,11 @@
 
 defined('ABSPATH') or die('Accesss not allowed.');
 
-/*
-Media-Solutions is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
-License as published by the Free Software Foundation, either version 3 of the License, or any later version.
- 
-Media-Solutions is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
-warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- 
-You should have received a copy of the GNU General Public License along with Media-Solutions. If not, see 
-https://github.com/jaschwanda/media-solutions/blob/master/LICENSE.md
-Copyright (c) 2023 by Jim Schwanda.
-*/
-
-// https://premium.wpmudev.org/blog/wordpress-admin-tables/
-// https://premiumcoding.com/wordpress-tutorial-how-to-extend-wp-list-table/
-// http://wordpress.stackexchange.com/questions/109955/custom-table-column-sortable-by-taxonomy-query
-// https://fullstackgeek.blogspot.com/2019/08/calculate-directory-size-in-php.html
-
 if (!class_exists('WP_List_Table')) { require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php'; }
-
-require_once WP_PLUGIN_DIR . '/usi-wordpress-solutions/usi-wordpress-solutions-static.php';
 
 final class USI_Media_Solutions_Folder_List extends WP_List_Table {
 
-   const VERSION = '1.3.1 (2023-07-10)';
+   const VERSION = '2.0.0 (2024-06-16)';
 
    private $all_categories = null;
    private $page_hook = null;
@@ -405,7 +386,5 @@ jQuery(document).ready(
    } // render_page();
 
 } // Class USI_Media_Solutions_Folder_List;
-
-new USI_Media_Solutions_Folder_List();
 
 // --------------------------------------------------------------------------------------------------------------------------- // ?>

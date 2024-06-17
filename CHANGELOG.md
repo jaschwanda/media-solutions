@@ -2,6 +2,9 @@
 
 Media-Solutions plugin changes are logged here using <a href="http://semver.org/">Semantic Versioning</a>.
 
+## 2.0.0 (2024-06-16) ##
+* Modified to utilize the USI WordPress Solutions autoloader and Must Use Plugin structure.
+
 ## 1.3.3 (2023-07-19) ##
 * Added USI_Media_Solutions_Folder_Add::make_folder() method.
 
