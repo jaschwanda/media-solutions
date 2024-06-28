@@ -8,11 +8,12 @@ class USI_Media_Solutions_Folder {
 
    private static $default_upload_folder = null;
 
-   private static $fold_id   = 0;
-   private static $log       = 0;
-   private static $post_id   = 0;
-   private static $post_fold = null;
-   private static $uploads   = null;
+   private static $fold_id     = 0;
+   private static $log         = 0;
+   private static $manage_slug = null;
+   private static $post_id     = 0;
+   private static $post_fold   = null;
+   private static $uploads     = null;
 
    function __construct() {
 
@@ -37,7 +38,7 @@ class USI_Media_Solutions_Folder {
       add_filter('upload_dir', [$this, 'filter_upload_dir']);
       add_filter('wp_get_attachment_url', [$this, 'filter_wp_get_attachment_url'], 10, 2);
 
-      $this->manage_slug = USI_Media_Solutions::PREFIX . '-manage-settings';
+      self::$manage_slug = USI_Media_Solutions::PREFIX . '-manage-settings';
 
       new USI_Media_Solutions_Folder_Add();
       new USI_Media_Solutions_Folder_List();
@@ -186,7 +187,7 @@ class USI_Media_Solutions_Folder {
    } // filter_manage_upload_sortable_columns();
 
    function filter_media_row_actions($actions, $object) {
-      $actions['manage_media'] = '<a href="' . admin_url('admin.php?page=' . $this->manage_slug . '&id=' . 
+      $actions['manage_media'] = '<a href="' . admin_url('admin.php?page=' . self::$manage_slug . '&id=' . 
          $object->ID) . '">' . __('Manage', USI_Media_Solutions::TEXTDOMAIN) . '</a>';
       return $actions;
    } // filter_media_row_actions()
